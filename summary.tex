@@ -46,6 +46,9 @@
 \newcommand\vH{\bm{H}}
 \newcommand\vI{\bm{I}}
 \newcommand\vK{\bm{K}}
+\newcommand\vL{\bm{L}}
+\newcommand\vM{\bm{M}}
+\newcommand\vN{\bm{N}}
 \newcommand\vP{\bm{P}}
 \newcommand\vQ{\bm{Q}}
 \newcommand\vR{\bm{R}}
@@ -305,12 +308,41 @@ x_{k+1} & = \vA x_k + \vB\vF_\infty\ x_k \in \mc X_f & \forall x_k \in \mc X_f &
 \end{align*}
 And stage cost is PD-function $\implies$ Extension to non-linear (time-invariant) MPC possible since terminal set and cost do not rely on linearity.
 
-\subsection{Practical MPC}
+\subsection{Practical Issues}
+\[
+\Me{\vI-\vA & -\vB \\ \vC & \bm 0}\Me{x_s \\ u_s} = \Me{\bm 0 \\ r} = \Me{\vB_d \hat d \\ r - \vC_d \hat d}
+\]
+$\min u_s^T\vR_s u_s$ else $\min (\vC x_s - r)^T \vQ_s (\vC x_s - r)$ subject to $x_s = \vA x_s + \vB u_s$.
+
+\paragraph{MPC for tracking}
+\paragraph{Delta formulation}
+
+\paragraph{Offset free tracking}
+\begin{align*}
+x_{k+1} &= \vA x_k + \vB u_k + \vB_d d_k \\
+d_{k+1} &= d_k \\
+y_k     &= \vC x_k + \vC_d d_k 
+\end{align*}
+Choice of $\vB_d, \vC_d$ requires that $(\vA,\vC)$ is observable and $\Me{\vA-\vI & \vB_d \\ \vC & \vC_d}$ has full column frank (i.e. $\det{} \neq 0$).
+
+If plant has no integrator we can choose $\vB_d = \bm 0$ since $\det(\vA-\vI) \neq 0$.
+
+\tim{What is y_m?}
+\begin{align*}
+\Me{\hat x_{k+1} \\ \hat d_{k+1}} = \Me{\vA & \vB_d \\ \bm 0 & \vI}\Me{\hat x_k \\ \hat d_k} + \Me{\vB \\ \bm 0}u_k + \Me{\vL_x \\ \vL_d}\left(-y_m(k) + \vC\hat x_k + \vC_d \hat d_k\right)
+\end{align*}
+where $\Me{\vL_x \\ \vL_d}$ stable and causes error dynamics to converge.
+
+\remph{???}
+Will always converge if RHC is recursively feasible unconstrained for $k \geq j$.
+
+\paragraph{Soft-constraints via slack variables}
+
 \subsection{Robust MPC}
 \paragraph{Enforcing terminal constraints} by robust invariance: \\
 \begin{align*}
-x \in O^W \implies g(x, w) \in \Omega^W \; \forall w \in W\} \\
-\pre^W(\Omega) = \{ x | g(x, w) \in \Omega \; \forall w \in W\}
+x \in O^{\mc W} \implies g(x, w) \in \Omega^W \; \forall w \in \mc W \\
+\pre^{\mc W}(\Omega) = \left\{ x \middle| g(x, w) \in \Omega \; \forall w \in \mc W\right\}
 \end{align*}
 \tim{Maybe an example from exercises to compute $O^W_\infty$}
 
