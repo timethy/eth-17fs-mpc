@@ -1,0 +1,587 @@
+\documentclass[landscape,a4paper,8pt]{scrartcl}
+
+\usepackage{layout}
+\usepackage{changepage}   % for the adjustwidth environment
+%\usepackage{extsizes}
+%\usepackage{savetrees}
+
+%------------------------------------
+%  FOOTER SETTINGS
+%------------------------------------
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead{}
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[L]{Tim Taubner (taubnert@ethz.ch)}
+\fancyfoot[C]{Recursive Estimation - \today}
+\fancyfoot[RO, LE] {\thepage}
+
+\DeclareMathOperator\rank{rank}
+
+%------------------------------------
+%  GRAPHIC COMMANDS
+%------------------------------------
+\graphicspath{ {./graphics/} {./graphics/Inkscape/} {./graphics/plots/} {./graphics/photos/}}
+
+\newcommand{\svg}[2]{
+	%\begin{figure}[h]
+	\begin{minipage}{\columnwidth}
+		\centering
+		\def\svgwidth{#2}
+		%\begin{center}
+			\input{./graphics/Inkscape/#1.pdf_tex}
+		%\end{center}
+		
+		%\caption[#2]{#3}
+		%\label{#1}
+	\end{minipage}
+	%\end{figure}
+}
+
+% SMALL GRAPHICS
+\newcommand{\graphicss}[1]{		
+%\medskip
+\noindent
+\begin{minipage}{\columnwidth}
+\centering
+\includegraphics[width=3cm]{#1.png}
+\end{minipage} 
+\medskip 
+\\
+}
+
+% MEDIUM GRAPHICS
+\newcommand{\graphicsm}[1]{
+%\medskip
+\noindent
+\begin{minipage}{\columnwidth}
+\centering
+\includegraphics[width=5cm]{#1.png}
+\end{minipage} 
+\medskip 
+\\
+}
+
+% COLUMN FILLING GRAPHICS
+\newcommand{\graphiccol}[1]{
+\noindent
+\begin{minipage}{\columnwidth}
+\centering
+\includegraphics[width=\columnwidth]{#1.png}
+\end{minipage}
+\medskip \\
+}
+
+
+\newenvironment{myalign*}{%
+\setlength{\mathindent}{0pt}%
+\setlength{\abovedisplayskip}{-\baselineskip}%
+\setlength{\abovedisplayshortskip}{\abovedisplayskip}%
+\start@align\@ne\st@rredtrue\m@ne
+}%
+{\endalign}
+
+
+%------------------------------------
+%  BEGIN DOCUMENT
+%------------------------------------
+
+\begin{document}
+\sffamily
+
+%--TABLE OF CONTENTS--
+%{{\huge\sffamily\bfseries Recursive Estimation}}
+%\begin{multicols*}{2}
+%\tableofcontents
+%\end{multicols*}
+%\newpage
+
+%--CONTENT--
+\begin{multicols*}{3}
+\section{Stochastic}
+\subsection{PDFs}
+%\begin{align*}
+%&\int_{-\infty}^{\infty} f(x)\, dx = 1 \qquad f(x) > 0\,  \forall x
+%\end{align*}
+
+%\subsubsection{Properties of PDFs}
+Valid PDF: $\int_{-\infty}^{\infty} f(x)\, dx = 1$ and  $f(x) > 0\,  \forall x$ \\
+Independency: $f(x,y) = f(x) \cdot f(y)$ and $f(x|y) = f(x)$ \\
+Marginalization: $f(x) = \int f(x,y) \, dy$ \\
+Cumulative Distribution Function: $F_x(x) = \int_{-\infty}^x f_x(\bar{x}) \, d\bar{x}$
+
+%\subsubsection{Independency}
+%\begin{align*}
+%f(x,y) = f(x) \cdot f(y) \qquad \text{and} \qquad f(x|y = f(x)
+%\end{align*}
+%
+%\subsubsection{Marginalization}
+%\begin{align*}
+%f(x) = \int f(x,y) \, dy
+%\end{align*}
+
+\subsection{Normal Distribution}
+\begin{align*}
+w &\sim \mathcal{N}(\mu, \sigma^2), & f_w = & \frac{1}{\sqrt{2 \pi \sigma^2}} \exp\left( - \frac{(w-\mu)^2}{2\sigma^2} \right) \\
+w &\sim \mathcal{N}(\mu, \Sigma), & f_w = & \frac{1}{\sqrt{(2 \pi)^d \det(\Sigma)}} \exp\left( -\frac{1}{2} (w-\mu)\Sigma^{-1} (w-\mu)^T \right)
+\end{align*}
+
+\subsection{Expected Value}
+\vspace{-10pt}
+\begin{align*}
+&E[x] = \int x \cdot f(x); & &E[x] = \sum x \cdot f(x) \\
+&E[a x] = a \cdot E[x]; & &E[x+y] = E[x] + E[y]  \\
+&E[x|y] = \int x \cdot f(x|y); & &E[y] = E[g(x)]; \quad y=g(x) \\
+&\text{If (x,y) independent:} & &E[x\, y] = E[x] \cdot E[y] 
+\end{align*}
+
+
+%\begin{align*}
+%&E[y] = \int y f(y) = \int g(x) f(x) = E[g(x)]; \qquad y=g(x) \tag{Law of unconscious statiscian}
+%\end{align*}
+
+\subsection{Variance}
+\vspace{-10pt}
+\begin{align*}
+Var[x] &= E[(x-\mu) ( x - \mu)^T] \overset{2D}{=} E[x^2] - E[x]^2 \tag{cont.} \\
+Var[x] &= \sum_{i=1}^{n} p_i \cdot (x_i-\mu)^2 = \sum_{i=1}^{n} (p_i \cdot x_i^2) - \mu^2 \tag{discrete}
+\end{align*}
+For $x$ uniformly in $[a, b]$, $E [x] = 0.5 (a + b), Var[x] = 12 (b - a)^2$.
+
+%\subsection{Law of unconscious statiscian}
+%\begin{align*}
+%E[y] = \int y f(y) = \int g(x) f(x) = E[g(x)]; \qquad y=g(x)
+%\end{align*}
+
+%\subsection{Cumulative Distribution Function}
+%\begin{align*}
+%F_x(x) = \int_{-\infty}^x f_x(\bar{x}) \, d\bar{x}
+%\end{align*}
+
+\subsection{Conditioning}
+\vspace{-5pt}
+\begin{align*}
+f(x,y) = f(x|y) \cdot f(y)
+\end{align*}
+
+\subsection{Total Probability Theorem}
+\vspace{-5pt}
+\begin{align*}
+&f(x) = \sum_y f(x|y) \, f(y)  & &f(x) = \int f(x|y) \, f(y) \, dy
+\end{align*}
+
+\subsection{Bayes' Theorem}
+\begin{align*}
+%P(A|B) & = \frac{P(B|A) \cdot P(A)}{P(B)}
+f(x|y) & = \dfrac{f(y|x)\cdot f(x)}{f(y)} & 
+f(x|z(1:k)) & = \dfrac{f(z(k)|x)f(x|z(1:k-1))}{f(z(k)|z(1:k-1))}
+\end{align*}
+
+\subsection{Multivariable Change of Variables}
+%\begin{align*}
+%&f_x(x) = \frac{f_y(h(x))}{\left|  \frac{\partial g}{\partial y}(h(x)  \right|} &\rightarrow &f_{z|x} = \frac{f_{w|x}(h(z,x))}{\left|   \frac{\partial g}{\partial w}(h(z,x)  \right|}
+%\end{align*}
+$\mathcal{Y}_i = { g(x_j) | x_j }$ \\
+$z = g(w),$ g diff'able and strictly monotonic, unique solution $w = h(z)$.
+\begin{align*}
+&\text{discr.:} \quad f_x(x_j) = \sum_{y_{j,i} \in \mathcal{Y}_i} f_y(y_{j,i}) & \text{cont.:} \quad  f_{z|x} = \frac{f_{w|x}(h(z))}{\left|   \frac{\partial g}{\partial w}(h(z)  \right|}
+\end{align*}
+
+%\section{Process Model for following algorithms}
+%\begin{align*}
+%x(k) &= A(k-1) x(k-1) + B(k-1) u(k-1) + v(k-1) \\
+%z(k) &= H(k) \cdot x(k) + w(k)
+%\end{align*}
+%
+%\begin{tabular}{llll}
+%$x(k):$ & State  & $P:$ & Variance of $x$\\
+%$u(k):$ & Control input \\
+%$v(k):$ & Process Noise & $Q:$ & Variance of $v$\\
+%$z(k):$ & Measurement \\
+%$w(k):$ & Sensor Noise & $R:$ & Variance of $w$
+%\end{tabular}
+
+\section{Bayesian Tracking}
+Process Model:
+\begin{align*}
+x(k) &= q_{k-1}( x(k-1), v(k-1)) \nonumber \\
+z(k) &= h_k(x(k), w(k)) \label{model1}
+\end{align*}
+
+Step 1 (Prior Update):
+\begin{align*}
+&\quad f(x(k)|z(1:k-1)) = \\
+&\sum_{x(k-1) \in \chi} f(x(k)|x(k-1)) \, f(x(k-1)|z(1:k-1))
+\end{align*}
+
+Step 2 (Measurement Update):
+\begin{align*}
+f(x(k)|z(1:k)) = \frac{f(z(k)|x(k)) \, f(x(k)|z(1:k-1))}{\sum_{x} f(z(k)|x(k)) \,  f(x(k) | z(1:k-1))}
+\end{align*}
+
+\section{Extracting Estimates from PDFs}
+Maximum Likelihood Estimation (MLE), Maximum a Posteriori (MAP) or Minimum Mean Squared Error (MMSE).
+\begin{align*}
+\hat{x}_{ML} & = \arg\max f(z|x) \\
+\hat{x}_{MAP} & = \arg\max f(z|x) f(x) \\
+\hat{x}_{MMSE} & = \arg\min E[(\hat{x} - x)^T \cdot (\hat{x} - x) | z]
+\end{align*}
+
+$\frac{d}{d \hat{x}} E[(\hat{x} - x)^T \cdot (\hat{x} - x) | z] = 0$ (only CRV) gives $\hat{x}_{MMSE} = E[x|z]$
+
+\section{Recursive Least Squares (RLS) Algorithm}
+Observation Model:
+\begin{align*}
+&z(k) = H(k) x + w(k) \\
+&\bar{x} = E[x], \quad E[w(k)] = 0, \quad  R(k) = Var[(w(k)]
+\end{align*}
+
+Initialization: $\hat{x}(0) = \bar{x}, \quad P(0) = P_x = Var[x]$ \\
+
+Recursion: observe $z(k)$ and then update as follows 
+\begin{align*}
+K(k) &= P(k-1) H^T (k) \cdot [H(k) \, P(k-1)\, H^T (k) + R(k)]^{-1} \\
+\hat{x}(k) &= \hat{x}(k-1) + K(k) \cdot [z(k) - H(k) \hat{x}(k-1)] \\
+P(k) &= [I-K(k) \, H(k)] \,  P(k-1) \, [I-K(k) H(k)] ^T +  K(k) \,  R(k) \,  K(k)^T \\
+e(k) &= [I-K(k)\, H(k)] \, e(k-1) - K(k) w(k)
+\end{align*}
+
+
+%\section{System Properties}
+%\subsection{Observability}
+%\begin{minipage}[c]{0.4\columnwidth}
+%\begin{align*}
+% \mathcal{O} = \begin{bmatrix}
+% H \\ H A \\ \vdots \\ H A ^{n-1}
+% \end{bmatrix} 
+%\end{align*}
+%\end{minipage}
+%\begin{minipage}[c]{0.6\columnwidth}
+%If $rank(\mathcal{O})=n$, the pair $(A,H)$ is observable. \\
+%
+%Observability $\Rightarrow$ Detectability. 
+%\end{minipage}
+%
+%\subsection{Detectability (Check observability first)}
+%$(A,H)$ is detectable if $\begin{bmatrix}
+%A-\lambda I \\ H
+%\end{bmatrix}$ has full column rank. For $\lambda$ it is sufficient to only check the EVs of $A$.
+%
+%
+%\section{Kalman Filter}
+%Process Model:
+%\begin{align*}
+%x(k) &= A(k-1) x(k-1) + B(k-1) u(k-1) + v(k-1) \\
+%z(k) &= H(k) \cdot x(k) + w(k)
+%\end{align*}
+%\begin{tabular}{lll}
+%$x(k):$ & State  & $x(0) \sim \mathcal{N}(x_0, P_0)$ \\
+%%$u(k):$ & Control input \\
+%$v(k):$ & Process Noise & $v(k) \sim \mathcal{N}(0, Q(k))$\\
+%%$z(k):$ & Measurement \\
+%$w(k):$ & Sensor Noise & $w(k) \sim \mathcal{N}(0, R(k))$
+%\end{tabular}
+
+\section{Kalman Filter}
+Process Model:
+\begin{align*}
+x(k) &= A(k-1) x(k-1) + B(k-1) u(k-1) + v(k-1) \\
+z(k) &= H(k) \cdot x(k) + w(k)
+\end{align*}
+\begin{tabular}{lll}
+$x(k):$ & State  & $x(0) \sim \mathcal{N}(x_0, P_0)$ \\
+%$u(k):$ & Control input \\
+$v(k):$ & Process Noise & $v(k) \sim \mathcal{N}(0, Q(k))$\\
+%$z(k):$ & Measurement \\
+$w(k):$ & Sensor Noise & $w(k) \sim \mathcal{N}(0, R(k))$
+\end{tabular}
+
+\subsection{Time varying KF}
+Initialization: $\hat{x}_m(0) = x_0, \quad P_m(0) = P_0$  \\
+Step 1 (Prior Update):
+\begin{align*}
+\hat{x}_p (k) &= A(k-1) \, \hat{x}_m (k-1) + B(k-1) \, u(k-1) \\
+P_p(k) &= A(k-1) \, P_m(k-1) \, A^T (k-1) + Q(k-1)
+\end{align*}
+
+Step 2 (Measurement Update):
+\begin{align*}
+K(k) &= P_p(k) H^T(k) \cdot [ H(k) P_p(k) H^T(k) + R(k)]^{-1} \\
+\hat{x}_m(k) &= \hat{x}_p (k) + K(k) \cdot ( z(k) - H(k) \hat{x}_p(k)) \\
+P_m (k) &=  [I-K(k) H(k)] P_p (k) \\
+		&=  [I-K(k) H(k)] P_p (k) [I-K(k) H(k) ]^T + K(k) R(k) K^T (k)\\
+e(k) &= [I - K(k)\, H(k)]\, A(k-1)\, e(k-1) + ...\\
+	& \qquad ... [I-K(k) H(k)] \, v(k-1) - K(k) w(k) 
+\end{align*}
+
+The time-varying KF is the exact solution to the Bayesian tracking problem for linear systems with Gaussian distributions. 
+
+\subsection{Kalman Filter as State Observer}
+$A, B, H, Q, R$ constant, but the KF is still varying:
+\begin{align*}
+&P_p(k) = A \, P_m(k-1)\,  A^T + Q \\
+&K(k) = P_p(k) \, H^T \,( H \,P_p(k)\, H^T + R) ^{-1} \\
+&P_m(k) = [I-K(k) \,H] \, P_p(k)  
+\end{align*}
+The variance $P_p(k)$ converges if $(A,H)$ is detectable or observable. 
+
+Sometimes the state dynamics can be decoupled (e.g.\ A is diagonal).
+Get two independent KFs, simplifies calculations!
+
+\subsubsection{Observability}
+
+\begin{minipage}[c]{0.4\columnwidth}
+\begin{align*}
+ \mathcal{O} = \begin{bmatrix}
+ H \\ H A \\ \vdots \\ H A ^{n-1}
+ \end{bmatrix} 
+\end{align*}
+\end{minipage}
+\begin{minipage}[c]{0.6\columnwidth}
+If $\rank(\mathcal{O})=n$, the pair $(A,H)$ is observable. \\
+
+Observability $\Rightarrow$ Detectability. 
+\end{minipage}
+Alternatively, check if $\begin{bmatrix} A-\lambda I \\ H \end{bmatrix}$ has full col.\ rank for all $\lambda \in \mathbb{C}$.
+
+\subsubsection{Detectability (Check observability first)}
+$(A,H)$ is detectable if $\begin{bmatrix}
+A-\lambda I \\ H
+\end{bmatrix}$ has full column rank. It is sufficient to only check the unstable Eigenvalues ($|\lambda_i| \geq 1$) of A. Detectability implies convergence of the variance $P_p(k)$:  $\lim_{k \to \infty} P_p(k) = P_{\infty}$.
+
+\clearpage
+\vspace*{1em}
+\clearpage
+
+\subsection{Steady state KF}
+$A, B, H, Q, R$ constant; \quad $\lim K(k) = K_{\infty}$; \quad $\lim P_p(k) = P_\infty$ \\
+
+Discrete Algebraic Riccati Equation (DARE), multi-dim. and scalar:
+\begin{align*}
+P_\infty &= A P_\infty A^T + Q - A P_\infty H^T (H P_\infty H^T + R)^{-1} \cdot H P_\infty A^T \\
+K_\infty &= P_\infty H^T (H P_\infty H^T + R)^{-1} \\
+p &= a^2p + \sigma_v^2 - \dfrac{a^2p^2h^2}{h^2p+\sigma_w^2} \\
+K_\infty &= \dfrac{ph}{h^2p+\sigma_w^2}
+\end{align*}
+
+Steady State Estimator ($\hat x(k) = \hat x_m(k)$) with error dynamics ($e_k = x_k - \hat x_k$):
+\begin{align*}
+\hat{x}(k) &= (I-K_\infty H) A \hat{x}(k-1) + (I-K_\infty H) B u(k-1) + K_\infty z(k) \\
+&= \hat{A} \hat{x}(k-1) + \hat{B} u(k) + K_\infty z(k) \\
+e(k) &= (I-K_\infty H) A e(k-1) + (I-K_\infty H) v(k-1) - K_\infty w(k) \\
+E[e(k)] & = (I-K_\infty H)AE[e(k-1)].
+\end{align*}
+
+DARE only has a unique solution for $P_\infty$ if $(A,H)$ detectable and $(A,G)$ stabilizable (guaranteed if $Q \geq 0$) with $Q=GG^T$. Existence of unique positive semidefinite solution guarantees stable error dynamics. 
+
+Check $(I-K_\infty H)\cdot A$ for stability of error danymics (eigenvalues mag.\ less than 1).
+
+\subsection{Extended KF (EKF)}
+Process Model:
+\begin{align*}
+x(k) &= q_{k-1}(x(k-1), u(k-1), v(k-1)) \\
+z(k) &= h_k(x(k), w(k))
+\end{align*}
+\begin{tabular}{ll}
+$E[x(0)] = x_0$ & $Var[x(0)]=P_0$ \\
+$E[v(k-1)] =0$ & $Var[v(k-1)] = Q(k-1)$\\
+$E[w(k)] =0$ & $Var[w(k)] = R(k)$
+\end{tabular} \\
+
+
+Initialization: $\hat{x}_m (0) = x_0, \quad P_m(0) = P_0$ \\
+
+Step 1 (Prior Update):
+\begin{align*}
+A(k-1) &= \frac{\partial q_{k-1}}{\partial x(k-1)} (\hat{x}_m (k-1), u(k-1), \textbf{v(k-1)=0}) \\
+L(k-1) &= \frac{\partial q_{k-1}}{\partial v(k-1)} (\hat{x}_m (k-1), u(k-1), \textbf{v(k-1)=0}) \\
+\hat{x}_p (k) &= q_{k-1} (\hat{x}_m (k-1), u(k-1), \textbf{v(k-1)=0}) \\
+P_p(k) &= A(k-1) P_m(k-1) A^T(k-1) +  L(k-1) Q(k-1) L^T(k-1) 
+\end{align*}
+
+Step 2 (Measurement Update):
+\begin{align*}
+H(k) &= \frac{\partial h_k}{\partial x(k)} (\hat{x}_p(k), \textbf{w(k) = 0)} \\
+M(k) &= \frac{\partial h_k}{\partial w(k)} (\hat{x}_p(k),\textbf{ w(k) = 0}) \\
+K(k) &= P_p (k) H^T (k) [H(k) P_p(k) H^T(k) +  M(k) R(k) M^T(k)]^{-1} \\
+\hat{x}_m (k) &= \hat{x}_p (k) + K(k) \, ( z(k) - h_k(\hat{x}_p (k), 0) ) \\
+P_m (k) &= (I-K(k) H(k)) \, P_p(k) %\cdot (I-K(k) H(k))^T + K(k) M(k) R(k) M(k)^T K(k)^T
+\end{align*}
+
+
+\subsection{Hybrid KF (HKF)}
+%Continuous Process Model $\dot{x}$, Discrete Measurements $z[k]$. \\
+
+System with continuous process model and discrete measurements:
+\begin{align*}
+\dot{x}(t) &= q(x(t), u(t), v(t), t) & &E[v(t)]=0; \quad E[v(t) v(t+T)^T = Q_c \delta\\
+z[k] &= h_k (x(k) , w(k)) & &E[w(k)]=0; \quad  Var[w(k)] = R
+\end{align*}
+
+Initialization: $\hat{x}_m(0)= E[x_0] = x_0; \quad P_m(0) = Var[x_0] = >P_0 $\\
+
+Step 1 (Prior Update):
+\begin{adjustwidth}{0.5cm}{}
+Solve $\dot{\hat{x}}(t) = q(\hat{x}(t), u(t), \textbf{v=0}, t)$
+\begin{adjustwidth}{0.0cm}{}
+for $(k-1)T \leq t \leq k T$ and $\hat{x}((k-1)T) = \hat{x}_m(k-1)$ \\
+Then $\hat{x}_p (k) = \hat{x}(kT)$ \\
+\end{adjustwidth}
+
+Solve $\dot{P}(t) = A(t) \, P(t) + P(t) \, A^T (t) + L(t) \, Q_c \, L^T (t)$ 
+\begin{adjustwidth}{0.0cm}{}
+for $(k-1) T \leq t \leq kT$ and $P((k-1)T) = P_m(k-1)$ \\
+where $A(t) = \frac{\partial q}{\partial x}(\hat{x}(t), u(t), 0, t)$ and $L(t) = \frac{\partial q}{\partial v} ( \hat{x}(t), u(t), 0, t)$.  \\
+Then $P_p(k) = P(kT)$ \\
+\end{adjustwidth}
+\end{adjustwidth}
+
+
+
+Step 2 (Measurement Update): Same as EKF \quad $z(k) \to z[k]$
+
+
+\section{Particle Filter}
+Process model: Same as EKF \\
+
+Initialization: Draw $N$ samples $x_m^n(0)$ from $f(x(0))$ \\
+
+Step 1 (Prior Update): draw $N$ samples for $v^n (k-1)$
+\begin{align*}
+x_p^n (k) = q_{k-1} ( x_m^n (k-1), v^n (k-1) )
+\end{align*}
+
+Step 2 (A Posterior):
+\begin{align*}
+\beta_n &= \alpha \, f_{z|x(k)}; & &\alpha = \left( \sum_{n=1}^N f_{z_n|x_p} \right)^{-1}
+\end{align*}
+
+Resampling:
+\begin{adjustwidth}{0.5cm}{}
+Select random number $r$ u.a.r.\ in $[0,1]$, pick $\bar{n}$ s.t. $\sum_{n=1}^{\bar{n}} \beta_n \geq r$ and $\sum_{n=1}^{\bar{n}-1} \beta_n < r$. Then draw new particles from old particles as if they were a PDF. New particle subset: 
+\end{adjustwidth}
+
+\begin{align*}
+x_m^n (k) = x_p^{\bar{n}}
+\end{align*}
+
+For two particles, simply take first particle iff $r \leq \beta_1$.
+
+\subsection{Roughening}
+Perturb particles after resampling: $x_m^n (k) \leftarrow x_m^n(k) + \Delta x^n(k)$ \\
+
+Where $x^n(k)$ is from a zero-mean finite-variance distribution, e.g. $Var[\Delta x_i^n(k)] = \sigma_i^2$ and $\sigma_i = K E_i N^{-1/d}$ where \\ %$K$ is a tuning parameter, $d$ dimension of state space and $E_i = \underset{n_1, n_2}{max}| x_{m,i}^{n_1}(k) - x_{m,i}^{n_2}(k) |$ and $N^{-1/d} $ the spacing between nodes of the corresponding uniform, square grid. 
+
+\begin{tabular}{ll}
+$K$: & Tuning Parameter \\
+$d$: & Dimension of the state space \\
+$N^{-1/d} $: & Space betw. nodes of the corresponding uniform square grid \\
+$E_i$: & $=\underset{n_1, n_2}{max}| x_{m,i}^{n_1}(k) - x_{m,i}^{n_2}(k) |$ 
+\end{tabular}
+
+\columnbreak
+\section{Observer Based Control}
+\subsection{LTI Observer}
+LTI System: 
+\begin{align*}
+& x(k) = A x(k-1) + B u (k-1) + v(k-1) \\
+& z(k) = H x(k) + w(k)
+\end{align*}
+
+Linear Static Gain Observer (Luenberger Observer):
+\begin{align*}
+&\hat{x}(k) = A \hat{x}(k-1) + B u (k-1) + K(z(k) - \hat{z}(k)) \\
+&\hat{z}(k) = H ( A \hat{x}(k-1) + B u(k-1)) \\
+&e(k)= (I-K \, H)\, A \,  e(k-1)
+\end{align*}
+$e(k) \to 0$ for $k \to \infty$ if and only if $(I-K \, H)\, A$ is stable.\\
+
+Steady State: 
+\begin{align*}
+&\hat{x}(k) = (I-K_\infty H )\, A\, \hat{x}(k-1) + (I-K_\infty) B \, u(k-1) + K_\infty z(k)
+\end{align*}
+The steady-state KF is one way to design the observer gain $K$ (optimal in minimizing the Steady State mean squared error). \\
+
+%Observer Estimation error:
+%\begin{align*}
+%e(k)= (I-K \, H)\, A \,  e(k-1)
+%\end{align*}
+
+
+
+%\begin{tabular}{ll}
+%LTI system: & $x(k) = A x(k-1) + B u (k-1) + v(k-1)$ \\
+%& $z(k) = H x(k) + w(k)$
+%\end{tabular} 
+%
+%\begin{tabular}{ll}
+%Observer: & $\hat{x}(k) = A \hat{x}(k-1) + B u (k-1) + K(z(k) - \hat{z}(k))$ \\
+%& $\hat{z}(k) = H ( A \hat{x}(k-1) + B u(k-1))$
+%\end{tabular}
+%
+%\begin{tabular}{ll}
+%Steady State: & $\hat{x}(k) = (I-K_\infty H )\, A\, \hat{x}(k-1) + ... $ \\
+% & $(I-K_\infty) B \, u(k-1) + K_\infty z(k)$ \\
+%Estim. error: & $e(k)= (I-K \, H)\, A \,  e(k-1)$
+%\end{tabular}
+
+$(A,H)$ detectable $ \Rightarrow$ $K$ exists such that $(I-K \, H) A$ is stable.
+
+\subsection{Static State Feedback Control}
+Design of a controller without paying attention to the state estimation:
+\begin{align*}
+x(k) &= A x(k-1) + B u(k-1) \tag{Process without noise} \\
+z(k) &= x(k)  \tag{Perfect State information} \\
+u(k) &= F \cdot z(k) = F \cdot x(k) \tag{Control Law}
+\end{align*}
+%Control law: $u(k) = F \cdot z(k) = F \cdot x(k)$ (needs to be designed) \\
+
+Closed loop dynamics: $x(k) = (A+B F)$. Hence system is stable if $(A+B F)$ is stable. Such an $F$ exists only if $(A,B)$ is stabilizable. \\
+If $(A,B)$ is stabilizable and $(A,G)$ detectable, then $F$ is given by
+\begin{align*}
+F = -(B^T P B + \bar{R})^{-1} \cdot B^T P A; \qquad P\geq 0
+\end{align*}
+$P$ from DARE: $P = A^T P A + \bar{Q} - A^T P B( B^T P B + \bar{R})^{-1} \cdot B^T P A$
+
+%\subsection{Linear Static Gain Observer (Luenberger Observer)}
+%\begin{align*}
+%\hat{x}(k) &= A \hat{x}(k-1) + B \, u(k-1) + K(z(k) - \hat{z}(k)) \\
+%\hat{z}(k) &= H(A \hat{x}(k-1) + B u(k-1)) \\
+%u(k) &= F \, \hat{x}(k)
+%\end{align*}
+
+
+\subsection{Separation Principle (Linear Systems only)}
+Combining Luenberger Observer and Static State Feedback control yields:
+\begin{align*}
+\begin{bmatrix}
+x(k) \\ e(k) 
+\end{bmatrix}
+= 
+\begin{bmatrix}
+A + BF & - B F \\ 0 & (I-KH) A
+\end{bmatrix}
+\cdot
+\begin{bmatrix}
+x(k-1) \\ e(k-1)
+\end{bmatrix}
+\end{align*}
+Eigenvalues of closed loop are given bei Eigenvalues of $(I-KH) A$ and $(A + BF)$. System is stable as long as there exists no $|\lambda| \geq 1$. \\
+
+%Note:
+%\begin{itemize}
+%\item Including noise does not affect stability.
+%\item Separation principle generally does not hold for nonlinear systems.
+%\end{itemize}
+
+
+\subsection{Separation Theorem}
+%Given a LTI System with $v(k-1) \sim \mathcal{N}(0,Q)$ and $w(k-1) \sim \mathcal{N}(0,R)$
+
+\begin{enumerate}
+\item Design steady-state KF which does not depend on $\bar{Q}, \bar{R}$. $\Rightarrow \hat{x}(k)$
+\item Design state-feedback $u(k) = F x(k)$ and put both together.
+\end{enumerate}
+
+\end{multicols*}
+\end{document}
