@@ -88,9 +88,9 @@ Check Eig. values of $(APA-P)$ neg., $V(x) = x^TPx$ ?
 
 \section{Unconstrained Control}
 \subsection{Block Approach (used also for $\bar w$ substition)}
-	\begin{align*}
+\begin{align*}
 		\Me{x_0 \\ x_1 \\ \vdots \\ x_N } & = \Me{\vI \\ \vA \\ \vdots \\ \vA^N}x(0) + \Me{\bm 0 & \bm 0 & \dots & \bm 0 \\ \vB & \bm 0 & \dots & \bm 0 \\ \vA\vB & \vB & \dots & \bm 0 \\ \vdots & \vdots & \ddots & \bm 0 \\ \vA^{N-1}\vB & \dots & \vA\vB & \vB}\Me{u_0 \\ u_1 \\ \vdots \\ u_{N_1}}
-	\end{align*}
+\end{align*}
 
 \begin{align*}
 x & = \vS^x\cdot x(0) + \vS^u\cdot u & \size(\vS^x) & = \left[ n_\text{states} \cdot (N+1) , N \right] \\
@@ -101,9 +101,10 @@ x & = \vS^x\cdot x(0) + \vS^u\cdot u & \size(\vS^x) & = \left[ n_\text{states} \
 \vY & = {\vS^x}^T\bar\vQ\vS^x
 \end{align*}
 \paragraph{Optimal cost and control}
+%\quad \nabla_{u_0}J^*(x_0) \mbeq 0 \text{ gives} \\
 \begin{align*}
-J^*(x(0)) & = -x(0)^T \vF\vH\vF^T x(0) + x(0)^T {\vS^x}^T\bar\vQ\vS^x x(0) \\
-u^*(x(0)) & = -\vH^{-1}\vF^T x(0) = - \left( {\vS^u}^T\bar\vQ\vS^u + \vR \right)^{-1}{\vS^u}^T\bar\vQ\vS^x x(0) \\
+J^*(x_0) & = -x_0^T \vF\vH\vF^T x_0 + x_0^T \vY x_0 \\
+u^*(x_0) & = -\vH^{-1}\vF^T x_0 = - \left( {\vS^u}^T\bar\vQ\vS^u + \vR \right)^{-1}{\vS^u}^T\bar\vQ\vS^x x_0 \\
 \end{align*}
 \tim{check formulae for J*, u*}
 \begin{align*}
@@ -119,24 +120,14 @@ Is a feedback controller as opposed to the Batch Approach.
 For LQR solve via Riccati Difference Equation (RDE).
 \begin{align*}
  \vF_k & = -(\vB^T\vP_\remph{k+1}\vB + \vR)^{-1}\vB^T\vP_\remph{k+1}\vA \\
- u_k^*& = \vF_k\ x_k\\
- \vP_k & = \vA^T\vP_\remph{k+1}\vA + \vQ - \vA^T\vP_\remph{k+1}\vB(\vB^T\vP_\remph{k+1}\vB + \vR)^{-1}\vB^T\vP_\remph{k+1}\vA \\
- J_k^*(x(0)) & = x(0)^T\vP_k\ x(0) 
+ \vP_k & = \vA^T\vP_\remph{k+1}\vA + \vQ - \vA^T\vP_\remph{k+1}\vB(\vB^T\vP_\remph{k+1}\vB + \vR)^{-1}\vB^T\vP_\remph{k+1}\vA
 \end{align*}
-
-\tim{
-Initialize $\vP_{N} = \vP$,
-sometimes $\vF_k = \vK$.
-}
-
-Infinite Horizon unconstrained, LQR gives $\vP_\infty$ satisfying equations above.
-If $(A,B)$ stabilizable and $(A, G)$ detectable, $\vP_\infty$ unique, where $\vG\vG^T = \vQ$.
-
 \begin{align*}
-J^*_k(x(k)) =& ~x(k)^T P_k x(k)\\
-P_k =& ~A^T P_{k+1}A + Q - \dots \\ &\dots A^T P_{k+1}B\left( B^T P_{k+1} B + R\right)^{-1} B^T P_{k+1}A
+ u_k^* & = \vF_k\ x_k  & J_k^*(x_k) & = x_k^T\vP_k\ x_k & \vP_N & = \vP
 \end{align*}
-
+For unconstrained Infinite Horizon Problem, substituting $\vP_\infty = \vP_k = \vP_{k+1}$ into RDE gives DARE.
+Uniquely solvable, iff $(A,B)$ stabilizable and $(A, G)$ detectable, where $\vG\vG^T = \vQ$.
+Follows from closed-loop system $x_{k+1} = (\vA + \vB\vF_k)x_k$
 
 \section{(Convex) Optimization}
 
