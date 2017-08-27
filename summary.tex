@@ -73,6 +73,7 @@
 %------------------------------------
 
 \begin{document}
+\raggedright
 %\sffamily
 
 %--CONTENT--
@@ -157,15 +158,29 @@ $\min_{x \in \dom(f)} f(x)$ s.\ t.\ $g_i(x) \leq 0$ and $h_j(x) = 0.$
 
 \subsection{Linear Programming (LP)}
 \paragraph{Problem statement} $\min c^Tx$ such that $\vG x \leq h$ and $\vA x = b$.
-\paragraph{$l_\infty$}
-$\min \lVert x \rVert_\infty$ equivalent to $\min_{x \in \R^n} \left[ \max\{x,\dots,x_n,-x_1,\dots,-x_n\}\right]$. \\
-Epigraph gives:
-\tim{Set this in better form}
-$\min_{x,t} t$ such that $x_i \leq t, -x_i \leq t, \vF x \leq g$ $\iff$ $\min_{x,t} t$ such that $-{\bm 1} t \leq x \leq 1 t, \vF_x \leq g$.
+\paragraph{Norm $l_\infty$}
+$\min_x \lVert x \rVert_\infty = \min_{x \in \R^n} \left[ \max\{x,\dots,x_n,-x_1,\dots,-x_n\}\right]$:
+\begin{align*}
+     & \min_{x,t} t & \text{subject to}\quad & x_i \leq t, -x_i \leq t,   \; & \vF x \leq g \\
+\iff & \min_{x,t} t & \text{subject to}\quad & -{\bm 1} t \leq x \leq 1 t,\; & \vF_x \leq g.
+\end{align*}
 
-\paragraph{$l_1$}
+\paragraph{Norm $l_1$}
+$\min_x \lVert x \rVert_1 = \min_x\left[\sum_{i=1}^{m} \max\{x_i,-x_i\}\right]$:
+\begin{align*}
+     & \min_{t} t_1 + \dots + t_m & \text{subject to}\quad & x_i \leq t_i, -x_i \leq t_i,\; & \vF x \leq g \\
+\iff & \min_{t} \remph{\vI}^Tt    & \text{subject to}\quad & -t \leq x \leq t,\;            & \vF_x \leq g.
+\end{align*}
+Note that for $\dim x = 1$, $l_1$ and $l_\infty$ are the same.
 
-\paragraph{RHC}
+\paragraph{MPC with linear cost}
+$J(x_0, u) = \lVert \vP x_N \rVert_p + \sum_{i=\remph{0}}^{N-1} \lVert \vQ x_i \rVert_p + \lVert \vR u_i \rVert_p.$
+
+\tim{Insert here slide 45, lect 4}
+
+
+\paragraph{Receding Horizon Control -- RHC}
+
 \paragraph{QP with substitution (see also Batch approach)}
 \begin{align*}
 J^*(x_k) & = \min_u \Me{u^T & x_k^T}\Me{\vH & \vF^T \\ \vF & \vY}\Me{u \\ x_k} \\
