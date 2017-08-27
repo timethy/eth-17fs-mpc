@@ -1,0 +1,537 @@
+\documentclass[a4paper,landscape,8pt,fleqn]{scrartcl}
+\usepackage[ngerman]{babel}
+\usepackage[applemac]{inputenc}
+\usepackage[dvips]{geometry}
+\usepackage{latexsym}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{epstopdf} %for .eps pictures
+
+%different font for text, not math
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{helvet}
+
+
+
+\pagestyle{plain}
+\typearea{25}
+\columnsep 20pt
+\columnseprule .4pt
+
+% change left margin of mathmode
+\makeatletter
+\setlength\@mathmargin{10pt}
+\makeatother
+
+
+\newcommand{\Mn}[1]{\begin{pmatrix}#1\end{pmatrix}} %normale Klammern, normal bracket
+\newcommand{\Mo}[1]{\begin{matrix}#1\end{matrix}} %ohne Klammern, no brackets
+\newcommand{\Me}[1]{\begin{bmatrix}#1\end{bmatrix}} %eckige Klammern
+\newcommand{\Mg}[1]{\begin{Bmatrix}#1\end{Bmatrix}} %geschweifte Klammern
+
+\newcommand{\de}[1]{~\mathrm{d}#1}
+\newcommand{\dd}[2]{\frac{\text{d}#1}{\text{d}#2}}
+\newcommand{\DD}[2]{\frac{\text{D}#1}{\text{D}#2}}
+\newcommand{\deidei}[2]{\frac{\partial#1}{\partial#2}}
+\newcommand{\Lbrace}[1]{\left\{ \begin{array}{ll}#1\end{array}\right.}  
+\newcommand{\Lnobrace}[1]{\begin{array}{ll}#1\end{array}}  %same as Lbrace, without brace.
+\newcommand{\hfillmit}[1]{\hfill \text{mit }\Lnobrace{#1}}
+\newcommand{\cels}{^\circ \text{C}} %Degree Celsius
+\newcommand{\vek}[1]{\underline{#1}} %underlined vector
+\newcommand{\gem}[1]{\overline{#1}} %overline (gemittelt)
+\newcommand{\mb}[1]{\mathbb{#1}}
+\newcommand{\mf}[1]{\mathbf{#1}}
+\newcommand{\derivat}[2][]{#1|_{#2}} % derivative at
+\newcommand{\mc}[1]{\mathcal{#1}}
+
+\DeclareMathOperator{\Adj}{Adj}
+\DeclareMathOperator{\divv}{div}
+\DeclareMathOperator{\grad}{grad}
+\DeclareMathOperator{\rot}{rot}
+
+\title{Model Predictive Control} %macht nix
+
+\begin{document}
+\begin{multicols}{3}
+\part*{Model Predictive Control}
+\subsection*{Author: Alexander J\"{o}hl}
+%\maketitle
+\section{Linear Systems}
+A Model of a system is usually continuous and and nonlinear. But in MPC discrete and linear systems are needed. Nonlinear System:
+\begin{align*}
+	\dot{x} &= f(x,u) \\
+	y &= g(x,u)
+\end{align*}
+Linearize it at: $\dot{x}_s = f(x_s,u_x) = 0, y_s = g(x_s,u_s)$
+\begin{align*}
+	&\dot{x} - \dot{x}_s = \deidei{f}{x}\derivat[\bigg]{\substack{x = x_s \\ u = u_s}} (x - x_s) + \deidei{f}{u}\derivat[\bigg]{\substack{x = x_s \\ u = u_s}} (u-u_s) \\
+	&y-y_s = \deidei{g}{x}\derivat[\bigg]{\substack{x = x_s \\ u = u_s}} (x - x_s) + \deidei{g}{u}\derivat[\bigg]{\substack{x = x_s\\ u = u_s}} (u - u_s)
+\end{align*}
+Which gives us:
+\begin{align*}
+	\Delta \dot{x} &= A^c \Delta x + B^c \Delta u \\
+	\Delta y &= C \Delta x + D \Delta u 
+\end{align*}
+The $\Delta$'s are usually omitted. Then we discretize the system:
+\begin{align*}
+	x(t_{k+1}) &= e^{A^c T_s} x(t_k) + \int_{t_k}^{t_{k+1}}e^{A^c (t_{k+1}-\tau)}B^c \de\tau ~u(t_k) \\ x(t_{k+1}) &= A x(t_k) + B u(t_k)
+\end{align*}
+Integrating from $t_k$ to $t_{k+1}$ is the same as from $0$ to $T_s$. Other matrices stay the same.
+
+\subsection{Analysis of LTI discrete Systems}
+\subsubsection{Stability}
+System is asymptotically stable if $\lim_{k\rightarrow \infty} x(k) = 0 ~\forall x(0)$. Necessary and sufficient condition: All eigenvalues of $A$ are $|\lambda_i| < 1 ~\forall i$. Only for LTI discrete systems. \\
+For general systems: Global Lyapunov Stability.\\
+Consider Equilibrium point $x=0$ of system $x(k+1) = f(x(k))$. If a function $V: \mathbb{R}^n \rightarrow \mathbb{R}$ exists, such that:
+\begin{align*}
+	\|x\| \rightarrow \infty \Rightarrow V(x) \rightarrow \infty& \\
+	V(0) = 0 \mathrm{\quad and \quad} V(x) > 0 ~\forall x \neq 0& \\
+	V(x(k+1)) - V(x(k)) < 0 ~\forall x \neq 0
+\end{align*}
+then $x=0$ is globally asymptotically stable. For linear systems we can take $V(x) = x^T P x$ and get the discrete time \underline{Lyapunov equation} (solvable only if eigenvalues of $A$ inside unit circle):
+\begin{align*}
+	A^T P A - P = - Q, ~ Q>0
+\end{align*}
+Can calculate infinite horizon cost to go with $P$:
+\begin{align*}
+	\Psi(x(0)) = \sum_{k=0}^\infty x(k)^T Q x(k) = x(0)^T P x(0)
+\end{align*}
+\subsubsection{Controllability}
+System is controllable if it can be controlled from any state to any state in finite time. Controllable if $C$ is full rank:
+\begin{align*}
+	\mathrm{rank}(\mc{C}) = \mathrm{rank}\left(B ~AB \dots ~A^{n-1}B\right) = n
+\end{align*}
+\subsubsection{Observability}
+For any state we can distinguish the initial state by the measurements.
+\begin{align*}
+	\mathrm{rank}(\mc{O}) = \mathrm{rank}\left(C^T ~(CA)^T \dots~(CA^{n-1})^T\right)^T = n
+\end{align*}
+\section{LQR Control}
+General finite horizon optimal control problem:
+\begin{align*}
+J_0^*(x(0)) =& \min_{U_0} p(x_N)+\sum_{k=0}^{N-1} q(x_k,u_k) \\
+\mathrm{subject~to}\quad& x_{k+1} = g(x_k,u_k), ~k=0,\dots,N-1 \\
+&h(x_k,u_k) \leq 0, ~k=0,\dots,N-1 \\
+&x_n \in \mc{X}_f \\
+&x_0 = x(0)
+\end{align*}
+Linear Quadratic Optimal Control for LTI discrete systems:
+\begin{align*}
+	J_0^*(x(0)) =& \min_{U_0} ~x_N^T P x_N + \sum_{k=0}^{N-1} x_k^T Q x_k + u_k^T R u_k \\
+	\mathrm{subject~to}\quad& x_{k+1} = A x_k + B u_k , ~k=0,\dots,N-1 \\
+	& x_0 = x(0)
+\end{align*}
+\subsection{Finite Time Horizon}
+\subsubsection{Batch Approach}
+\begin{align*}
+	\Me{x_0 \\ x_1 \\ \vdots \\ \vdots \\ x_N } = \Me{I \\ A \\ \vdots \\ \vdots \\ A^N}x(0)+\Me{0 & \dots & \dots  & 0 \\ B & 0 & \dots & 0 \\ AB & B & \dots & 0 \\ \vdots & \ddots & \ddots & 0 \\ A^{N-1}B & \dots & AB & B}\Me{u_0 \\ u_1 \\ \vdots \\ \vdots \\ u_{N_1}}
+\end{align*}
+Simplified: $ \mc{X} = \mc{S}^x x(0) + \mc{S}^u U_0$. Then define cost function
+\begin{align*}
+	J_0{x(0), U_0} = \mc{X}^T \bar{Q} \mc{X} + U_0^T \bar{R} U_0
+\end{align*}
+With $\bar{Q} = \mathrm{blockdiag}(Q,\dots,Q,P)$, $\bar{R} + \mathrm{blockdiag}(R,\dots,R)$ we get the optimal input sequence and optimal cost:
+\begin{align*}
+	U_0^*(x(0)) =& -(\mc{S}^{uT} \bar{Q} \mc{S}^u + \bar{R})^{-1}\mc{S}^{uT}\bar{Q}\mc{S}^x x(0) \\
+	J_0^*(x(0))=&x(0)^T \left(\mc{S}^{xT} \bar{Q} \mc{S}^x - \right. \dots \\ \dots &\left. \mc{S}^{xT}\bar{Q}\mc{S}^u(\mc{S}^{uT}\bar{Q}\mc{S}^u- \bar{R})^{-1} \mc{S}^{uT}\bar{Q}\mc{S}^x \right) x(0)
+\end{align*}
+
+\subsubsection{Recursive Approach}
+\begin{align*}
+	u^*(k)=&-(B^T P_{k+1} B + R)^{-1} B^T P_{k+1} A x(k)\\
+	J^*_k(x(k)) =& ~x(k)^T P_k x(k)\\
+	P_k =& ~A^T P_{k+1}A + Q - \dots \\ &\dots A^T P_{k+1}B\left( B^T P_{k+1} B + R\right)^{-1} B^T P_{k+1}A
+\end{align*}
+Is a feedback controller as opposed to the Batch Approach. Last equation is the Riccati Difference Equation. 
+
+\subsection{Infinite Time Horizon}
+Take above equations from the recursive approach and replace $N$, $k$ and $k+1$ with $\infty$.
+
+\section{Uncertainty Modeling}
+System with $w(k)$ as noise/disturbance input:
+\begin{align*}
+	x_p(k+1) &= A_p x(k) + B_p u(k) + F_p w(k)\\
+	y(k) &= C_p x_p(k) + G_p w(k)
+\end{align*}
+Stochastic Process (colored noise) with $\varepsilon(k)$ as white noise:
+\begin{align*}
+	x_w(k+1)= & A_w x_w(k)+B_w\varepsilon(k)\\
+	w(k) = & C_w x_w(k)+\varepsilon(k) 
+\end{align*}
+If mean of noise shifts, integrate $\varepsilon(k)$ and use $\varepsilon_{\mathrm{int}}(k)$ as input.
+\section{State Estimation}
+Want to observe the state of a linear system with disturbance noise $\varepsilon_1$ and measurement noise $\varepsilon_2$ with variances $R_1,R_2$. \\
+Estimator structure:
+\begin{align*}
+	\hat{x}_{k|k-1} &= A \hat{x}_{k-1|k-1} + B u_{k-1} \\
+	\hat{x}_{k|k} &= \hat{x}_{k|k-1} + K_k(y(k)- C \hat{x}_{k|k-1})
+\end{align*}
+Error dynamics:
+\begin{align*}
+	x^e_{k|k} = &\left( A- K_k C A\right)x^e_{k-1|k-1}+ \left(I - K_k C\right)\varepsilon_1(k-1) - K_k\varepsilon_2(k)
+\end{align*}
+Errors go to zero (stable) if $|\mathrm{eig}(A - K C A)| < 1$
+\subsection{Kalman Filter}
+Initialize estimate $\hat{x}_{0|0}$ and $P_{0|0}$. Compute filter gain $K_k$ and error covariance matrix $P_{k|k}$ (online or in advance):
+\begin{align*}
+	P_{k|k-1} &= A P_{k-1|k-1} A^T + R_1 \\
+	K_k &= P_{k|k-1}C^T(C P_{k|k-1} C^T + R_2)^{-1}\\
+	P_{k|k} &= (I-K_k C )P_{k|k-1}
+\end{align*}
+Compute the a priori estimate:
+\begin{align*}
+	\hat{x}_{k|k-1} = A \hat{x}_{k-1|k-1} + B u(k-1)
+\end{align*}
+Get measurement $y(k)$ and compute new estimate:
+\begin{align*}
+	\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k(y(k)-C\hat{x}_{k|k-1})
+\end{align*}
+Increment $k$.\\ $P_\infty$ satisfies ARE:
+\begin{align*}
+	P_\infty = A P_\infty A^T - A P_\infty C^T \left( C P_\infty C^T + R_2\right)^{-1} C P_\infty A^T +R_1
+\end{align*}
+\section{Convex Optimization}
+General Optimization Problem:
+\begin{align*}
+	\min_{x \in \mc{X}} & \quad f_0(x)\\
+	\mathrm{subject~to:} & \quad f_i(x)\leq 0 \quad i=1,\dots,m \\
+	& \quad h_i(x)=0 \quad i=1,\dots,p
+\end{align*}
+\subsection{Convexity}
+Convex set $\mc{X} \Leftrightarrow \lambda x + (1-\lambda)y \in \mc{X} ,~\forall \lambda \in [0,1], ~\forall x,y \in \mc{X}$\\
+Convex function $f$ $\Leftrightarrow \mathrm{dom}(f)$ convex and \\$f(\lambda x + (1-\lambda)y) \leq \lambda f(x) + (1-\lambda)f(y)$
+\subsection{Convex Optimization Problem}
+\begin{align*}
+	\min_{x \in \mc{X}} &\quad f_0(x)\\
+	\mathrm{subject~to:}&\quad f_i(x)\leq 0 \quad i=1,\dots,m\\
+	& \quad a_i^Tx = b_i \quad i=1,\dots,m
+\end{align*}
+With $f_i, ~i=0,\dots,m$ convex.\\
+Linear Program if $f_i, ~i=0,\dots,m$ affine. \\Quadratic Program if $f_0$ quadratic and $f_i, ~i=1,\dots,m$ affine.
+\subsection{Lagrangian Dual Function}
+\begin{align*}
+	g(\lambda,\nu) &= \inf_{x \in \mc{X}} L(x,\lambda,\nu) \\
+	&= \inf_{x \in \mc{X}} \left[ f_0(x)+\sum_{i=1}^{m}\lambda_i f_i(x)+\sum_{i=1}^{p}\nu_i h_i(x)\right]
+\end{align*}
+Dual Problem:
+\begin{align*}
+	\max_{\lambda,\nu} & \quad g(\lambda,\nu)\\
+	\mathrm{subject~to:}&\quad \lambda \geq 0
+\end{align*}
+Is a convex problem, optimal value is $d^* \leq p^*$. In a convex problem with Slater condition (strict feasibility) fulfilled:
+\begin{align*}
+	\left\{x \left| \right. Ax=b, f_i(x)<0, ~\forall i \in \{ 1,\dots,m\} \right\} \neq \emptyset
+\end{align*}
+Then $p^* = d^*$
+\subsection{Karush-Kuhn-Tucker Conditions (KKT)}
+\begin{itemize}
+	\item Primal Feasibility:
+		\begin{align*}
+			f_i(x^*) &\leq 0 \quad i=1,\dots,m\\
+			h_i(x^*) &=0 \quad i=1,\dots,p
+		\end{align*}
+	\item Dual Feasibility:  $\lambda^* \geq 0$
+	\item Complementary Slackness:
+		\begin{align*}
+			\lambda_i^* \cdot f_i(x^*) = 0 \quad \quad i=1,\dots,m
+		\end{align*}
+	\item Stationarity:
+		\begin{align*}
+			&\nabla_x L(x^*,\lambda^*,\nu^*) =0 =\\ &\nabla f_0(x^*) + \sum_{i=1}^m\lambda_i^*\nabla f_i(x^*)+  \sum_{i=1}^p\nu_i^*\nabla h_i(x^*)
+		\end{align*}
+\end{itemize}
+\subsection{Sensitivity}
+Perturbed optimization problem ($u_i,v_i$ instead of $0$):
+\begin{align*}
+	\min_{x \in \mc{X}} & \quad f_0(x)\\
+	\mathrm{subject~to:} & \quad f_i(x)\leq u_i \quad i=1,\dots,m \\
+	& \quad h_i(x)=v_i \quad i=1,\dots,p
+\end{align*}
+Weak duality for perturbed problem implies (strong duality in unperturbed case assumed):
+\begin{align*}
+	p^*(u,v) \geq p^*(0,0) - u^T\lambda^* - v^T \nu^*
+\end{align*}
+Optimal values can change a lot or little depending on the sign of $u_i,v_i$.
+\section{Model Predictive Control}
+Receding Horizon Control and Feedback: Plan next $N$ control actions, but only use first action, repeat every step.
+\includegraphics[width=\linewidth]{MPC.pdf}
+General Finite Horizon Optimal Control Problem:
+\begin{align*}
+	V_N(x) = &~\min_{\{u_i\}^{N-1}_{i=0}} \sum_{i=0}^{N-1} l(x_i,u_i)\\
+	\mathrm{subject~to:} \quad& x_i \in \mb{X},~u_i \in \mb{U} \quad \forall i \in \{0,...,N-1\}\\
+	& x_{i+1} = f(x_i,u_i),\quad x_0 = x
+\end{align*}
+Optimization has to be done online, recursive feasibility not guaranteed, stability not guaranteed.
+\subsection{Standard Linear MPC Problem}
+\begin{align*}
+	V(x) =&~ \min_u \sum_{i=0}^{N-1} x_i^T Q x_i + u_i^T R u_i \\ 
+	\mathrm{subject~to:} \quad& x_{i+1} = A x_i + B u_i,~x_0 = x\\
+	& x_i \in \mb{X}, u_i \in \mb{U}\quad \forall i \in \{0,...,N-1\}
+\end{align*}
+Stack states and inputs into big vectors:
+\begin{align*}
+	&\mf{x} = (x_0;x_1;\dots;x_{N-1}) ,\qquad \mf{u} = (u_0;u_1;\dots;u_{N-1}) \\
+	&\mc{A} = \Me{I \\ A \\ A^2 \\ \vdots \\ A^{N-1}},\qquad \mc{B} = \Me{0 & 0 & 0 & \dots & 0 \\ B & 0 & 0 & \dots & 0 \\ AB  & B & 0 & \dots & 0 \\ \vdots & \ddots & \ddots & \ddots & \vdots \\ A^{N-2}B & \dots & AB & B & 0} \\
+	&\mf{x} = \mc{A}x_0 + \mc{B}\mf{u}
+\end{align*}
+Correspondingly the cost:
+\begin{align*}
+	&\mc{Q} = \mathrm{diag}(Q,\dots,Q), \quad \mc{R} = \mathrm{diag}(R,\dots,R) \\
+	&V(x) = \mf{x}^T \mc{Q} \mf{x} + \mf{u}^T \mc{R} \mf{u} 
+\end{align*}
+The constraints:
+\begin{align*}
+	\mc{E}_u \mf{u} \leq \mc{F}_u, \quad \mc{E}_x \mf{x} \leq \mc{F}_x
+\end{align*}
+Complete problem (QP) with $\mf{x}$ eliminated:
+\begin{align*}
+	\min_{\mf{u},\mf{x}} &\quad \mf{u}^T \left[ \mc{R} + \mc{B}^T \mc{Q} \mc{B} \right] \mf{u} + 2 \mf{u}^T\mc{B}^T \mc{Q} \mc{A} x_0 \\
+	\mathrm{subject~to:} &\quad \Mn{\mc{E}_u \\ \mc{E}_x \mc{B}} \mf{u} \leq \Mn{\mc{F}_u \\ \mc{F}_x - \mc{E} \mc{A} x_0}
+\end{align*}
+Can also have linear cost (LP) (minimize max value, minimize sum). Advantages, Disadvantages of QP vs LP:
+\begin{itemize}
+	\item LP: easy to compute, QP: a little bit harder
+	\item LP: non-unique solutions, QP: always unique solution
+	\item LP: far from origin, conservative, QP: far from origin, large input
+	\item LP: close to origin, discontinuity, dead-beat behaviour, QP: smooth
+	\item LP: hard to tune
+	\item QP: somewhat like minimizing energy/power
+\end{itemize}
+\subsection{Reference Tracking}
+\emph{Regulation}: reject disturbances around given fix point, \emph{Tracking}: make $y(k)$ follow a reference $r(k)$. If reference unknown for future times, it is usually assumed to be constant over prediction horizon, if known preview control can be used.\\
+Need steady state state and input:
+\begin{align*}
+	\Me{(I-A) &-B \\C & 0} \Mn{x_{ss}\\u_{ss}} = \Mn{0 \\ r}
+\end{align*}
+Plug those into cost (rest stays the same):
+\begin{align*}
+	V(x) = \min_{\mf{u}} \sum_{i=0}^{N-1}&(x_i - x_{ss})^T Q (x_i - x_{ss}) + \dots\\ \dots&(u_i - u_{ss})^T R (u_i - u_{ss})
+\end{align*}
+\subsection{Stability and Feasibility}
+MPC is not guaranteed to be stabilizing, the optimization may not remain feasible. Remedies:
+\begin{itemize}
+	\item derive lower bound on $N$, such that stability is guaranteed for all $Q\succeq0,~R \succ 0$
+	\item additional constraint to ensure feasibility and stability
+	\item check stability and feasibility of designed system a-posteriori
+\end{itemize}
+\subsubsection{Ensure stability}
+\begin{itemize}
+	\item infinite prediction horizon: $N \rightarrow \infty$
+	\item terminal state constraint: $x_N = 0$ or $ x_N \in \mb{X}_N$
+	\item contraction constraint: $\| x_1 \| \leq \alpha \|x_0 \|, \quad \alpha < 1$
+	\item use cost function as a Lyapunov function
+\end{itemize}
+\subsubsection{General stability method for MPC}
+\begin{align*}
+	\min_{\mf{u}}&\quad \sum_{i=0}^{N-1} l(x_i,u_i) + \mf{\Psi}(x_N) \\
+	\mathrm{subject~to:}&\quad x_i \in \mb{X}, u_i \in \mb{U} ~\forall i \in \{0,\dots,N-1\}\\
+	&\quad x_{i+1} = f(x_i,u_i), \quad x_0 = x \\
+	&\quad x_N \in \mb{X}_N
+\end{align*}
+And some additional controller $u = K(x)$. Terminal constraint have to satisfy: $\mb{X}_N \subset \mb{X}$, $x \in \mb{X}_N \Rightarrow K(x)\in \mb{U}$ and $x \in \mb{X}_N \Rightarrow f(x,K(x)) \in \mb{X}_N$.\\
+Terminal Lyapunov condition: \\$ \Psi(f(x,K(x))) - \Psi(x) \leq - l(x,K(x)) ~\forall x \in \mb{X}_N$
+\subsubsection{Linear MPC Stability}
+Assume a linear, constrained, possibly unstable system with quadratic cost. Terminal controller $K(x) = Kx$, Terminal state weight $ \Psi(x) = x^T P x$, found by Riccati Equation:
+\begin{align*}
+	(A+BK)^T P (A+BK) - P = - Q - K^T R K
+\end{align*}
+Terminal set: an invariant set $\mb{X}_N$ for $x_{k+1} = (A+BK)x_k$.
+\section{MPC: Explicit Solution}
+Optimization required at each timestep, lots of computational effort. Move it offline.
+\subsection{Parametric Programming}
+\begin{align*}
+	f^*(\theta) &= \inf_z f(z,\theta) \\
+	\mathrm{subject~to:}&\quad g(z,\theta) \leq 0
+\end{align*}
+$z \in \mb{R}^n$ is the optimization variable and $\theta \in \mb{R}^n$ is the parameter. Can do sensitivity analysis or find solutions depending on the parameter. Then we get critical regions in the $\theta$ feasible space ($\mc{X}$), where the KKT conditions do not change.
+\subsection{mpLP}
+The primal and the dual problem:
+\begin{equation*}
+\begin{aligned}[c]
+J^*(\theta) = &\min_z J^*(z,\theta) = c^T z \\
+	\mathrm{sub.~to:}& \quad Gz \leq W + S\theta\end{aligned}
+\quad\Leftrightarrow\quad
+\begin{aligned}[c]
+\max_\pi& (W+S\theta)^T \pi \\
+\mathrm{sub.~to:}&\quad G^T \pi = c \\
+&\pi \leq 0
+\end{aligned}
+\end{equation*}
+Solve the problems for some $\theta = \theta_0$ obtaining $z^*(\theta),~\pi^*(\theta)$. Further obtain the set of active (inactive) constraints ($\mc{I} = \{1,\dots,q\}$):
+\begin{align*}
+	&\mc{A}(\theta) = \{i\in \mc{I}| \forall z: J(z,\theta) = J^*(\theta) \Rightarrow G_i z - S_i \theta - W_i = 0\} \\
+	&\mc{N}(\theta) = \{i\in \mc{I}| \exists z: J(z,\theta) = J^*(\theta) \wedge G_i z - S_i \theta - W_i < 0\}
+\end{align*}
+Then we compute the optimizer $z^*(\theta)$ and the critical region $\mc{CR}_0$:
+\begin{align*}
+	z^*(\theta) &= G^{-1}_\mc{A} S_\mc{A} \theta + G^{-1}_\mc{A} W_\mc{A} = F_0 \theta + g_0 \\
+	\mc{CR}_0 &= \{ \theta | (G_\mc{N} F_0 - S_\mc{N})\theta < W_\mc{N} - G_\mc{N}g_0 \}
+\end{align*}
+Replace $\theta_0$ with some $\theta \in \mc{X} \setminus \mc{CR}_0$. Repeat until all of $\mc{X}$ is explored.
+\section{MPC: Hybrid Systems}
+System consisting of \emph{continuous dynamics} and \emph{discrete events} (states assume discrete values), often boolean variables $p_i$ which are represented by $\delta_i = \{0,1\}$.
+\subsection{Mixed Logical Dynamical Hybrid Model (MLD)}
+\begin{align*}
+	x_{k+1} &= A x_k + B_1 u_k + B_2 \delta_k + B_3 z_k \\
+	y_k &= C x_k  + D_1 u_k + D_2 \delta_k + D_3 z_k\\
+	E_2 \delta_k + E_3 z_k &\leq E_4 x_k + E_1 u_k + E_5
+\end{align*}
+\subsection{Piecewise Affine Systems (PWA)}
+Polyhedral partition of the ($x,u$)-space:
+\begin{align*}
+	\left\{\mc{D}^i\right\}_{i=1}^D = \left\{ \Me{x_k\\u_k} | P_x^i x_k + P_u^i u_k \leq P_c^i\right\}
+\end{align*}
+Affine dynamics for each region:
+\begin{align*}
+	\Mg{x_{k+1} = A^i x_k + B^i u_k + f^i \\ y_k = C^i x_k + D^i u_k + g_i} \mathrm{~if~} x_t \in \mc{D}^i
+\end{align*}
+\subsection{MPC for Hybrid Systems}
+\begin{align*}
+	J^*(x)=&\min_U ~l_N (x_N) + \sum_{k=0}^{N-1} l(x_k,u_k,\delta_k,z_k)\\
+	\mathrm{s.t}& \Lbrace{x_{k+1}=A x_k + B_1 u_k + B_2 \delta_k + B_3 z_k\\ E_2 \delta_k + E_3 z_k \leq E_4 x_k + E_1 u_k + E_5\\x_N \in \mc{X}_f}
+\end{align*}
+\section{Numerical Optimization Methods}
+\begin{align*}
+	\mathrm{repeat~} x_{i+1} = \Psi(x_i,f,\mb{Q}),~ i=0,1,\dots,m-1\\
+	\mathrm{until~} |f(x_m) - f(x^*)| \leq \epsilon \mathrm{\quad and \quad} \mathrm{dist}(x_m,\mb{Q}) \leq \delta
+\end{align*}
+\subsection{Unconstrained Optimization}
+\subsubsection{Gradient Methods}
+$L$-smoothness:
+\begin{align*}
+	\| \nabla f(x) - \nabla f(y) \| \leq L \| x - y \| ~\forall x,y \in \mb{R}^n
+\end{align*}
+Is the same as an existing quadratic function upper bound for $f$:
+\begin{align*}
+	f(x) \leq f(y) + \nabla f(y)^T (x-y) + \frac{L}{2} \| x-y \|^2 ~\forall x,y \in \mb{R}^n
+\end{align*}
+Gradient method:
+\begin{align*}
+	\mathrm{Set} \quad & x_0 \\
+	\mathrm{Repeat} \quad & x_{i+1} = x_i - \frac{1}{L} \nabla f(x_i) ~\mathrm{for~} i=0,\dots,m-1 \\
+	\mathrm{Until} \quad & f(x_m) - f(x^*) \leq \epsilon_1 \mathrm{~or~} \|x_m - x_{m-1} \| \leq \epsilon_2
+\end{align*}
+Fast Gradient Method:
+\begin{align*}
+	\mathrm{Set} \quad & x_0, y_0 = x_0 \mathrm{~and~} \alpha_0 =(\sqrt{5}-1)/2 \\
+	\mathrm{Repeat} \quad & x_{i+1} = y_i - \frac{1}{L} \nabla f(y_i) \\
+	&\alpha_{i+1} = \alpha_i \left( \sqrt{\alpha^2_i + 4} - \alpha_i \right)/2 \\
+	&\beta_i = \frac{\alpha_i (1 - \alpha_i)}{\alpha^2_i + \alpha_{i+1}} \\
+	&y_{i+1} = x_{i+1} + \beta_i (x_{i+1} - x_i  )  ~\mathrm{for~} i=0,\dots,m-1 \\
+	\mathrm{Until} \quad & f(x_m) - f(x^*) \leq \epsilon_1 \mathrm{~or~} \|x_m - x_{m-1} \| \leq \epsilon_2
+\end{align*}
+Strong convexity, lower bound with quadratic function for $f$:
+\begin{align*}
+	f(x) \geq f(y) + \nabla f(y)^T (x-y) + \frac{\mu}{2} \| x-y \|^2 ~\forall x,y \in \mb{R}^n
+\end{align*}
+Gives condition number $\kappa = L/\mu$. Lower $\kappa$ results in faster convergences speed $\rightarrow$ Preconditioning: Do a variable transformation $x = Py$ with $P$ invertible such that the new $\kappa$ is lower.
+\subsubsection{Newton's method}
+Idea: Minimize 2nd order approximation of $f$. Formula:
+\begin{align*}
+	x_{i+1} = x_i - h_i \Delta x_{nt} \quad \mathrm{with \quad} \Delta x_{nt} = (\nabla^2 f(x_i))^{-1} \nabla f(x_i)
+\end{align*}
+How to set $h_i$? Compute best $h_i$ (exact method): 
+\begin{align*}
+h_i^* = \arg \min_{h>0} f(x_i+h_i \Delta x_{nt})
+\end{align*}
+Or find a $h_i$, which decreases $f$ by some percent (inexact, backtracking):
+\begin{align*}
+	& \alpha \in (0,0.5) \mathrm{~and~} \beta \in (0,1) \\
+	\mathrm{Initialize} \quad& h_i = 1 \\
+	\mathrm{While} \quad& f(x_i + h_i \Delta x_{nt})>f(x_i) + \alpha h_i \nabla f(x_i)^T \Delta x_{nt} \\
+	\mathrm{Do} \quad& h_i \leftarrow \beta h_i
+\end{align*}
+\subsection{Constrained Optimization}
+\begin{align*}
+	\min ~&f(x) \\
+	\mathrm{subject~to~}&x \in \mb{Q}
+\end{align*}
+With $f$ and $\mb{Q}$ convex and $L$-smooth.
+\subsubsection{Gradient Methods}
+Use unconstraint gradient methods, but project each update $x_{i+1}$ onto $\mb{Q}$:
+\begin{align*}
+	x_{i+1} = \pi_\mb{Q} ( x_i - h_i \nabla f(x_i))
+\end{align*}
+If projection is easy to compute, fast algorithm. If projection is not easy to compute, solve dual problem instead (maybe slow).
+\subsubsection{Interior Point Methods}
+\begin{align*}
+	\min&~ f(x) \\
+	\mathrm{s.t.}&~ g_i(x) \leq 0, ~ i = 1,\dots,m
+\end{align*}
+$f,g_i$ convex and twice continuous differentiable, problem strictly feasible. Idea: reformulate problem as unconstrained problem. \\
+Barrier Method:
+\begin{equation*}
+\begin{aligned}[c]
+	\min&~ f(x) \\
+	\mathrm{s.t.}&~ g_i(x) \leq 0, ~ i = 1,\dots,m
+\end{aligned}
+~\Leftrightarrow~
+\begin{aligned}[c]
+	&\min~ f(x) + \kappa \phi(x) \\
+	&\phi(x) = \sum_{i=1}^m I_{-}(g_i(x)),~ \kappa = 1
+\end{aligned}
+\end{equation*}
+$\phi(x)$ is the indicator function, with $I_{-} = 0$ if $u\leq0$ and $\infty$ otherwise. This function can be approximated by a logarithmic barrier:
+\begin{align*}
+	\phi(x) = -\sum_{i=1}^m \log(-g_i(x))
+\end{align*}
+As $\kappa \rightarrow 0$, approximation improves.\\
+\underline{Barrier Interior Point Method} (require strictly feasible $x_0,\kappa_0,\mu>1,\epsilon>0$):
+\begin{align*}
+	1.~&x^*(\kappa_i) = \min_x f(x) + \kappa_i \phi(x) \quad \mathrm{starting~from}\quad x_{i-1} \\
+	2.~&x_i := x^*(\kappa_i) \\
+	3.~& \mathrm{if~} m\kappa_i < \epsilon \mathrm{\quad STOP}\\
+	4.~& \kappa_{i+1} := \kappa/\mu 
+\end{align*}
+Step $1$ is usually solved with Newton's Method:
+\begin{align*}
+	(\nabla^2 f(x)+ \kappa \nabla^2 \phi(x)) \Delta x_{nt} = - \nabla f(x) -  \kappa\nabla \phi(x)
+\end{align*}
+With additional equality constraints $Cx = d$:
+\begin{align*}
+	\Me{\nabla^2 f(x)+ \kappa \nabla^2 \phi(x) & C^T \\ C & 0}\Me{\Delta x_{nt} \\ \nu} = - \Me{\nabla f(x) +  \kappa\nabla \phi(x) \\ 0}
+\end{align*}
+\underline{Primal-Dual Interior Point Method}:
+\begin{align*}
+	C x^* &= d \\
+	g_i(x^*) + s_i^* &= 0 ~ i=1,\dots,m\\
+	\nabla f(x^*) + \sum_{i=1}^m \lambda_i^* \nabla g_i(x^*) + C^T \nu^* &= 0 \\
+	\lambda_i^* g_i(x^*) &= -\kappa \\
+	\lambda_i^*,s_i^* &\geq 0 ~ i=1,\dots,m\\
+\end{align*}
+Relaxed KKT conditions, solve this system and repeat with decreased $\kappa$. This method allows for infeasible start.
+\end{multicols}
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

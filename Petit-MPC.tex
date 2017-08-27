@@ -1,0 +1,765 @@
+\documentclass[10pt,parskip]{scrartcl}
+\usepackage{calc}
+\usepackage[landscape,paper=a4paper,left=3mm, right=3mm,top=0mm, bottom = 3mm,includehead,headheight=5mm,headsep=2mm]{geometry}
+\usepackage{multicol}
+%Fr angepasste Aufzhlungen ohne Abstnde
+\usepackage[alwaysadjust]{paralist}
+
+
+%++++++++++++++++++++++++++++++++++++++ MEINE SACHEN
+\usepackage[ngerman]{babel} % Unterstuetzung fuer deutsche Trennung und
+%   zB Datum-Formatierung
+
+%\usepackage{cmbright} % CMBRIGHT für alles! aus Formeln , weglassen für  Computer Modern und Roman Math 
+\usepackage[utf8]{inputenc} % Einfache Eingabe von Umlauten
+
+\usepackage[T1]{fontenc}
+
+\usepackage{multirow} % Zeilenzusammen nehmen
+%\usepackage{lpic} % text über grafiken
+
+\renewcommand\familydefault{\rmdefault}
+\usepackage[]{amsmath}   % diese zwei Pakete werden hier nicht
+\usepackage{amssymb}   % gebraucht sind aber sehr sinnvoll
+\usepackage{amsfonts}
+\usepackage{empheq}
+\usepackage{color}
+\usepackage{graphicx}
+%\usepackage[derived]{SIunits} %Units
+\graphicspath{/}
+%\usepackage{listings}  keine Ahung lol
+
+ %PLATZSPAAREN SPACING 
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+
+
+\usepackage[]{titlesec} % SPACING überall definieren
+\titlespacing*{\section}{0pt}{0pt}{5pt} %indent,space befor, space after
+\titlespacing*{\subsection}{0pt}{0.3cm}{0pt}
+\titlespacing*{\subsubsection}{0pt}{0pt}{0pt}
+\titleformat*{\section}{\fontencoding{OT1}\fontfamily{cmr} \fontseries{bx}\fontshape{sc} \fontsize{15pt}{15pt} \selectfont} %italic
+\titleformat*{\subsection}{\fontencoding{OT1}\fontfamily{cmr} \fontseries{bx}\fontshape{sc} \fontsize{12pt}{12pt} \selectfont} %italic
+\def\thesection{}
+\def\thesubsection{\arabic{subsection}}
+
+\include{macros} %Macros reinladen
+\include{def}
+
+
+%\setlength\headsep{9pt}
+\setlength\columnseprule{0.5pt}
+
+
+%
+
+%\setlength{\abovedisplayskip}{0pt}
+%\setlength{\abovedisplayshortskip}{2pt}
+%\setlength{\belowdisplayskip}{5pt}
+%\setlength{\belowdisplayshortskip}{2pt}
+
+%
+
+%%Header
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\rhead{Florian Petit, Philippe Petit}
+\lhead{\thepage}
+\chead{Summary Recursive Filtering and Estimation}
+%Befehl zum Gliedern des Textes in Spalten%
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\newcommand{\E}{\textrm{E}}
+\newcommand{\V}{\textrm{Var}}
+
+\begin{document}
+\begin{multicols*}{3}
+
+
+
+
+
+\subsection{Linear Systems}
+
+Solution to linear ODE $\dot x(t) = A^c x(t) + B^c u(t), x0:=x(t_0)$\\
+$x(t) = e^{A^c(t-t_0)} x_0 + \int_{t_0}^t e^{A^c(t-\tau)} B^c u(\tau) d \tau$
+
+Discretization of LTI c-t ss model\\
+$t_0 = t_k, t = t_{k+1}, t_{k+1}-t_k = T_s, u(t) = u(t_k) \forall t \in [t_k, t_{k+1})$\\
+$x(t_{k+1}) = e^{A^c T_s} x(t_k) + \int_{0}^{T_s} e^{A^c(T_s-\tau')} B^c d \tau' u(t_k)$\\
+$x(t_{k+1}) = A x(t_k) + B u(t_k)$
+
+Coordinate Trafo may facilitate system analysis\\
+$\tilde x = Tx, det(T) \ne 0;$ where $T = [e_1, ..., e_n]^{-1}$\\
+EW: det$(A - \lambda I)=0,$ EV: $(A-\lambda_i I) e_i = 0$
+
+
+\underline{Asymptotic stability} (stays bounded and returns to 0): \\
+$\lim_{k  \to \infty} x(k) = 0, \forall x(0) \in \mathbb{R}$ with $u = 0$\\
+Necessary \& sufficient cond. on the eigenvalues:
+$\vert \lambda_i \vert < 1, \forall i = 1,...,n$ \\
+Proof by trafo:\\
+$\tilde x(k+1) = T A T^{-1} \tilde x(k) = diag( \lambda_n) \tilde x(k)  = \Lambda \tilde x(k)   $\\
+State $\tilde x(k)$ can be expressed as function of $\tilde x(0) = T x(0)$: \\
+$\tilde x(k) = diag( \lambda_n^k) \tilde x(0)  = \Lambda^k \tilde x(o)$   \\
+$\tilde x(k) =\Lambda^k \tilde x(0) \Rightarrow \vert \tilde x_i(k) \vert \leq \vert \lambda_i \vert^k  \vert \tilde x_i(0) \vert$
+
+
+\underline{Global Lyapunov Stability} (only sufficient)\\
+$x=0$ is GAS if there is a function $V: \mathbb{R}^n \rightarrow \mathbb{R}$:\\
+$\|x| \rightarrow \infty \Rightarrow V(x) \rightarrow  \infty$  \\
+$V(0) = 0 \ and \ V(x)>0, \forall x \ne 0 $ \\
+$V(f(x(k))) - V(x(k)) < 0, \forall x \ne 0 $ 
+
+Lyapunov Stability for linear system $x(k+1)=A x(k)$ \\
+$V(Ax(k)) - V(x(k)) = x^T(k)(A^T P A -P)x(k) < 0, P>0$ \\
+\underline{Lyapunov equation} \\
+\hspace*{10mm}$A^T P A -P = -Q, Q > 0 $\\
+Fulfilled if $A$ has all eigenvalues inside the unit circle
+
+Infinite horizon cost-to-go for asymptotically stable system $x(k+1)=A x(k)$\\
+$\Psi(x(0)) =  \sum_{k=0}^\infty x(k)^T Q x(k) = \sum_{k=0}^\infty x(0)^T (A^k)^T Q A^k x(0) = x(0)^T P x(0) $ \\
+$P = \sum_{k=0}^\infty  (A^k)^T Q A^k = Q + \sum_{k=1}^\infty (A^k)^T Q A^k =$\\
+$ Q + A^T (\sum_{k=0}^\infty (A^k)^T Q A^k) A =  Q+ A^T P A $
+
+\underline{Controllability}: goal state $x^*$ can be reached in finite time: max in $n$ steps \\
+$x^* = A^N x(0) + (B \ AB \dots A^{n-1}B)
+\begin{pmatrix}
+ u(N-1) \\
+ u(N-2) \\
+ \vdots \\
+ u(0) 
+\end{pmatrix}$\\
+$= A^N x(0) + \mathcal C U$\\
+Necessary and sufficient cond: rank$(\mathcal C)=n$. \\
+Stabilizability: input sequence exists, that returns the state to the origin asymptotically: A system is stabilizable iff all its uncontrollable modes are stable\\
+if rank$([\lambda_i I-A \vert B]) = n \ \forall \lambda_i \in \Lambda_A^+ \Rightarrow (A,B)$ is stabilizable\\
+$\Lambda_A^+$ is the set of eigenvalues of A lying on or outside the unit circle.
+
+
+\underline{Observable}: measurements $y(0), y(1),...,y(N-1)$ uniquely distinguish $x(0)$
+
+$\begin{pmatrix}
+y(0)\\
+y(1)\\
+\vdots\\
+y((N-1)
+\end{pmatrix}
+=
+\begin{pmatrix}
+C\\
+CA\\
+\vdots\\
+CA^{N-1}
+\end{pmatrix}
+x(0) = \mathcal O x(0)$ \\
+colums of $\mathcal O$ linearly independent. Nec \& suf: rank$\mathcal(O) = n$\\
+Detectability: if all unobservable modes are stable:\\
+if rank$([A^T-\lambda_i \vert C]) = n \ \forall \lambda_i \in \Lambda_A^+ \Rightarrow (A,C)$ is stabilizable.
+
+
+\subsubsection{Unconstrained finite horizon optimal control problem}
+Inputs $\mathbf u := [u_0^T, ..., u_{N-1}^T]^T$ minimize objective function:\\
+$ J_0^*(x(0)) := \min\limits_{\mathbf u} J_0(x(0),\mathbf u) = \min\limits_{\mathbf u} x_N^T P x_N + \sum_{k=0}^{N-1} [x_k^T Q x_k + u_k^T R u_k]$\\
+\hspace*{10mm}s.t. $x_{k+1} = A x_k + B u_k, k = 0,...,N-1$\\
+\hspace*{17mm}$x_0 = x(0)$\\
+$P \geq 0, P = P^T$ terminal weight\\
+$Q \geq 0, Q = Q^T$ state weight\\
+$R > 0, R = R^T$ input weight
+
+
+\underline{Batch approach}: all future states represented in\\ 
+terms of initial condition $x_0$ and inputs $u_0, ..., u_{N-1}$\\
+$\begin{bmatrix}
+ x_0 \\
+ x_1  \\
+ \vdots\\
+ \vdots\\
+ x_N
+\end{bmatrix}
+=
+\begin{bmatrix}
+ I \\
+ A  \\
+ A^2\\
+ \vdots\\
+ A^N
+\end{bmatrix}
+x(0)+
+\begin{bmatrix}
+ 0 & \dots & \dots & 0\\
+ B & 0 & \dots & 0 \\
+ AB & B & \dots & 0\\
+ \vdots & \ddots & \ddots & 0\\
+ A^{N-1}B & \dots & AB & B
+\end{bmatrix}
+\begin{bmatrix}
+ u_0 \\
+ u_1  \\
+ \vdots\\
+ \vdots\\
+ u_{N-1}
+\end{bmatrix}
+$
+
+$ \mathbf x := \bar A x(0) + \bar B \mathbf u $\\
+Finite horizon cost function:\\
+$ J_0(x(0),\mathbf u) = \mathbf x^T \bar Q \mathbf x + \mathbf u^T \bar R \mathbf u$\\
+$ \bar Q := $ blockdiag$(Q, ...,Q,P)$ and $\bar R :=$ blockdiag$(R,...,R)$\\
+Eliminating $\mathbf x$ form $J_0$ gives\\
+$J_0(x(0),\mathbf u) = \mathbf u^T H \mathbf u + 2 x(0) F \mathbf u + x(0)^T \bar A^T \bar Q \bar A x(0)$\\
+where $H := \bar B^T \bar Q \bar B + \bar R$ and $F := \bar A^T \bar Q \bar A$. \\
+Solution by setting gradient to 0: $\nabla_{\mathbf u} J_0(x(0), \mathbf u) = 0$ \\
+$\mathbf u^*(x(0)) = - H^{-1}F^T x(0)$
+
+\underline{Recursive approach}: j-step optimal cost-to-go: \\
+$ J_j^*(x(j)) := \min\limits_{u_j,...,u_{N-1}} x_N^T P x_N + \sum_{k=j}^{N-1} [x_k^T Q x_k + u_k^T R u_k]$\\
+\hspace*{10mm}s.t. $x_{k+1} = A x_k + B u_k, k = j,...,N-1$\\
+\hspace*{17mm}$x_j = x(j)$\\
+Solution by substituting equ. constr. in objective function \\and setting gradient of input to 0\\
+Optimal solution for time step $k$\\
+$u^*(k) = -(B^T P_{k+1} B + R)^{-1} B^T P_{k+1} A x(k) =: F_k x(k) $ \\
+$P_k$ by recursion from $P_N=P$ (Discrete Time Riccati Equ):\\
+$P_k = A^T P_{k+1} A + Q - A^T P_{k+1} B(B^T P_{k+1} B + R)^{-1} B^T P_{k+1} A$\\
+Optimal cost-to-go: $J_k^*(x(0)) = x(k)^T P_k x(k)$
+
+Comparison: \\
+Batch approach: sequence of numerical values\\
+Recursive: dynamic programming, feedback policies $u^*(k) = F_k x(k)$
+
+
+\subsubsection{Infinite Horizon Control Problem}
+RDE converges to constant $P$: $P_k = P_{k+1} = P_\infty $, RDE becomes ARE.\\
+Feedback matrix $F_\infty$: asymptotic form of LQR\\
+If $(A,B)$ stabilizably and $(Q^{1/2}, A)$ detectable, RDE converges to ARE.\\
+Closed-loop system is asymptotically stable with $u(k) = F_\infty x(k)$\\\
+Prove by examining cl system $x(k+1) = (A+B F_\infty)x(k)$
+
+
+\textbf{State Estimation}\\
+Estimate previous/current/future: smoothing/filtering/prediction\\
+Model $x(k+1) = A x(k) + B u(k) + \varepsilon_1(k)$; $y(k) = C x(k) + \varepsilon_2(k)$\\
+$\varepsilon_1$: Process noise; $\varepsilon_2$: Meas. noise. Zero mean: E$\{\varepsilon_i(k) \}=0$.\\
+White noise has zero mean. $R_1$ big: trus meas; $R_2$ big: meas noisy.
+
+
+Prediction step: $\hat x_{k | k-1} = A\hat x_{k-1 | k-1} + B u(k-1)$\\
+Update step: $\hat x_{k | k} = \hat x_{k | k-1} + K (y(k)-C\hat x_{k | k-1})$\\
+State estimation error $ \hat x_{i | j}^e:= x(i) - \hat x_{i | j}$\\
+Estimation error dynamics, only depending upon old estimates:\\
+$ \hat x_{k | k}^e:= (A-K C A) \hat x_{k-1 | k-1}^e + (I-K C)\varepsilon_1(k-1) - K \varepsilon_2(k)$\\
+Stability: iff eigenvalues of $ A- K C A$ strictly inside unit circle. \\
+Possible if (CA,A) is observable.
+ 
+\textbf{Kalman Filter}
+
+1. Compute the a priori estimate and - error covariance matrix\\
+$\hat x(k|k-1) = A \hat x(k-1|k-1) + B u(k-1)$\\
+$P(k|k-1) = A P(k-1|k-1) A^T +R_i$\\
+2. Measure $y(k)$\\
+3. Compute gain, new estimate and error covariance matrix\\
+$K(k) = P(k|k-1) C^T(C P(k|k-1)C^T + R_2)^{-1}$\\
+$\hat x(k|k) = \hat x(k|k-1) + K(k)(y(k)-C \hat x(k|k-1))$\\
+$P(k|k) = (I-K(k)C)P(k|k-1)(I-K(k)C)^T + K(k)R_2 K(k)^T$\\
+\subsection{General Optimization Problem:}
+\hspace*{8mm}$\min\limits_{x \in \mathcal X} f_0(x)$ \hspace*{32mm} $f_0$: Objective function\\
+\hspace*{10mm}s.t. $f_i(x)\leq 0, h_i(x) = 0$ \hspace*{8mm} $\mathcal X$: Domain of OF $f_0$\\
+(Strictly) feasible point:\\
+ $x \in \mathcal X$, satisf. constr. (strictly), $f_i(x) (<) \leq 0$.\\
+Optimal solution:
+ $x^* \in \mathcal X$ such that optimal value $f_0(x^*)\leq f_o(x)$.\\
+Optimal value: $p^* = \inf \limits_{x \in \mathcal X} \{f_0(x) | f_i(x) \leq 0, h_i(x) = 0\}$.\\
+Minimizer: Vector $x^*$ that achieves the minimal value.
+
+\subsubsection{Convex Optimization Problem}
+Optim prob is cvx, if objective function and feasible set are cvx. $f_0, ..f_m$ are cvx, and $h_i$ are affine.
+ 
+\subsubsection{Definition of convex set:}
+$\mathcal X$ is convex $\Leftrightarrow \lambda x + (1-\lambda) y \in \mathcal X, \forall \lambda \in [0,1], \forall x,y \in \mathcal X$
+
+
+Convex Sets\\
+- \underline{Subspace} $\mathcal X = \{ x \in \mathbb R^n | Ax = 0\}$. Proof: $ \forall \lambda \in [0,1], \forall x,y \in \mathcal X$ \\
+ $ A(\lambda a + (1-\lambda) b) = \lambda A a + (1-\lambda)Ab = \lambda \cdot 0 + (1-\lambda) \cdot 0 = 0 $\\
+- \underline{Affine space} $\mathcal X = \{ x \in \mathbb R^n | Ax = b\}$. Lines and planes.\\
+- \underline{Hyperplane} $\mathcal X = \{ x \in \mathbb R^n | a^T x = b\}$. $ a \ne 0, a\in \mathbb R^n$ is the normal vector.\\
+- \underline{Halfspace} $\mathcal X = \{ x \in \mathbb R^n | a^T x \leq b\}, a \ne 0,$. Can be \textbf{open ($<$)} or \textbf{closed ($\leq$)}.\\
+- \underline{Set} $\mathcal X$ is a cone if $\forall x \in \mathcal X,$ and $\forall \theta > 0, \theta x \in \mathcal X$. $\theta$: scaling factor. Pointed if it contains $x=0$\\
+- \underline{Conic combination of two points} $x_1$ and $x_2$: any point fulfilling $y = \theta_1 x_1 + \theta_2 x_2$\\
+ for some $\theta_1, \theta_2 >0$; Convex if convex cone.\\
+- \underline{Polyhedron}: intersection of finite number of closed halfspaces: $\mathcal X = \{x | a_1^T x \leq b_1,...,a_m^T x \leq b_m\} = \{x | A x \leq b\}$\\
+- \underline{Polytope}: bounded polyhedron. A polyhedron is always cvx.\\
+- \underline{Norm}: function $f:\mathbb R^n \rightarrow \mathbb R$ satisfying\\
+ 1.) $f(0) \geq 0$ and $f(x) = 0 \Rightarrow x = 0$.\\
+ 2.) $f(tx) = |t|f(x), t$ scalar\\
+ 3.) $f(x+y)\leq f(x) + f(y), \forall x, y \in \mathbb R^n$\\
+ \hspace*{8mm}$l_p$ norm $\|x\|_p := [\sum_{i=1}^n |x_i|^p]^{1/p}$\\
+  \hspace*{5mm}$p=1:$ Sum of abs values;\\
+  \hspace*{5mm}$p=\infty:$ largest abs value $\|x\|_\infty:=max_i|x_i|$\\
+- \underline{Norm ball}: $\{x | \| x-x_c\| \leq r\}, r \geq 0.$\\
+- \underline{Ellipsoid}: $\{x | (x-x_c)^T A^{-1} (x-x_c)\leq 1\}, x_c$ center, $A>0$.\\
+- \underline{Euclidean ball}: $\{x | \| x-x_c\|_2 \leq r\}$. (Ellipse with $A = r^2 I)$.
+
+
+\underline{-Interrsection} $\mathcal X \bigcap \mathcal Y$ of two convex sets is convex:
+
+
+For any $\lambda \in [0,1], \lambda a + (1-\lambda)b$ is in both $\mathcal X$ and $ \mathcal Y$. 
+
+Therefore $\lambda a + (1-\lambda)b \in \mathcal X \bigcap \mathcal Y,  \forall \lambda \in [0,1]$ 
+
+Set of points $ C \triangleq = \{x| ... \forall y \in Q\}: C = \bigcap_{y \in Q} C_y$
+
+- \underline{Convex hull}: set of all convex combinations of points in $\mathcal X$.\\
+- \underline{Union} $\mathcal X \bigcup \mathcal Y$ is not convex in general.
+
+
+\subsubsection{Definition of convex function:}
+A function $f :$ dom$(f) \rightarrow \mathbb R$ is convex iff its domain dom($f$) is cvx and
+$ f( \lambda x + (1-\lambda) y) \leq \lambda f(x) + (1-\lambda) f(y)$\\
+\hspace*{8mm}$  \forall \lambda \in [0,1], \forall x,y \in $ dom$(f),$\\
+- $f$ is concave iff $-f$ is convex.
+
+\underline{1st-order condition for convexity}
+
+Differentiable function $f:$ dom$(f) \rightarrow \mathbb R$ with cvx domain is cvx iff $f(y)\geq f(x) + \nabla f(x)^T (y-x), \forall x,y \in $ dom $(f)$
+
+
+2nd-order condition for convexity
+
+Function $f :$ dom$(f) \rightarrow \mathbb R$ is cvx iff dom f$(f)$ is cvx and
+
+Hessian $\frac{\partial^2 f(x)}{\partial x_i \partial x_j} =\nabla^2 f(x) \geq 0, \forall x \in $ dom$(f)$
+
+- Epigraph: epi$(f) = \{ [x \, t]^T]|x \in$ dom$(f), f(x)\leq t\} \subseteq $ dom$(f) \times \mathbb R$
+
+A function s convex iff its epigraph is cvx\\
+- SubLevel set L$_\alpha = \{x | x \in $ dom$(f), f(x) \leq \alpha \}$
+
+ $f$ is cvx $\Rightarrow$ sublevel sets of $f$ are cvx $\forall \alpha$. But not $\Leftarrow$!
+
+ $f$ is quasi-cvs iff dom($f$) is cvx and all sublevel sets of $f$ are cvx.
+
+\underline{Convexity-preserving operations}\\
+- Non-negative weighted sum: $f$ is cvx $\Rightarrow \alpha f, \forall \alpha \geq 0$ is cvx.\\
+- Composition with affine function:\\ $f$ is cvx $\Rightarrow f(Ax + b)$ is cvx.\\
+- Pointwise (Pw) max:\\ If $f_1, .., f_m$ are cvx, $\Rightarrow f(x) = $ max$\{f_1, .., f_m\}$ is cvx.\\
+- Pw sup: If $f(x,y)$ is cvx in $x, \forall y$, then $g(x) = $ sup$_{y \in \mathcal Y} f(x,y)$ is cvx.\\
+- Min: If $f(x,y)$ is cvx in $(x,y)$ and $ \mathcal C$ is cvx, then $g(x) = \min \limits_{y \in \mathcal C} f(x,y) $ is cvx.
+
+\subsubsection{Optimality Criterion for Differentiable $f_0$}
+For cvx problem, $x$ is optimal iff it is feasible and
+
+$\nabla f_0(x)^T (y-x) \geq 0, \forall$ feasible $y$ \\
+ $a^T b = |a| |b| \cos \sphericalangle(a,b)$
+
+Angle between gradient and any vector in the set is $< 90^\circ$.
+
+
+\underline{Equivalent Optimization Problems:}
+
+Intoducing equality constraints\\
+$\min\limits_{x} f_0(A_0 x+ b_0)$ \hspace*{20mm} $\min\limits_{x} f_0(y_0)$\hspace*{10mm}$ i = 0,1,..m$\\
+s.t. $f_i(A_i x+ b_i)\leq 0, i = 1,..,m$ \hspace*{3mm} s.t.$f_i(y_i)\leq 0, A_i x+ b_i = y_i$
+
+Intoducing slack variables\\
+$\min\limits_{x} f_0(x)$ \hspace*{30mm} $\min\limits_{x} f_0(y_0)$\hspace*{10mm}$ i = 1,..m$\\
+s.t. $A_i x\leq b_i, i = 1,..,m$ \hspace*{10mm} s.t.$ A_i x+ s_i = b_i, \, s_i \geq 0$
+
+
+\underline{Example Linear Programs}\\
+-Constrained $l_\infty$ minimization:
+
+$\min\limits_{x} \|A x - b\|\infty$ \hspace*{4mm} $\min\limits_{x,t} t$
+
+s.t. $F x \leq g$ \hspace*{10mm} s.t. $A x - b \leq t \cdot \mathbf 1, A x - b \geq -t \cdot\mathbf  1, F x \leq g$\\
+-Constrained $l_1$ minimization:
+
+$\min\limits_{x} \|A x - b\|_1$ \hspace*{4mm} $\min\limits_{x,y} \mathbf 1^T y$
+
+s.t. $F x \leq g$ \hspace*{10mm} s.t. $A x - b \leq y, A x - b \geq -y , F x \leq g$
+
+
+\textbf{Lagrangian Function:} $L:\mathcal X \times \mathbb R^m \times \mathbb R^p \rightarrow \mathbb R$
+
+
+$L(x,\lambda, \nu) = f_o(x) + \sum_{i=1}^m \lambda_i f_i(x) + \sum_{i=1}^p \nu_i h_i(x)$\\
+\underline{Lagrange Dual function} $g: \mathbb R^m \times \mathbb R^p$
+
+$g(\lambda, \nu) = \inf \limits_{x \in \mathcal X} L(x, \lambda, \nu)$
+
+$g(\lambda, \nu)$ pointwise infimum of affine functions.
+
+dual generates lower bounds for $p^*: g(\lambda, \nu) \leq p^*, \forall(\lambda \geq 0, \nu \in \mathbb R^p)$.\\
+Procedure:
+1.) Compute Lagrangian $L(x,\lambda, \nu)$
+
+2.) Minimize it by setting gradient to 0: $\nabla L(x,\lambda, \nu)=0 \Rightarrow x^*$
+
+3.) Substitute $x$ back into $L$ to get dual function $g(\lambda, \nu)$
+
+4.) Lower bound property $p^*: g(\lambda, \nu) \leq p^*, \forall(\lambda \geq 0$\\
+\underline{Dual Problem:} maximize dual function:
+
+$\max \limits_{\lambda, \nu} g(\lambda, \nu)$ \hspace*{10mm} s.t. $\lambda \geq 0$\\
+- Properties: Dual prob is convex, even if primal is not\\
+- Optimal value $d^* \leq p^*$\\
+- Point $(\lambda, \nu)$ is dual feasible if $\lambda \geq 0$ and $(\lambda, \nu) \in$ dom $g$
+
+
+
+Weak duality: it is always true that $d^* \leq p^*$;\\ duality gap: $ d^* - p^*$\\
+\underline{Strong duality:} $d^* = p^*$ often for cvx problems, check by\\
+Slater condition: if there exists one strictly feasible point inside:
+
+$\{x|Ax =b, f_i(x)<0, \forall i \in \{1,...,m\}\} \ne \emptyset$\\
+If strong duality holds: $d^* = p^* \Rightarrow g(\lambda^*,\nu^*) = f_0(x^*)$
+
+
+\subsubsection{Karush-Kuhn-Tucker Conditions:}
+
+1.) Primal feasibility \hspace*{20mm}  $f_i(x^*) \leq 0, h_i(x^*) = 0$
+
+2.) Dual feasibility \hspace*{22mm} $\lambda^* \geq 0$
+
+3.) Complementary Slackness \hspace*{5mm} $\lambda_i^* f_i(x^*) = 0$ 
+
+4.) Stationarity \hspace*{0mm}$\nabla_x L(x^*,\lambda^*, \nu^*) = \nabla_x f_o(x^*) + \sum_{i=1}^m \lambda_i^* \nabla_x f_i(x^*) + \sum_{i=1}^p  \nu_i^* \nabla_x h_i(x^*) = 0$
+
+
+\subsection{MPC as QP} with constraints\\
+$ E_u u \leq f_u;$ $E_x x \leq f_x$ \hspace*{5mm} $\Rightarrow$ \hspace*{5mm}
+$\bar E_u  \mathbf u \leq \bar f_u;$ $\bar E_x  \mathbf x \leq \bar f_x;$\\
+$\bar E_u = $ blockdiag$(E_u,...,E_u)$;  $\bar f_u =[f_u,...f_u]^T$\\
+ $\bar f_x =[f_x,...f_x]^T$\\
+$\bar E_x =
+\begin{bmatrix}
+  E_x & 0 & \dots  &0\\
+ \vdots & \ddots & \ddots  & \vdots\\
+ 0 & \dots &  E_x & 0
+\end{bmatrix}$
+\hspace*{8mm}
+$\left. \begin{matrix}
+\text{Asymmetric, as} \\
+\text{constraints on }x \text{ normally}\\
+\text{defined for }k \in \{0,...,N-1\}
+\end{matrix} \right . $
+
+\underline{Vectorized MPC QP problem}\\
+\hspace*{8mm}$\min\limits_{\mathbf u} \mathbf u^T [\bar R + \bar B^T \bar Q \bar B] \mathbf u + 2 \mathbf u^T \bar B^T \bar Q \bar A x_0$
+
+\hspace*{8mm} s.t. $\binom{\bar E_u}{\bar E_x \bar B} \mathbf u \leq \binom{\bar f_u}{\bar f_x - \bar E_x \bar A x_0} $\\
+
+\underline{MPC, LP $p = 1$:} $\min \sum (\|Qx\|_1) +(\|Rx\|_1)$, s.t...\\
+Introduce vectors $(Z_x,Z_u)$ to model abs values of $(\bar Q\mathbf x, \bar R\mathbf u)$.\\
+\hspace*{8mm}$\min\limits_{\mathbf u} \mathbf 1^T Z_x + \mathbf 1^T Z_u$\\
+\hspace*{8mm} s.t. 
+$\left. \begin{matrix}
+\binom{\bar E_u}{\bar E_x \bar B} \mathbf u \leq \binom{\bar f_u}{\bar f_x - \bar E_x \bar A x(0)} \\
+-Z_x \leq \bar Q ( \bar A x_0 + \bar B \mathbf u) \leq Z_x\\
+-Z_u \leq \bar R \mathbf u \leq Z_u
+\end{matrix} \right .$
+
+
+\underline{MPC, LP $p = \infty$:}  $\min \sum (\|Qx\|_\infty) +(\|Rx\|_\infty)$, s.t...\\
+Intro scalars $(Z_x,Z_u)$ to model largest abs vals of $(\bar Q\mathbf x, \bar R\mathbf u)$.\\
+\hspace*{8mm}$\min\limits_{\mathbf u}  Z_x + Z_u$\\
+\hspace*{8mm} s.t. 
+$\left. \begin{matrix}
+\binom{\bar E_u}{\bar E_x \bar B} \mathbf u \leq \binom{\bar f_u}{\bar f_x - \bar E_x \bar A x(0)} \\
+-\mathbf 1 Z_x \leq \bar Q ( \bar A x_0 + \bar B \mathbf u) \leq \mathbf 1 Z_x\\
+-\mathbf 1 Z_u \leq \bar R \mathbf u \leq \mathbf 1 Z_u
+\end{matrix} \right .$
+
+
+\underline{Linear or Quadratic}\\
+Linear: - Easy to compute; Sol may not be unique; Far from origin: conservative; close to origin: discontinuity, dead-beat behaviour, jitter\\
+Quadratic: - Connection to LQR; Sol unique; Far from origin: large inputs; close to origin: smooth action
+
+\underline{Reference Tracking}\\
+- Regulation: Reject disturbances around fix point\\
+- Tracking: make output follow reference signal\\
+- For prediction , model reference as constants: $ r(k+j) = r(k), j \geq 0$\\
+Steady State computation\\
+$\begin{bmatrix}
+ (I-A) & -B\\
+ C 0
+\end{bmatrix}
+\begin{pmatrix}
+ x_{ss}\\
+ u_{ss}
+\end{pmatrix}
+= 
+\begin{pmatrix}
+ 0 \\
+ r
+\end{pmatrix}$
+
+Resulting optimal control problem
+
+$ V(x) := \min \limits_{\mathbf u} 	\sum\nolimits_{i=0}^{N-1} (x_i-x_{ss})^T Q (x_i-x_{ss}) + (u_i-u_{ss})^T R (u_i-u_{ss})$
+s.t. $x_{i+1} = A x_i + B u_i, x_0 = x, x_i \in \mathbb X, u_i \in \mathbb U, \forall i \in \{0, ..., N-1\}$
+
+\subsubsection{Stability \& Feasibility}
+Stability not guaranteed. Check stab and feas a priori, derive conditions for all $Q$ and $R$ (conservative) or..\\
+Constraints to ensure stability:\\
+- Infinite prediction horizon: $N \rightarrow \infty$\\
+- (Relaxed) Terminal state constraint: $x_N = 0$, $(x_N \in \mathbb X_N)$
+
+Common idea: Use optimal value function $V^*(x)$ as Lyapunov function.\\
+Assumption: Objective $f_0 (x)$ positive definite, radially unbounded, $f_0 (0) = 0$ \\
+To work out, 1.) terminal state and control constraints hold in terminal set:
+$ \mathbb X_n \subseteq \mathbb X, x \in \mathbb X_n \Rightarrow K(x) \in \mathbb U$\\
+2.) Terminal set invariant with controller:\\
+\hspace*{8mm}$ x \in \mathbb X_n \Rightarrow f(x,K(x)) \in \mathbb X_n$\\
+ 3.) the infinite horizon cost has to be bounded
+by a terminal cost:
+\hspace*{8mm}$\sum\nolimits_{i=N}^{\infty} l(x_i, K(x_i)) \leq \Psi(x_N)$\\
+\underline{Recursive feasibility:}\\
+1.) Assume feasibility at $k$ with $\mathbb = [u_0^*,...,u_{N-1}^*]$\\
+2.) A feas sol at $k+1$ is $[\hat u_0,...,\hat u_{N-1}]=[u_1^*,...,u_{N-1}^*, K(x_N^*)]$\\
+3.) Associated feasible state trajectory:\\ \hspace*{8mm}$[\hat x_0,...,\hat x_{N}]=[x_1^*,...,x_{N-1}^*, f(x_N^*,K(x_N^*))]$\\
+4.) Shiftet states/inputs guaranteed to satisfy all constraints!
+
+
+\underline{Stability proof:}\\
+\hspace*{2mm}$V^*(x(k+1)) \leq ..$\\
+\hspace*{8mm}$\sum\nolimits_{i=0}^{N-1} l(x_i^*, u_i^*)+ \Psi(x_N^*)$ \hspace*{5mm} Previous optimal cost\\
+\hspace*{8mm}$- \Psi(x_N^*) -  l(x_0^*, u_0^*)$ \hspace*{5mm} Terms dropped by shifting\\
+\hspace*{8mm}$l(x_N^*, K(x_N^*)) + \Psi(f(x_N^*, K(x_N^*)))$\hspace*{5mm} Terms added\\
+It follows: $V^*(x(k+1)) \leq V^*(x(k)) - l(x_0^*, u_0^*)$\\
+ (with the Lyapunov condition:)\\
+\hspace*{8mm}$\Psi(f(x,K(x)))-\Psi(x) \leq -l(x,K(x)) \forall x \in \mathbb X_N$\\
+This tends to zero, so cost tends to zero, so $x(k) \rightarrow 0$.
+
+
+\underline{Choice of terminal weight P:} $\Psi(x) = x^T P x$\\
+1.) Linear, unconstrained and stable system with quadratic cost: Controller: $K(x) = 0$, terminal constraint $\mathbb X_N = \mathbb R^n$. Determine $P$ from Lyapunov equation. \\
+2.) Linear, constrained, unstable sys. with quadratic cost: Controller $K(x) = Kx$ (any stabilizing contr), terminal set $\mathbb X_n$: invariant set for $x(k+1)=(A+BK)x$.  Make $P$ equal optimal cost to go from $N$ to $\infty$ by solution of ARE. Assumes no constraints are active after $N$.\\
+3.) Desire of state and input = zero at end. No $P$ but constraint $x_{k+N}=0$. 
+
+\subsubsection{Linear Integer Inequalities} Linear Integer Inequalities can represent logical propositions\\
+Idea: associate to each boolean variable $p_i$ a binary integer variable $\delta_i$:
+$p_i \Leftrightarrow\{\delta_i = 1\}, \neg p_i \Leftrightarrow\{\delta_i = 0\}$
+
+For a logic proposition $\Omega(p_i)$ it is always possible to define a set of linear inequalities:
+$A \delta \leq B, \delta \in \{0,1\}^n$
+
+
+\underline{ Analytic approach}
+
+Conjunctive normal form (CNF)
+
+$\Omega(p_i) = \bigwedge_j [\bigvee_j p_i]$
+
+Logic proposition in CNF into algebraic inequalities
+
+ $\neg p_i, \, \, \, 1-\delta_i,$ \hspace*{8mm} Not\\
+ $ p_i \vee p_j, \, \, \, \delta_i+\delta_j \geq 1, $ \hspace*{8mm} Or\\
+ $ p_i \wedge p_j, \, \, \, \delta_i+\delta_j \geq 2, $ \hspace*{8mm} And\\
+ $ p_i \Rightarrow p_j, \, \, \, \delta_i-\delta_j \geq 0, $ \hspace*{8mm} if $p_i$ then $p_j$\\
+ $ p_i \Leftrightarrow p_j, \, \, \, \delta_i-\delta_j = 0, $ \hspace*{8mm} logic equality
+ 
+ Rules\\
+ $ \neg (A \wedge B) = \neq A \vee \neg B$\\
+ $A \wedge (B \vee C) = (A \wedge B) \vee (A\wedge C)$\\
+ $ A \vee (B \wedge C) = (A\vee B)\wedge (A \vee C)$
+ 
+ \underline{ Geometric approach}
+ 
+ Idea: Polytope $\mathcal P = \{ \delta \in \{0,1\}^n | A\delta \leq B\}$ is the convex hull of the rows of the truth table of proposition $\Omega(p_i)$.
+
+
+\underline{Combining logic rules and continuous dynamics}
+
+e.g. $p \Leftrightarrow a^Tx \leq b, \mathcal X = \{x | a^T x-b \in [m, M]\}$.\\
+ Bounds $m, M$ have to be specified. Translated to linear inequalities:\\
+ \hspace*{8mm}$ a^T x-b \leq M(1-\delta)$\\
+ \hspace*{8mm}$ a^T x-b > m \delta$
+ 
+ \textbf{MPC for Hybrid Systems} Quadratic norm constrained finite time optimal control problem
+
+$ J^*(x_t) = \min \limits_U \|x_{t+N}\|_P + \sum_{k=0}^{N-1} \|x_{t+k}\|_{Qx}^2 +\|u_{t+k}\|_{Qu}^2+\|\delta_{t+k}\|_{Q\delta}^2+\|z_{t+k}\|_{Qz}^2,$\\
+\hspace*{8mm} $ s.t. \left \{  \begin{matrix}
+ x_{t+k+1} = A x_{t+k} + B_1 u_{t+k} + B_2 \delta_{t+k} + B_3 z_{t+k}\\
+ E_2 \delta_{t+k} + E_3 z_{t+k} \leq E_4 x_{t+k} + E_1 u_{t+k} + E_5\\
+ x_{t+N} \in \mathcal X
+\end{matrix} \right . $
+
+\underline{Mixed Logical Dynamical (MLD) Model}\\
+see optimization problem before, with $k = 0$.
+
+\underline{Piecewise Affine (PWA) System}\\
+- polyhedral partition of the $(x, u)$-space:\\
+ \hspace*{8mm}$ \{\mathcal D^i\}_{i=1}^D := \{\tbinom{x_t}{u_t} | P_x^i x_t + + P_u^i u_t \leq P_c^i\}$\\
+- affine dynamics in each region:\\
+\hspace*{8mm} $\left \{  \begin{matrix}
+x_{t+1} = A^i x_t + B^i u_t + f^i\\
+y_t = C^i x_t + D^i u_t + g^i
+\end{matrix} \right \}
+$ if $ x_t \in \mathcal D^i$
+
+- any well-posed (for a given $[x_t^T u_t^T]^T \Rightarrow x_{t+1}, y_t$ are uniquely determined) PWA system can be represented by an MLD system, assuming that the set of feasible states and inputs is bounded.\\
+- a completely well-posed (well-posed + uniquely determined $\delta_t, z_t \forall [x_t^T u_t^T]^T$) MLD can be written as a PWA system.
+
+
+\subsection{Numerical Optimization Methods}
+\subsubsection{Unconstrained Optimization}
+\textbf{Algorithm performance Measurements}
+$\bullet$ Convergence: is \textit{m} finite for every $\epsilon, \delta > 0$\\
+$\bullet$ Convergence speed: dependence of errors $f(x_m) - f(x^*)$ and $dist(x_m, \mathbb{Q})$\\
+$\bullet$ Feasability: For some methods $\delta=0$, but in general $\delta \neq 0$\\
+$\bullet$ Numerical robustness: Robustness in presence of finite presicion arithmetics\\
+$\bullet$ Warm starting: Improve performance by initializing Algorithm $x_0$ near $x^*$\\
+$\bullet$ Preconditioning: Transform problem $P$ into transformed Problem $\tilde{P}$
+
+
+\textbf{Gradient Method}
+\begin{empheq}[innerbox=\fbox]{align*}
+Set & \hspace{0.5cm} x_0\\
+Repeat & \hspace{0.5cm} x_{i+1} = x_i - \frac{1}{L} \cdot \nabla f(x_i)\\
+until & \hspace{0.5cm} f(x^m) - f(x^*) \leq \epsilon_1 or \Vert x_m - x_{m-1} \Vert \leq \epsilon_2
+\end{empheq}
+\hspace{0.5cm} Convergence $m \sim \mathcal O(L\|x_o - x^*\|^2/\epsilon_1)$\\
+Assumptions:\\
+$\bullet$ $\nabla f$ is Lipschitz-continous with Lipschitz constant $L$:\\
+\hspace*{0.5cm}  $\Vert \nabla f(x) - f(y) \Vert \leq L \Vert x-y \Vert \forall x,y \in \mathbb{R}^n$\\
+$\bullet$ $f$ can be upper bounded by a quadractic function:\\
+\hspace*{0.5cm}$f(x) \leq f(y) + \nabla f(y)^T (x-y) + \frac{L}{2} \Vert x-y \Vert^2 = \bar f(x,y), \forall x,y $\\
+Convergence:\\
+\hspace*{0.5cm}  $f(x_{i-1}) \leq \bar f(x_{i-1}, x_i) \leq \bar f(x_i,x_i) = f(x_i)$\\
+\underline{Strong convexity:} $f(x)$ upper and lower bounded\\
+ \hspace*{0.5cm} $ \bar f(x,y)|_{L=\mu} \leq f(x) \leq \bar f(x,y)|_{L=L}$\\
+For $f(x)=x^T H x$: $L = \max(\text{eig}(H))$, $\mu = \min(\text{eig}(H)$.\\
+Condition number: $\kappa \triangleq = \frac{L}{\mu}$ .\\
+\hspace*{0.5cm}  problem badly conditioned (slow convergence):  $\kappa  \geq 1$
+
+\textbf{Fast Gradient Method}
+\begin{empheq}[innerbox=\fbox]{align*}
+Set & \hspace{0.5cm} x_0, y_0 = x_0  \text{ and }  \alpha_0 = (\sqrt{5}-1)/2\\
+Repeat & \hspace{0.5cm} x_{i+1} = y_i - \frac{1}{L} \cdot \nabla f(x_i)\\
+			& \hspace{0.5cm} \alpha_{i+1} = \alpha_i (\sqrt{\alpha_i^2+4} - \alpha_i)/2\\
+			& \hspace{0.5cm} \beta_i = \frac{\alpha_i(1-\alpha_i)}{\alpha_i^2+\alpha_{i+1}}\\
+			& \hspace{0.5cm} y_{i+1} = x_{i+1} + \beta_i (x_{i+1} - x_i)  \text{ for } i = 0, ..., m\\
+until & \hspace{0.5cm} f(x^m) - f(x^*) \leq \epsilon_1 or \Vert x_m - x_{m-1} \Vert \leq \epsilon_2
+\end{empheq}
+\hspace{0.5cm} Convergence $m \sim \mathcal O(\sqrt{L\|x_o - x^*\|^2/\epsilon_1)}$
+
+\textbf{Newtons Method:}\\
+Min of 2nd-order approx of $f$ at point $x_i$\\
+$x_{i+1} = \min f(x_i) + \nabla f(x_i)^T v + 1/2v^T \nabla^2 f(x_i)v; v = (x-x_i)$\\
+\hspace*{0.5cm} $x_{i+1} = x_i + h_i \Delta x_{nt}$\\
+Newton direction: $\Delta x_{nt} = -(\nabla^2f(x_i))^{-1} \nabla f(x_i)$\\
+Finding $h_i$ is not as easy as in other cases:\\
+Exact way: Compute optimal $h_i$: $h_i^* = \underset{h > 0}{\operatorname{argmin}} f(x_i + h_i \Delta x_{nt})$\\
+Inexact: Find $h_i$ that decreases $f$ by some $\%$, for example:\\
+ Backtracking: $\alpha \in (0, 0.05)$, $\beta \in (0,1)$\\
+\textbf{while} $f(x_i + h_i \Delta x_{nt}) > f(x_i) + \alpha h_i \nabla f(x_i)^T \Delta x_{nt}$ \textbf{do} $h_i \leftarrow \beta h_i$
+
+\subsubsection{Constrained Optimization}
+Constraint GM = GM + projection $\pi_{\mathbb{Q}}(.)$ on feasible set. \\
+\textbf{Gradient method}: $x_{i+1} = \pi_{\mathbb{Q}}(x_i - \frac{1}{L} \cdot \nabla f(x_i))$\\
+\textbf{Fast gradient method} with: $x_{i+1} = \pi_{\mathbb{Q}}(y_i - \frac{1}{L} \cdot \nabla f(x_i))$\\
+- If $\pi_{\mathbb{Q}}(.)$ easy to compute: very fast algo.\\
+- If $\pi_{\mathbb{Q}}(.)$ only computed numerically: solve also dual -> slower. \\
+Cheap sets: hyperplane, affine set, halfspace, 1\&2-norm ball...\\
+\textbf{Interior Point Method}
+Unconstrained problem, where constraints are moved to objective via indicator functions $\Phi$.\\
+$\min \hspace{0.1cm} f(x) \hspace{2cm} \Leftrightarrow \hspace{1cm} x^*(\kappa) = \min f(x) + \kappa \Phi (x)$\\
+s.t. $g_i(x) \leq 0, i=1,...,m$\\
+With the \textbf{barrier function}: $\Phi(x) = - \sum\limits_{i=1}^m \log (-g_i(x))$
+
+Central path: $\{x^*(\kappa)|\kappa>0\}$: optimal solution for all $\kappa > 0$.
+
+Approximation improves as $\kappa \rightarrow 0$
+
+\underline{Barrier interior-point method:} follow central path to optimal solution .
+
+Start with: strictly feasible $x_0, \kappa_0, \mu>1$\\
+repeat \hspace*{5mm}1. Centering step: compute $x^*(\kappa_i)$\\
+	\hspace*{15mm}2. update $x_i = x^*(\kappa_i)$\\
+	\hspace*{15mm}3. stop if $m \kappa_i<0$ ( duality gap)\\
+	\hspace*{15mm}4. Decrease barrier parameter : $\kappa_{i+1} = \kappa_i/\mu$
+%Typically $\kappa$ is first chosen big an then itteratively smaller, whereby the barrier function increasingly gets smaller. By using the found $x^*$ of the previous itteration as a warm start, the solution converges to the actual $x^*$.
+
+
+\subsection{Parametric Programming}
+Parametric programming is a way to evade solving a MPC programm online, but rather moving the computational effort offline. For this approach, the feasible set is divided in subsets for which the same constraints are active: \textbf{Critical Regions}:
+Subset of paramet set, where local optimality conditions (KKT) do not change (same constraints are active).\\
+\hspace*{5mm}$ \theta \in \mathcal X \in \mathbb R^n$: vector of parameters.
+
+
+\subsubsection{Multi-parametric Linear Problem (mpLP)}
+For linear problems of the following form. \\
+\textbf{Primal Problem}:\\
+$J^*(\theta) = \min\limits_{z} c^T z$ \hspace{1cm} s.t. $Gz \leq W+S \theta$\\
+\textbf{Dual Problem}\\
+$\max\limits_{\pi} (W + S \theta)^T \pi$ \hspace{1cm} s.t. $G^T \pi = c, \hspace{1cm} \pi \leq 0$\\
+\underline{Active} and \underline{inactive} sets are defined as follows:\\
+Active indices: $\mathcal{A}(\theta) = \{ i \in \mathcal{I} | \forall z : J(z, \theta) = J^*(\theta) \Rightarrow G_i z - S_i \theta - W_i = 0 \}$\\
+Inactive indices: $\mathcal{N}(\theta) = \{ i \in \mathcal{I} | \forall z : J(z, \theta) = J^*(\theta) \wedge G_i z - S_i \theta - W_i < 0 \}$\\
+The algorithm for finding the regions contains 3 steps:\\
+\textbf{1. Step}\\
+For an inital vector $\theta_0$ solve Primal and Dual problem: Find $z^*$ and $\pi^*$\\
+Obtain sets of inactive and active constraints:\\
+Obtain sets $\mathcal{A}(\theta_0)$ and $\mathcal{N}(\theta_0)$\\
+$G_{\mathcal{A}}, S_{\mathcal{A}}, W_{\mathcal{A}}=\{G_i, S_i, W_i | i \in {\mathcal{A}} \}$\\
+$G_{\mathcal{N}}, S_{\mathcal{N}}, W_{\mathcal{N}}=\{G_i, S_i, W_i | i \in {\mathcal{N}} \}$\\
+\textbf{2. Step}\\
+Compute optimizer: $z^*(\theta) = G_{\mathcal{A}}^{-1} S_{\mathcal{A}} \theta + G_{\mathcal{A}}^{-1} W_{\mathcal{A}} = F_0 \theta + g_0$\\
+Critical Region: $\mathcal{CR}_0 = \{\theta | (G_{\mathcal{N}} F_0 - S_{\mathcal{N}}) < W_{\mathcal{N}} - G_{\mathcal{N}} \cdot g_0$\\
+\textbf{3. Step}\\
+Explore rest of ${\mathcal{X}}$ for example by reversing inequalities (may yield overlapping or artificially splitted Regions) or by just going to a boundary and crossing it by going in direction of gradient by some (empirical) delta.
+
+
+\subsubsection{Multi Parametric Quadratic Problem mpQP}
+\textbf{Primal Problem}:\\
+$J^*(\theta) = \min\limits_{z} \hspace{0.25cm} 1/2 \cdot z^T H z$ \hspace{1cm} s.t. $Gz \leq W+S \theta$\\
+\textbf{1. Step}\\
+$\bullet$ Solve QP for one $\theta_0$, obtain optimizer $z*(\theta)$\\
+$\bullet$ Identify indices of active $\mathcal{A}(\theta)$ and inactive $\mathcal{N}(\theta)$ sets and corresponding matrices $\{G_i, S_i, W_i\}_\mathcal{A}$ and $\{G_i, S_i, W_i\}_\mathcal{N}$.\\
+\textbf{2. Step}\\
+Compute $z^*(\theta)$, $\lambda^*(\theta)$ and $\mathcal{CR}_0$:\\
+$z^*(\theta) = H^{-1} G_{\mathcal{A}}^T (G_{\mathcal{A}} H ^{-1} G_{\mathcal{A}}^T)^{-1}(W_{\mathcal{A}} + S_{\mathcal{A}} \theta) $\\
+$\lambda^*(\theta) = -(G_{\mathcal{A}} H^{-1} G_{\mathcal{A}}^T)^{-1}(W_{\mathcal{A}} + S_{\mathcal{A}} \theta) $\\
+$\mathcal{CR}_0 = \{\theta | A \theta \leq b\}$\\
+%This is the A matrix and b matrix of the mpQP program
+$A = \begin{bmatrix} 
+G H^{-1} G_{\mathcal{A}}^T (G_{\mathcal{A}} H ^{-1} G_{\mathcal{A}}^T)^{-1} S_{\mathcal{A}} - S\\ 
+(G_{\mathcal{A}} H^{-1} G_{\mathcal{A}}^T)^{-1} S_{\mathcal{A}}
+\end{bmatrix}\\
+% b matrix
+b = 
+\begin{bmatrix}
+W + G H^{-1} G_{\mathcal{A}}^T (G_{\mathcal{A}} H ^{-1} G_{\mathcal{A}}^T)^{-1} W_{\mathcal{A}}\\
+(G_{\mathcal{A}} H^{-1} G_{\mathcal{A}}^T)^{-1} W_{\mathcal{A}}
+\end{bmatrix}
+$
+
+\textbf{3. Step}\\
+Explore Rest of $\mathcal{X}$ analogously to mpLP.
+
+
+ 
+\subsection{Calculation Rules:}
+\begin{align*}
+(A \cdot b)^T &= b^T \cdot A^T\\
+(A \cdot b)^{-1} &= b^{-1} \cdot A^{-1}\\
+(A^{-1})^T &= (A^T)^{-1}\\
+\nabla_x (x^T \cdot b) &= \nabla_x (b^T \cdot x) = b\\
+\nabla_x (b \cdot x) &= b^T\\
+\nabla_x (x^T \cdot Q \cdot x) &= 2 \cdot Q \cdot x, \hspace{0.5cm} Q \succeq 0\\
+x^T \cdot A^T \cdot Q \cdot A \cdot x &= (x^T \cdot A^T \cdot Q \cdot A \cdot x)^T,  \hspace{0.5cm} Q \succeq 0\\
+Q & = Q^T, \hspace{0.5cm} Q \succeq 0\\
+det(A \cdot B) &= det(A) \cdot det(B)\\
+det(A^T) &= det(A)\\
+det(A^{-1}) &= 1/det(A)\\
+\{-1,1\}: & \text{ either -1, or 1}\\
+[1, 2[: & \text{ values from including 1 to excluding 2}
+\end{align*}
+
+
+
+
+\end{multicols*}
+\end{document}
