@@ -64,6 +64,7 @@
 \newcommand{\Mg}[1]{\begin{Bmatrix}#1\end{Bmatrix}} %geschweifte Klammern
 
 \DeclareMathOperator\diag{diag}
+\DeclareMathOperator\pre{pre}
 \DeclareMathOperator\rank{rank}
 \DeclareMathOperator\dom{dom}
 \DeclareMathOperator\size{size}
@@ -306,7 +307,35 @@ And stage cost is PD-function $\implies$ Extension to non-linear (time-invariant
 
 \subsection{Practical MPC}
 \subsection{Robust MPC}
+\paragraph{Enforcing terminal constraints} by robust invariance: \\
+\begin{align*}
+x \in O^W \implies g(x, w) \in \Omega^W \; \forall w \in W\} \\
+\pre^W(\Omega) = \{ x | g(x, w) \in \Omega \; \forall w \in W\}
+\end{align*}
+\tim{Maybe an example from exercises to compute $O^W_\infty$}
+
+\paragraph{Enforcing sequential constraints} for uncertain system $\phi$:\\
+\begin{align*}
+\phi_i(x_0, u, w) & = \left\{ x_i + \sum_{j=0}^{i-1}\vA^J w_j \middle| w \in \mc W^i \right\} \subseteq \mc X \\
+\phi_N(x_0, u, w) & \in \mc X_f \quad\text{as well}
+\end{align*}
+\tim{One or two words on what is what}
+\begin{align*}
+x_i & \in \mc X \ominus \left(\mc W \oplus \vA\mc W \oplus \dots \oplus \vA^{i-1}\mc W\right) \\
+    & = \left(\bigoplus_{j=0}^{i-1}\vA^j\mc W\right) = \remph{\Me{\vI & \vA^0 & \dots & \vA^{i-1}}\mc W^i} \\
+\vA_x x   & \leq b_x \\
+\vA_x x_i & + \vA_x \sum_{j=0}^{i-1}\vA^j w_k \leq b_x \\
+\end{align*}
+
 \paragraph{Tube-MPC}
+We want nominal system $z_k = \vA z_k + \vB v_k$ with ``tracking'' controller $u_k = \vK(x_k - z_k) + v_k$, $\vK$ found offline. \\
+Step 1: Compute $\mc E = \bigoplus_{j=1}^\infty \vA^j\mc W.$ \\
+Step 2: Shrink Constraints:
+\begin{align*}
+\{z_i\} \oplus \mc E & \subseteq \mc X & \implies z_i & \in \mc X \ominus \mc E \\
+u_i \in \vK\mc E \oplus \{v_i\} & \subset \vU & \implies v_i & \in \mc U \ominus \vK\mc E \\
+\end{align*}
+Also $z_n \in \mc X_f \ominus \mc E$ accordingly.
 
 \subsection{Explicit MPC}
 
