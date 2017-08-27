@@ -1,5 +1,6 @@
 \documentclass[landscape,a4paper,8pt]{scrartcl}
 
+\usepackage{bm}
 \usepackage{layout}
 \usepackage{changepage}   % for the adjustwidth environment
 %\usepackage{extsizes}
@@ -17,6 +18,30 @@
 \fancyfoot[RO, LE] {\thepage}
 
 \newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand\va{\bm{a}}
+\newcommand\vq{\bm{q}}
+\newcommand\vr{\bm{r}}
+\newcommand\vp{\bm{p}}
+\newcommand\vk{\bm{k}}
+\newcommand\vn{\bm{n}}
+\newcommand\vv{\bm{v}}
+\newcommand\vx{\bm{x}}
+\newcommand\vy{\bm{y}}
+\newcommand\vz{\bm{z}}
+\newcommand\vA{\bm{A}}
+\newcommand\vB{\bm{B}}
+\newcommand\vC{\bm{C}}
+\newcommand\vD{\bm{D}}
+\newcommand\vF{\bm{F}}
+\newcommand\vH{\bm{H}}
+\newcommand\vI{\bm{I}}
+\newcommand\vG{\bm{G}}
+\newcommand\vK{\bm{K}}
+\newcommand\vP{\bm{P}}
+\newcommand\vQ{\bm{Q}}
+\newcommand\vR{\bm{R}}
+\newcommand\vT{\bm{T}}
+\newcommand\vU{\bm{U}}
 
 \DeclareMathOperator\rank{rank}
 \DeclareMathOperator\dom{dom}
@@ -31,7 +56,30 @@
 %--CONTENT--
 \begin{multicols*}{3}
 \section{Systems Theory}
+\subsection{Linearization}
+\subsection{Discretization}
+\paragraph{Exact}
+\paragraph{Forward-Euler}
+\paragraph{Backward-Euler}
+\subsection{Lyapunov Function}
+$V(0) = 0$, $x \neq 0 \implies V(x) > 0$, $V(g(x(k+1))) - V(x(k+1)) \leq - \alpha(x(k))$
+
+System asymptotically stable if $V(x)$ exists.
+Globally stable iff $\lVert x \rVert \rightarrow \infty \implies V(x) \rightarrow \infty$.
+
+Check Eig. values of $(APA-P)$ neg., $V(x) = x^TPx$ ?
+
 \section{Unconstrained Control}
+
+\paragraph{DARE}
+Initialize $\vP_{N} = \vP$,
+sometimes $\vF_k = \vK$.
+\begin{align*}
+ \vP_k & = \vA^T\vP_{k+1}\vA + \vQ - \vA^T\vP_{k+1}\vB(\vB^T\vP_{k+1}\vB + \vR)^{-1}\vB^T\vP_{k+1}\vA \\
+ \vF_k & -(\vB^T\vP_{k+1}\vB + \vR)^{-1}\vB^T\vP_{k+1}\vA \\
+\end{align*}
+Infinite Horizon unconstrained, LQR gives $\vP_\infty$ satisfying equations above.
+If $(A,B)$ stabilizable and $(A, G)$ detectable, $\vP_\infty$ unique, where $\vG\vG^T = \vQ$.
 
 \section{(Convex) Optimization}
 
