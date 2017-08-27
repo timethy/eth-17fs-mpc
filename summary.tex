@@ -24,7 +24,9 @@
 
 \newcommand{\remph}[1]{{\textcolor{red}{#1}}}
 \newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\R}{\mathbb R}
 \newcommand\va{\bm{a}}
+\newcommand\vb{\bm{b}}
 \newcommand\vq{\bm{q}}
 \newcommand\vr{\bm{r}}
 \newcommand\vp{\bm{p}}
@@ -128,10 +130,40 @@ Uniquely solvable, iff $(A,B)$ stabilizable and $(A, G)$ detectable, where $\vG\
 Follows from closed-loop system $x_{k+1} = (\vA + \vB\vF_k)x_k$
 
 \section{(Convex) Optimization}
+\subsection{Convexity}
+\paragraph{Convex set $\mc X$} iff $\forall \lambda \in [0, 1] \forall x, y \in \mc X\ \lambda x + (1-\lambda) y \in \mc X$.
+Intersection preserves convexity, union does not.
+\paragraph{Affine set $\mc X$} $= \{ x \in \R^n | \vA x = b \}$ for some $\vA,b$
+\paragraph{Subspace} is affine set through origin, i.e. $b = \bm 0$, aka Nullspace of $\vA$.
+\paragraph{Hyperplane $\mc X$} $= \{ x \in \R^n | a^T x = b \}$ for some $a, b$.
+\paragraph{Halfspace $\mc X$} $= \{ x \in \R^n | a^T x \leq b \}$ for some $a, b$.
+\paragraph{Polyhedron $\mc P$} $= \{ x | a_i^Tx \leq b_i, i = 1, \dots, n \} = \{ x | \vA x \leq b \}$
+\paragraph{Cone}
+\paragraph{Ellipsoid $\mc E$} $= \{ x | (x-x_c)^T\vA^{-1}(x-x_c) \leq 1 \}$, $x_c$ center point.
+
+\paragraph{Convex function}
+
+\paragraph{Norm $f(x): \R^n \rightarrow \R$}
+\begin{align*}
+f(x) & = 0 \implies x = 0, && f(x) \geq 0 \\
+f(\alpha \cdot x) & = |\alpha|\cdot f(x) && \text{for scalar } \alpha \\
+f(x+y) & \leq f(x) + f(y) && \forall x, y \in R^n
+\end{align*}
+\tim {Maybe move the above somewhere else?}
 
 \paragraph{General Problem}
 $\min_{x \in \dom(f)} f(x)$ s.\ t.\ $g_i(x) \leq 0$ and $h_j(x) = 0.$
 %for $i = 1,\dots,m, j = 1,\dots,p$.
+
+\subsection{Linear Programming (LP)}
+\paragraph{Problem statement} $\min c^Tx$ such that $\vG x \leq h$ and $\vA x = b$.
+\paragraph{$l_\infty$}
+$\min \lVert x \rVert_\infty$ equivalent to $\min_{x \in \R^n} \left[ \max\{x,\dots,x_n,-x_1,\dots,-x_n\}\right]$. \\
+Epigraph gives:
+\tim{Set this in better form}
+$\min_{x,t} t$ such that $x_i \leq t, -x_i \leq t, \vF x \leq g$ $\iff$ $\min_{x,t} t$ such that $-{\bm 1} t \leq x \leq 1 t, \vF_x \leq g$.
+
+\paragraph{$l_1$}
 
 \paragraph{RHC}
 \paragraph{QP with substitution (see also Batch approach)}
@@ -238,7 +270,24 @@ are necessary for optimality (and sufficient if primal convex).
 \subsection{Constrained Finite Time Optimal Control (CFTOC)}
 
 \subsection{Invariance}
-\subsection{Feasability, Stability}
+Def.: $x(k) \in O \implies x(k+1) \in O \forall k$. \\
+\begin{align*}
+pre(S) & := \{ x | g(x) \in S\} & = \{ x | Ax \in S \}
+\end{align*}
+
+\tim{We need more here, poos. inv. set, max. pos.inv $O_\infty$}
+
+\subsection{Stability and Feasability}
+Recursive Stability, optimal cost is Lyapunov function.
+\tim{What is meant with that}
+
+Main Idea: Choose $\mc X_f$ and $\vP$ to mimic inf horizon,
+terminal cost ist Lyapunov function: $x_{k+1}^T\vP x_{k+1} - x_k^T\vP x_k = -x_k^T(\vQ + \vF_\infty^T\vR\vF_\infty)x_k$, such that:
+\begin{align*}
+x_{k+1} & = \vA x_k + \vB\vF_\infty\ x_k \in \mc X_f & \forall x_k \in \mc X_f & \text{ terminal set invariant} \\
+\mc X_f & \subseteq \mc X, \qquad \vF_\infty\ x_k \in \mc U & \forall x_k \in \mc X_f & \text{ constrainst satisfied}
+\end{align*}
+And stage cost is PD-function $\implies$ Extension to non-linear (time-invariant) MPC possible since terminal set and cost do not rely on linearity.
 
 \subsection{Practical MPC}
 \subsection{Robust MPC}
@@ -251,109 +300,6 @@ are necessary for optimality (and sufficient if primal convex).
 \section{Numerical Optimization}
 Gradient, Newton, Interior Point
 
-
-\section{Observer Based Control}
-\subsection{LTI Observer}
-LTI System: 
-\begin{align*}
-& x(k) = A x(k-1) + B u (k-1) + v(k-1) \\
-& z(k) = H x(k) + w(k)
-\end{align*}
-
-Linear Static Gain Observer (Luenberger Observer):
-\begin{align*}
-&\hat{x}(k) = A \hat{x}(k-1) + B u (k-1) + K(z(k) - \hat{z}(k)) \\
-&\hat{z}(k) = H ( A \hat{x}(k-1) + B u(k-1)) \\
-&e(k)= (I-K \, H)\, A \,  e(k-1)
-\end{align*}
-$e(k) \to 0$ for $k \to \infty$ if and only if $(I-K \, H)\, A$ is stable.\\
-
-Steady State: 
-\begin{align*}
-&\hat{x}(k) = (I-K_\infty H )\, A\, \hat{x}(k-1) + (I-K_\infty) B \, u(k-1) + K_\infty z(k)
-\end{align*}
-The steady-state KF is one way to design the observer gain $K$ (optimal in minimizing the Steady State mean squared error). \\
-
-%Observer Estimation error:
-%\begin{align*}
-%e(k)= (I-K \, H)\, A \,  e(k-1)
-%\end{align*}
-
-
-
-%\begin{tabular}{ll}
-%LTI system: & $x(k) = A x(k-1) + B u (k-1) + v(k-1)$ \\
-%& $z(k) = H x(k) + w(k)$
-%\end{tabular} 
-%
-%\begin{tabular}{ll}
-%Observer: & $\hat{x}(k) = A \hat{x}(k-1) + B u (k-1) + K(z(k) - \hat{z}(k))$ \\
-%& $\hat{z}(k) = H ( A \hat{x}(k-1) + B u(k-1))$
-%\end{tabular}
-%
-%\begin{tabular}{ll}
-%Steady State: & $\hat{x}(k) = (I-K_\infty H )\, A\, \hat{x}(k-1) + ... $ \\
-% & $(I-K_\infty) B \, u(k-1) + K_\infty z(k)$ \\
-%Estim. error: & $e(k)= (I-K \, H)\, A \,  e(k-1)$
-%\end{tabular}
-
-$(A,H)$ detectable $ \Rightarrow$ $K$ exists such that $(I-K \, H) A$ is stable.
-
-\subsection{Static State Feedback Control}
-Design of a controller without paying attention to the state estimation:
-\begin{align*}
-x(k) &= A x(k-1) + B u(k-1) \tag{Process without noise} \\
-z(k) &= x(k)  \tag{Perfect State information} \\
-u(k) &= F \cdot z(k) = F \cdot x(k) \tag{Control Law}
-\end{align*}
-%Control law: $u(k) = F \cdot z(k) = F \cdot x(k)$ (needs to be designed) \\
-
-Closed loop dynamics: $x(k) = (A+B F)$. Hence system is stable if $(A+B F)$ is stable. Such an $F$ exists only if $(A,B)$ is stabilizable. \\
-If $(A,B)$ is stabilizable and $(A,G)$ detectable, then $F$ is given by
-\begin{align*}
-F = -(B^T P B + \bar{R})^{-1} \cdot B^T P A; \qquad P\geq 0
-\end{align*}
-$P$ from DARE: $P = A^T P A + \bar{Q} - A^T P B( B^T P B + \bar{R})^{-1} \cdot B^T P A$
-
-%\subsection{Linear Static Gain Observer (Luenberger Observer)}
-%\begin{align*}
-%\hat{x}(k) &= A \hat{x}(k-1) + B \, u(k-1) + K(z(k) - \hat{z}(k)) \\
-%\hat{z}(k) &= H(A \hat{x}(k-1) + B u(k-1)) \\
-%u(k) &= F \, \hat{x}(k)
-%\end{align*}
-
-
-\subsection{Separation Principle (Linear Systems only)}
-Combining Luenberger Observer and Static State Feedback control yields:
-\begin{align*}
-\begin{bmatrix}
-x(k) \\ e(k) 
-\end{bmatrix}
-= 
-\begin{bmatrix}
-A + BF & - B F \\ 0 & (I-KH) A
-\end{bmatrix}
-\cdot
-\begin{bmatrix}
-x(k-1) \\ e(k-1)
-\end{bmatrix}
-\end{align*}
-Eigenvalues of closed loop are given bei Eigenvalues of $(I-KH) A$ and $(A + BF)$. System is stable as long as there exists no $|\lambda| \geq 1$. \\
-
-%Note:
-%\begin{itemize}
-%\item Including noise does not affect stability.
-%\item Separation principle generally does not hold for nonlinear systems.
-%\end{itemize}
-
-
-\subsection{Separation Theorem}
-%Given a LTI System with $v(k-1) \sim \mathcal{N}(0,Q)$ and $w(k-1) \sim \mathcal{N}(0,R)$
-
-\begin{enumerate}
-\item Design steady-state KF which does not depend on $\bar{Q}, \bar{R}$. $\Rightarrow \hat{x}(k)$
-\item Design state-feedback $u(k) = F x(k)$ and put both together.
-\end{enumerate}
-
 \end{multicols*}
+
 \end{document}
