@@ -5,6 +5,10 @@
 \usepackage{changepage}   % for the adjustwidth environment
 %\usepackage{extsizes}
 %\usepackage{savetrees}
+\usepackage{xargs} 
+\usepackage{graphicx,xcolor} 
+\usepackage[bordercolor=white,backgroundcolor=gray!30,linecolor=black,colorinlistoftodos]{todonotes}
+\newcommandx{\tim}[1]{\todo[color=blue!30, inline]{tim: {#1}}}
 
 %------------------------------------
 %  FOOTER SETTINGS
@@ -17,6 +21,7 @@
 \fancyfoot[C]{Model Predictive Control - \today}
 \fancyfoot[RO, LE] {\thepage}
 
+\newcommand{\remph}[1]{{\textcolor{red}{#1}}}
 \newcommand{\mc}[1]{\mathcal{#1}}
 \newcommand\va{\bm{a}}
 \newcommand\vq{\bm{q}}
@@ -32,19 +37,31 @@
 \newcommand\vB{\bm{B}}
 \newcommand\vC{\bm{C}}
 \newcommand\vD{\bm{D}}
+\newcommand\vE{\bm{E}}
 \newcommand\vF{\bm{F}}
+\newcommand\vG{\bm{G}}
 \newcommand\vH{\bm{H}}
 \newcommand\vI{\bm{I}}
-\newcommand\vG{\bm{G}}
 \newcommand\vK{\bm{K}}
 \newcommand\vP{\bm{P}}
 \newcommand\vQ{\bm{Q}}
 \newcommand\vR{\bm{R}}
+\newcommand\vS{\bm{S}}
 \newcommand\vT{\bm{T}}
 \newcommand\vU{\bm{U}}
+\newcommand\vX{\bm{X}}
+\newcommand\vY{\bm{Y}}
+\newcommand\vZ{\bm{Z}}
 
+\newcommand{\Mn}[1]{\begin{pmatrix}#1\end{pmatrix}} %normale Klammern, normal bracket
+\newcommand{\Mo}[1]{\begin{matrix}#1\end{matrix}} %ohne Klammern, no brackets
+\newcommand{\Me}[1]{\begin{bmatrix}#1\end{bmatrix}} %eckige Klammern
+\newcommand{\Mg}[1]{\begin{Bmatrix}#1\end{Bmatrix}} %geschweifte Klammern
+
+\DeclareMathOperator\diag{diag}
 \DeclareMathOperator\rank{rank}
 \DeclareMathOperator\dom{dom}
+\DeclareMathOperator\size{size}
 
 %------------------------------------
 %  BEGIN DOCUMENT
@@ -70,16 +87,56 @@ Globally stable iff $\lVert x \rVert \rightarrow \infty \implies V(x) \rightarro
 Check Eig. values of $(APA-P)$ neg., $V(x) = x^TPx$ ?
 
 \section{Unconstrained Control}
+\subsection{Block Approach (used also for $\bar w$ substition)}
+	\begin{align*}
+		\Me{x_0 \\ x_1 \\ \vdots \\ x_N } & = \Me{\vI \\ \vA \\ \vdots \\ \vA^N}x(0) + \Me{\bm 0 & \bm 0 & \dots & \bm 0 \\ \vB & \bm 0 & \dots & \bm 0 \\ \vA\vB & \vB & \dots & \bm 0 \\ \vdots & \vdots & \ddots & \bm 0 \\ \vA^{N-1}\vB & \dots & \vA\vB & \vB}\Me{u_0 \\ u_1 \\ \vdots \\ u_{N_1}}
+	\end{align*}
 
-\paragraph{DARE}
+\begin{align*}
+x & = \vS^x\cdot x(0) + \vS^u\cdot u & \size(\vS^x) & = \left[ n_\text{states} \cdot (N+1) , N \right] \\
+  &                                  & \size(\vS^u) & = \left[ n_\text{states} \cdot (N+1), n_\text{states} \right] \\
+\bar\vQ & = \diag(\vQ,\dots,\vQ, \vP) & \size(\bar\vQ) & = \left[ n_\text{states} \cdot (N+1), n_\text{states} \cdot (N+1) \right] \\
+\bar\vR & = \diag(\vR,\dots,\vR) & \size(\bar\vR) & = (n_\text{input}\cdot N, n_\text{input}\cdot N) \\
+\vH & = {\vS^u}^T\bar\vQ\vS^u + \vR & \vF & = {\vS^x}^T\bar\vQ\vS^u \\
+\vY & = {\vS^x}^T\bar\vQ\vS^x
+\end{align*}
+\paragraph{Optimal cost and control}
+\begin{align*}
+J^*(x(0)) & = -x(0)^T \vF\vH\vF^T x(0) + x(0)^T {\vS^x}^T\bar\vQ\vS^x x(0) \\
+u^*(x(0)) & = -\vH^{-1}\vF^T x(0) = - \left( {\vS^u}^T\bar\vQ\vS^u + \vR \right)^{-1}{\vS^u}^T\bar\vQ\vS^x x(0) \\
+\end{align*}
+\tim{check formulae for J*, u*}
+\begin{align*}
+U_0^*(x(0)) =& -(\mc{S}^{uT} \bar{Q} \mc{S}^u + \bar{R})^{-1}\mc{S}^{uT}\bar{Q}\mc{S}^x x(0) \\
+J_0^*(x(0))=&x(0)^T \left(\mc{S}^{xT} \bar{Q} \mc{S}^x - \right. \dots \\ \dots &\left. \mc{S}^{xT}\bar{Q}\mc{S}^u(\mc{S}^{uT}\bar{Q}\mc{S}^u- \bar{R})^{-1} \mc{S}^{uT}\bar{Q}\mc{S}^x \right) x(0)
+\end{align*}
+
+\subsection{Recursive Approach}
+\begin{align*}
+J_k^*(x_k) & = \min_{u_k} I(x_k, u_k) + J_{k+1}(x_{k+1})
+\end{align*}
+Is a feedback controller as opposed to the Batch Approach.
+For LQR solve via Riccati Difference Equation (RDE).
+\begin{align*}
+ \vF_k & = -(\vB^T\vP_\remph{k+1}\vB + \vR)^{-1}\vB^T\vP_\remph{k+1}\vA \\
+ u_k^*& = \vF_k\ x_k\\
+ \vP_k & = \vA^T\vP_\remph{k+1}\vA + \vQ - \vA^T\vP_\remph{k+1}\vB(\vB^T\vP_\remph{k+1}\vB + \vR)^{-1}\vB^T\vP_\remph{k+1}\vA \\
+ J_k^*(x(0)) & = x(0)^T\vP_k\ x(0) 
+\end{align*}
+
+\tim{
 Initialize $\vP_{N} = \vP$,
 sometimes $\vF_k = \vK$.
-\begin{align*}
- \vP_k & = \vA^T\vP_{k+1}\vA + \vQ - \vA^T\vP_{k+1}\vB(\vB^T\vP_{k+1}\vB + \vR)^{-1}\vB^T\vP_{k+1}\vA \\
- \vF_k & -(\vB^T\vP_{k+1}\vB + \vR)^{-1}\vB^T\vP_{k+1}\vA \\
-\end{align*}
+}
+
 Infinite Horizon unconstrained, LQR gives $\vP_\infty$ satisfying equations above.
 If $(A,B)$ stabilizable and $(A, G)$ detectable, $\vP_\infty$ unique, where $\vG\vG^T = \vQ$.
+
+\begin{align*}
+J^*_k(x(k)) =& ~x(k)^T P_k x(k)\\
+P_k =& ~A^T P_{k+1}A + Q - \dots \\ &\dots A^T P_{k+1}B\left( B^T P_{k+1} B + R\right)^{-1} B^T P_{k+1}A
+\end{align*}
+
 
 \section{(Convex) Optimization}
 
