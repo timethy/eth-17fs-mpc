@@ -9,7 +9,7 @@
 \usepackage{xargs} 
 \usepackage{graphicx,xcolor} 
 \usepackage[bordercolor=white,backgroundcolor=gray!30,linecolor=black,colorinlistoftodos]{todonotes}
-\newcommandx{\tim}[1]{\todo[color=blue!30, inline]{tim: {1}}}
+\newcommandx{\tim}[1]{\todo[color=blue!30, inline]{tim: {#1}}}
 
 %------------------------------------
 %  FOOTER SETTINGS
@@ -99,7 +99,7 @@ we define a system to be stable in the sense of Lyapunov, if it stays in any arb
 \[ \norm{x(0)}<\delta(\epsilon)\to \norm{x(k)} < \epsilon, \forall k \geq 0 \]
 \textbf{asymptotically stable} in $\Omega\subseteq \R^n$ if it is Lyapunov stable and attractive $\lim_{k\to\infty}x(k)=0, \forall x(0)\in \Omega$
 \subsection{Lyapunov Function}
-Consider the equilibrium point $x=0$. Let $\Omega\subset\R^n$ be a closed and bounded set containing the origin. A function $V:\R^n\to \R$, continous at the origin, finite for every $x\in \Omega$, and such that 
+Consider the equilibrium point $x=0$. Let $\Omega\subset\R^n$ be a closed and bounded set containing the origin. A function $V:\R^n\to \R$, continous at the origin, finite for every $x\in \Omega$, and such that
 \begin{align*}
 V(0)=0 \text{ and } V(x)>0, \forall x\in \Omega \backslash \{0\}\\
 V(g(x))-V(x)\leq -\alpha(x), \forall x\in\Omega\backslash \{0\}
@@ -117,7 +117,7 @@ If a system admits a Lyapunov function, which additionally satisfies $\norm{x}\t
 \subsection{Discretization}
 Euler: $A = I + T_s A^c ,\ B = T_s B^c ,\ C = C^c ,\ D = D^c $
 \begin{align*}
-x(k + 1) &= x(k) + T_sg^c(x(k),u(k)) = g(x(k),u(k)) \\ 
+x(k + 1) &= x(k) + T_sg^c(x(k),u(k)) = g(x(k),u(k)) \\
 y(k) &= h^c(x(k),u(k)) = h(x(k),u(k))
 \end{align*}
 Exact: (assumption of a constant $u(t)$ during $T_s$)
@@ -452,7 +452,7 @@ J(x_k) &= \text{min } z^T H z - x_k^T (Y - FH^{-1}F^T )x_k\\
 \end{align*}
 The first solution gives $u^*(x_k) = \kappa(x_k)$, which is continuous and piecewise affine on polyhedra $\kappa(x) = F_jx + g_j$.
 \subsection{1/$\infty$-norm}
-$J^*(x_k)$ is continuous, convex and polyhedral piecewise affine over. 
+$J^*(x_k)$ is continuous, convex and polyhedral piecewise affine over.
 Optimal solution given by, $u^*_0 = 0 \left[0\space \dots 0\space I_m\space 0\space \dots 0\space \right]z^*(x_k)$, and is in the same form as the QP case above.
 \section{Hybrid MPC}
 \subsection{Piecewise Affine (PWA) Systems}
@@ -500,7 +500,7 @@ x_{k+1} &= A x_k + B_1 u_k + B_2 \delta_k + B_3 z_k \\
 y_k &= C x_k  + D_1 u_k + D_2 \delta_k + D_3 z_k\\
 E_2 \delta_k + E_3 z_k &\leq E_4 x_k + E_1 u_k + E_5
 \end{align*}
-where the last equation describes the relationship between the continuous and integer variables. Physical constraints on cont. variables: 
+where the last equation describes the relationship between the continuous and integer variables. Physical constraints on cont. variables:
 $\left\{\mc{C}\right\} = \left\{ \Me{x_c\\u_c} \in \mc{R}^{n_c+m_c}| F x_c + G u_c \leq H\right\}$
 \subsection{CFTOC for Hybrid Systems}\vspace*{-\baselineskip}
 \begin{align*}
@@ -515,8 +515,29 @@ J^*(x)=&\min_U ~l_N (x_N) + \sum_{k=0}^{N-1} l(x_k,u_k,\delta_k,z_k)\\
 \end{align*}
 Branch and bound method can be used to efficiently solve the problem.
 Explict solution is a time varying fb law for both problems: $u_k^*(x_k) = F^j_k x_k + G_k^j$ if $x_k \in \mc{R}^j_k$.
-\section{Numerical Optimization}
+
+\section{Numerical Optimization -- Iterative Methods}
+\subsection{Gradient descent}
+$x_{i+1} = x_i - h_i\nabla f(x_i)$ with step-size $h_i = \dfrac{1}{L}$ for
+$L$-smooth $f(x)$:
+\begin{align*}
+     & \exists L: \lVert \nabla f(x) - \nabla f(y) \rVert \leq L \lVert x - y \rVert \; \forall x, y, \in \R^n \\
+\iff & \nabla f \text{ is Lipschitz continuous} \\
+\iff & f \text{ can be upperbounded by a quadratic function }
+\end{align*}
+
+\subsection{Newton's Method}
+$x_{i+1} = x_i - h_i\delta x_{nt} := x_i - h_i (\nabla^2 f(x_i))^{-1} \nabla f(x_i)$ \\
+Choose $h_i > 0$ s.t.\ $f(x_i + h_i\delta x_{nt} \leq f(x_i)$ \remph{Line-search}.
+
+For given equality constraint $\vA x = b$ solve:
+\begin{align*}
+\Me{\nabla^2 f(x_i) & \vA^T \\ \vA & \bm 0}\Me{\delta x \\ \lambda} = \Me{-\nabla f(x_i) \\ \bm 0}
+\end{align*}
+
+
 Gradient, Newton, Interior Point
+
 \end{multicols*}
 
 \end{document}
