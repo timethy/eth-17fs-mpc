@@ -17,10 +17,10 @@
 \pagestyle{fancy}
 \renewcommand{\headrulewidth}{0pt}
 \fancyhead{}
-\renewcommand{\footrulewidth}{0pt}
-\fancyfoot[L]{Tim Taubner (taubnert@ethz.ch)}
-\fancyfoot[C]{Model Predictive Control - \today}
-\fancyfoot[RO, LE] {\thepage}
+\renewcommand{\footrulewidth}{0.5pt}
+\fancyfoot[L]{\footnotesize\color{dkgreen} Tim Taubner, Jen Wei Niam; \href{https://github.com/timethy/mpc}{www.github.com/timethy/mpc}}
+\fancyfoot[C]{\footnotesize\color{dkgreen} Model Predictive Control -- \today}
+\fancyfoot[RO, LE] {\footnotesize\color{dkgreen} \thepage}
 
 \newcommand{\remph}[1]{{\textcolor{red}{#1}}}
 \newcommand{\mc}[1]{\mathcal{#1}}
@@ -68,6 +68,7 @@
 
 \DeclareMathOperator\diag{diag}
 \DeclareMathOperator\pre{pre}
+\DeclareMathOperator\norm{norm}
 \DeclareMathOperator\rank{rank}
 \DeclareMathOperator\dom{dom}
 \DeclareMathOperator\size{size}
@@ -82,19 +83,54 @@
 
 %--CONTENT--
 \begin{multicols*}{3}
-\section{Systems Theory}
-\subsection{Linearization}
-\subsection{Discretization}
-\paragraph{Exact}
-\paragraph{Forward-Euler}
-\paragraph{Backward-Euler}
+\section{System Theory}
+\begin{align*}
+\dot{x}(t) &= A^cx(t)+B^cu(t)\\
+y(t) &= C^cx(t) + D^cu(t)\\
+x(t) &= e^{A^c(t-t_0)}x_0+\int_{t_0}^te^{A^c(t-\tau)}Bu(\tau)d\tau \\
+e^{A^ct}&=\sum_{n=0}^\infty\frac{(A^ct)^n}{n!} \\
+x(k+N)&=A^Nx(k)+\sum_{i=0}^{N-1}A^iBu(k+N-1-i)
+\end{align*}
+
+\subsection{Nonlinear Systems}
+we define a system to be stable in the sense of Lyapunov, if it stays in any arbitrarily small neighborhood of the origin when it is disturbed slightly
+\subsection{Lyapunov Stability}
+\textbf{Lyapunov stable} if for every $\epsilon > 0$ there exists a $\delta(\epsilon)$ such that
+\[ \norm{x(0)}<\delta(\epsilon)\to \norm{x(k)} < \epsilon, \forall k \geq 0 \]
+\textbf{asymptotically stable} in $\Omega\subseteq \R^n$ if it is Lyapunov stable and attractive $\lim_{k\to\infty}x(k)=0, \forall x(0)\in \Omega$
 \subsection{Lyapunov Function}
-$V(0) = 0$, $x \neq 0 \implies V(x) > 0$, $V(g(x(k+1))) - V(x(k+1)) \leq - \alpha(x(k))$
+Consider the equilibrium point $x=0$. Let $\Omega\subset\R^n$ be a closed and bounded set containing the origin. A function $V:\R^n\to \R$, continous at the origin, finite for every $x\in \Omega$, and such that 
+\begin{align*}
+V(0)=0 \text{ and } V(x)>0, \forall x\in \Omega \backslash \{0\}\\
+V(g(x))-V(x)\leq -\alpha(x), \forall x\in\Omega\backslash \{0\}
+\end{align*}
+where $\alpha:\R^n\to\R$ is continuous positive definite
 
-System asymptotically stable if $V(x)$ exists.
-Globally stable iff $\lVert x \rVert \rightarrow \infty \implies V(x) \rightarrow \infty$.
+If a system admins a Lyapunov function $V(x)$, then $x=0$ is \textbf{asymptotically stable} in $\Omega$ (sufficient but not necessary)
 
-Check Eig. values of $(APA-P)$ neg., $V(x) = x^TPx$ ?
+If a system admits a Lyapunov function, which additionally satisfies $\norm{x}\to \infty \rightarrow V(x)\to \infty$, then $x=0$ is \textbf{globally asymptotically stable}
+
+\tim{Check Eig. values of $(APA-P)$ neg., $V(x) = x^TPx$ ?}
+
+\textbf{Linear systems}: iff eigenvalues of $A$ inside unit circle (i.e. stable) then $\exists unique \ P>0$ that solves $A_{cl}^TPA_{cl}-P = -Q,\ Q > 0$ and $V = x^TPx$ is a lyapunov function.
+
+\subsection{Discretization}
+Euler: $A = I + T_s A^c ,\ B = T_s B^c ,\ C = C^c ,\ D = D^c $
+\begin{align*}
+x(k + 1) &= x(k) + T_sg^c(x(k),u(k)) = g(x(k),u(k)) \\ 
+y(k) &= h^c(x(k),u(k)) = h(x(k),u(k))
+\end{align*}
+Exact: (assumption of a constant $u(t)$ during $T_s$)
+\begin{align*}
+A = e^{A^cT_s},\ B = \int_0^{T_s} e^{A^c(Ts-\tau')}B^cd\tau \\
+B=(A^c)^{-1}(A-I)B^c,\ \text{if $A^c$ invertible}
+\end{align*}
+
+\subsection{Controllability (reachability) and observability}
+\begin{align*}
+C &= [B \ AB \ ... \ A^{n-1}B] \\
+O &= [C^T \ (CA)^T \ ... \ (CA^{n-1})^T]
+\end{align*}
 
 \section{Unconstrained Control}
 \subsection{Block Approach (used also for $\bar w$ substition)}
@@ -106,7 +142,7 @@ Check Eig. values of $(APA-P)$ neg., $V(x) = x^TPx$ ?
 x & = \vS^x\cdot x(0) + \vS^u\cdot u & \size(\vS^x) & = \left[ n_\text{states} \cdot (N+1) , N \right] \\
   &                                  & \size(\vS^u) & = \left[ n_\text{states} \cdot (N+1), n_\text{states} \right] \\
 \bar\vQ & = \diag(\vQ,\dots,\vQ, \vP) & \size(\bar\vQ) & = \left[ n_\text{states} \cdot (N+1), n_\text{states} \cdot (N+1) \right] \\
-\bar\vR & = \diag(\vR,\dots,\vR) & \size(\bar\vR) & = (n_\text{input}\cdot N, n_\text{input}\cdot N) \\
+\bar\vR & = \diag(\vR,\dots,\vR) & \size(\bar\vR) & = \left[ n_\text{input}\cdot N, n_\text{input}\cdot N \right] \\
 \vH & = {\vS^u}^T\bar\vQ\vS^u + \vR & \vF & = {\vS^x}^T\bar\vQ\vS^u \\
 \vY & = {\vS^x}^T\bar\vQ\vS^x
 \end{align*}
@@ -291,22 +327,27 @@ are necessary for optimality (and sufficient if primal convex).
 \subsection{Invariance}
 Def.: $x(k) \in O \implies x(k+1) \in O \forall k$. \\
 \begin{align*}
-pre(S) & := \{ x | g(x) \in S\} & = \{ x | Ax \in S \}
+\pre(S) & := \{ x | g(x) \in S\} & = \{ x | Ax \in S \}
 \end{align*}
 
 \tim{We need more here, poos. inv. set, max. pos.inv $O_\infty$}
 
 \subsection{Stability and Feasability}
-Recursive Stability, optimal cost is Lyapunov function.
-\tim{What is meant with that}
+%Recursive Stability, optimal cost is Lyapunov function.
+%\tim{What is meant with that}
 
-Main Idea: Choose $\mc X_f$ and $\vP$ to mimic inf horizon,
-terminal cost ist Lyapunov function: $x_{k+1}^T\vP x_{k+1} - x_k^T\vP x_k = -x_k^T(\vQ + \vF_\infty^T\vR\vF_\infty)x_k$, such that:
+Main Idea: Choose $\mc X_f$ and $\vP$ to mimic infinite horizon.
+LQR control law $\kappa(x) = \vF_\infty x$ from solving DARE.
+Set terminal weight $\vP = \vP_\infty$, terminal set $\mc X_f$ as maximal invariant set:
 \begin{align*}
 x_{k+1} & = \vA x_k + \vB\vF_\infty\ x_k \in \mc X_f & \forall x_k \in \mc X_f & \text{ terminal set invariant} \\
 \mc X_f & \subseteq \mc X, \qquad \vF_\infty\ x_k \in \mc U & \forall x_k \in \mc X_f & \text{ constrainst satisfied}
 \end{align*}
-And stage cost is PD-function $\implies$ Extension to non-linear (time-invariant) MPC possible since terminal set and cost do not rely on linearity.
+We get: 1. Positive stage cost function, 2. invariant terminal set by construction, 3. Terminal cost is Lyapunov function with
+\[ x_{k+1}^T\vP x_{k+1} - x_k^T\vP x_k = -x_k^T(\vQ + \vF_\infty^T\vR\vF_\infty)x_k \]
+
+%And stage cost is PD-function $\implies$
+Extension to non-linear (time-invariant) MPC possible since terminal set and cost do not rely on linearity.
 
 \subsection{Practical Issues}
 \[
@@ -315,7 +356,32 @@ And stage cost is PD-function $\implies$ Extension to non-linear (time-invariant
 $\min u_s^T\vR_s u_s$ else $\min (\vC x_s - r)^T \vQ_s (\vC x_s - r)$ subject to $x_s = \vA x_s + \vB u_s$.
 
 \paragraph{MPC for tracking}
-\paragraph{Delta formulation}
+Target steady-state conditions $x_s = \vA x_s + \vB u_s$ and $y_s = \vC x_s = r$ and constrainsts give:
+\begin{align*}
+\min_{x_s, u_s} u_s^T \vR u_s & \text{ subj. to } \Me{\vI-\vA & -\vB \\ \vC & \bm 0}\Me{x_s \\ u_s} = \Me{\bm 0 \\ r}, x_s \in \mc X, u_s \in \mc U
+\end{align*}
+Usually assume $x_s, u_s$ unique and feasible.
+If no solution exists, compute closest steady-state ($\min (\vC x_s - r)^T \vQ (\vC x_s - r)$ s.\ t.\ $x_s = \vA x_s + \vB u_s$).
+
+MPC problem to drive $y \rightarrow r$ is:
+\begin{align*}
+\min_u \lVert y_N - \vC x_s \rVert_{P_y}^2 + \sum_{i=0}^{N-1}\lVert y_i - \vC x_s \rVert_{Q_y}^2 + \lVert u_i - u_s \rVert_R^2
+\end{align*}
+
+\paragraph{Delta formulation for reference $r$}
+$\Delta x_k = x_k - x_s, \Delta u_k = u_k - u_s$:
+\begin{align*}
+\min & V_f(\Delta x_N) + \sum_{i=0}^{N-1} \Delta x_i^T\vQ\Delta x_i + \Delta u_i^T \vR \Delta u_i \\
+\text{s.t. } & \Delta x_0 = \Delta x_k \\
+             & \Delta x_{k+1} = \vA\Delta x_k + \vB \Delta u_k \\ %+ \vB_d\Delta d_k \\
+\vH_x x \leq k_x \rightarrow & \vH_x\Delta x \leq k_x - \vH_x x_s \\
+\vH_u u \leq k_u \rightarrow & \vH_u\Delta u \leq k_u - \vH_u u_s \\
+                 & \Delta x_N \in \mc X_f \quad \text{adjusted accordingly} \\
+								 & x_s \oplus \mc X_f \subseteq \mc X \\
+								 & \vK\Delta x + u_s \in \mc U
+%\Delta d_{k+1} & = \Delta d_k
+\end{align*}
+Control given by $u_0^* = \Delta u_0^* + u_s$.
 
 \paragraph{Offset free tracking}
 \begin{align*}
@@ -327,7 +393,7 @@ Choice of $\vB_d, \vC_d$ requires that $(\vA,\vC)$ is observable and $\Me{\vA-\v
 
 If plant has no integrator we can choose $\vB_d = \bm 0$ since $\det(\vA-\vI) \neq 0$.
 
-\tim{What is y_m?}
+\tim{What is $y_m$?}
 \begin{align*}
 \Me{\hat x_{k+1} \\ \hat d_{k+1}} = \Me{\vA & \vB_d \\ \bm 0 & \vI}\Me{\hat x_k \\ \hat d_k} + \Me{\vB \\ \bm 0}u_k + \Me{\vL_x \\ \vL_d}\left(-y_m(k) + \vC\hat x_k + \vC_d \hat d_k\right)
 \end{align*}
@@ -353,10 +419,9 @@ x \in O^{\mc W} \implies g(x, w) \in \Omega^W \; \forall w \in \mc W \\
 \end{align*}
 \tim{One or two words on what is what}
 \begin{align*}
+\vA_x x & \leq b_x \text{ becomes } \vA_x x_i + \vA_x \sum_{j=0}^{i-1}\vA^j w_k \leq b_x: \\
 x_i & \in \mc X \ominus \left(\mc W \oplus \vA\mc W \oplus \dots \oplus \vA^{i-1}\mc W\right) \\
-    & = \left(\bigoplus_{j=0}^{i-1}\vA^j\mc W\right) = \remph{\Me{\vI & \vA^0 & \dots & \vA^{i-1}}\mc W^i} \\
-\vA_x x   & \leq b_x \\
-\vA_x x_i & + \vA_x \sum_{j=0}^{i-1}\vA^j w_k \leq b_x \\
+    & = \left(\bigoplus_{j=0}^{i-1}\vA^j\mc W\right) = \Me{\vA^0 & \dots & \vA^{i-1}}\mc W^i \\
 \end{align*}
 
 \paragraph{Tube-MPC}
