@@ -9,7 +9,7 @@
 \usepackage{xargs} 
 \usepackage{graphicx,xcolor} 
 \usepackage[bordercolor=white,backgroundcolor=gray!30,linecolor=black,colorinlistoftodos]{todonotes}
-\newcommandx{\tim}[1]{\todo[color=blue!30, inline]{tim: {#1}}}
+\newcommandx{\tim}[1]{\todo[color=blue!30, inline]{tim: {1}}}
 
 %------------------------------------
 %  FOOTER SETTINGS
@@ -440,11 +440,69 @@ Also $z_n \in \mc X_f \ominus \mc E$ accordingly.
 
 \subsection{Explicit MPC}
 
-\subsection{Hybrid MPC}
+\section{Hybrid MPC}
+\subsection{Piecewise Affine (PWA) Systems}
+Affine dynamics and output for each region:
+\begin{align*}
+\Mg{x_{k+1} &= A^i x_k + B^i u_k + f^i \\ y_k &= C^i x_k + D^i u_k + g_i} \mathrm{~if~} x_t \in \mc{X}_j
+\end{align*}
+Polyhedral partition of the ($x,u$)-space:
+\begin{align*}
+\left\{\mc{X}_i\right\}_{j=1}^s = \left\{x,u| H_j x + J_j u \leq K_j\right\}
+\end{align*}
 
+\subsection{Mixed Logical Dynamical Hybrid Model (MLD)}
+Idea: associate boolean to binary: $ p_j \iff \delta_i = 1$, $\neg p_j \iff \delta_i =0$.
+\subsubsection{Translate logic rules to Linear Integer Inequalities}\vspace*{-\baselineskip}
+\begin{align*}
+&\text{AND} &p_1 \wedge p_2 \hspace*{5mm} &\delta_1 \geq 1, \delta_1 \geq 1\text{ also } \delta_1 + \delta_2 \geq 2 \\
+&\text{OR} &p_1 \vee p_2 \hspace*{5mm} &\delta_1 + \delta_2 \geq 1 \\
+&\text{NOT} &\neg p_1 \hspace*{5mm} &1-\delta_1 \geq 1 \text{ also } \delta_1 = 0 \\
+&\text{XOR} &p_1 + p_2 \hspace*{5mm} &\delta_1 + \delta_2 = 1 \\
+&\text{IMPLY} &p_1 \Rightarrow p_2 \hspace*{5mm} &\delta_1 - \delta_2 \leq 0 \\
+&\text{IIF} &p_1 \Leftrightarrow p_2 \hspace*{5mm} &\delta_1 - \delta_2 = 0 \\
+&\text{ASSIGNMENT} &p_3 \Leftrightarrow p_1 \wedge p_2  \hspace*{5mm} &
+\delta_1 + (1 - \delta_3) \geq 1, \\
+& & &\delta_2 + (1 - \delta_3) \geq 1, \\
+& & &(1 - \delta_1) + (1 - \delta_2) + \delta_3 \geq 1
+\end{align*}
+Logic Equality Rules: \\
+$ \neg (A \wedge B) = \neq A \vee \neg B$\\
+$A \wedge (B \vee C) = (A \wedge B) \vee (A\wedge C)$\\
+$ A \vee (B \wedge C) = (A\vee B)\wedge (A \vee C)$
+\subsubsection{Translate continuous and logical components into Linear Mixed-Integer Relations}
+Event generator: $\delta_e(k) = f_{EG}(x_c(k), u_c(k), t)$. \\
+Consider: $p \Leftrightarrow a^Tx \leq b, \mathcal X = \{x | a^T x-b \in [m, M]\}$. \\
+Translated to linear inequalities: $ m \delta < a^T x-b \leq M(1-\delta)$, where $[m, M]$ are lower and upper bounds. \\
+\paragraph{Representing Switched Affine Dynamics as "IF-THEN-ELSE" relations}
+IF p THEN $z_k = a_1^Tx_k+b_1$ else $z_k = a_2^Tx_k+b_2$ $\Leftrightarrow$
+\begin{align*}
+(m_2 - M_1)\delta + z_k &\leq a_2^T x_k + b_2 \leq - (m_1 - M_2)\delta + z_k \\
+(m_1 - M_2)(1 -\delta) + z_k &\leq a_1^T x_k + b_1 \leq -(m_1 - M_2)(1 -\delta) + z_k
+\end{align*}
+This results in a linear MLD model
+\begin{align*}
+x_{k+1} &= A x_k + B_1 u_k + B_2 \delta_k + B_3 z_k \\
+y_k &= C x_k  + D_1 u_k + D_2 \delta_k + D_3 z_k\\
+E_2 \delta_k + E_3 z_k &\leq E_4 x_k + E_1 u_k + E_5
+\end{align*}
+where the last equation describes the relationship between the continuous and integer variables. Physical constraints on cont. variables: 
+$\left\{\mc{C}\right\} = \left\{ \Me{x_c\\u_c} \in \mc{R}^{n_c+m_c}| F x_c + G u_c \leq H\right\}$
+\subsection{CFTOC for Hybrid Systems}\vspace*{-\baselineskip}
+\begin{align*}
+J^*(x)=&\min_U ~l_N (x_N) + \sum_{k=0}^{N-1} l(x_k,u_k,\delta_k,z_k)\\
+\mathrm{s.t} \hspace*{2mm} & x_{k+1}=A x_k + B_1 u_k + B_2 \delta_k + B_3 z_k\\ &E_2 \delta_k + E_3 z_k \leq E_4 x_k + E_1 u_k + E_5\\&x_N \in \mc{X}_f, x_0 = x(0)
+\end{align*}
+\subsection{MILP/QP}\vspace*{-\baselineskip}
+\begin{align*}
+	\text{min}  \hspace*{2mm} &c_c z_c +  c_b z_b + d \text{ OR } z H z +  q z + d\\
+	\mathrm{s.t} \hspace*{2mm} &G_c z_c + G_b z_b \leq W \\
+	&z_c \in R^{s_c}, z_b \in\{0, 1\}^{s_b}
+\end{align*}
+Branch and bound method can be used to efficiently solve the problem.
+Explict solution is a time varying fb law for both problems: $u_k^*(x_k) = F^j_k x_k + G_k^j$ if $x_k \in \mc{R}^j_k$.
 \section{Numerical Optimization}
 Gradient, Newton, Interior Point
-
 \end{multicols*}
 
 \end{document}
