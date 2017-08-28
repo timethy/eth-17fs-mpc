@@ -438,8 +438,22 @@ u_i \in \vK\mc E \oplus \{v_i\} & \subset \vU & \implies v_i & \in \mc U \ominus
 \end{align*}
 Also $z_n \in \mc X_f \ominus \mc E$ accordingly.
 
-\subsection{Explicit MPC}
-
+\section{Explicit MPC}
+$z^*(x_k)$ is continuous and polyhedral piecewise affine over feasible set.
+\subsection{Quadratic Cost}
+$J^*(x_k)$ is continuous, convex and polyhedral piecewise quadratic.
+Using the formulation with substitution,
+\begin{align*}
+J(x_k) &= \text{min } z^T H z - x_k^T (Y - FH^{-1}F^T )x_k\\
+\mathrm{s.t} \hspac*{2mm} & Gz \le w +  Sx_k \\
+	z(x_k) &= U + H^{-1} F^T x_k \\
+	S &= E + G H^{-1} F^T \\
+	U^* &= z^*(x_k) - H^{-1}F^Tx_k
+\end{align*}
+The first solution gives $u^*(x_k) = \kappa(x_k)$, which is continuous and piecewise affine on polyhedra $\kappa(x) = F_jx + g_j$.
+\subsection{1/$\infty$-norm}
+$J^*(x_k)$ is continuous, convex and polyhedral piecewise affine over. 
+Optimal solution given by, $u^*_0 = 0 \left[0\space \dots 0\space I_m\space 0\space \dots 0\space \right]z^*(x_k)$, and is in the same form as the QP case above.
 \section{Hybrid MPC}
 \subsection{Piecewise Affine (PWA) Systems}
 Affine dynamics and output for each region:
