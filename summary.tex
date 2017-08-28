@@ -22,6 +22,7 @@
 \fancyfoot[C]{\footnotesize\color{dkgreen} Model Predictive Control -- \today}
 \fancyfoot[RO, LE] {\footnotesize\color{dkgreen} \thepage}
 
+\renewcommand{\implies}{\Rightarrow}
 \newcommand{\remph}[1]{{\textcolor{red}{#1}}}
 \newcommand{\mc}[1]{\mathcal{#1}}
 \newcommand{\R}{\mathbb R}
@@ -94,37 +95,40 @@
 y(t) &= C^cx(t) + D^cu(t)\\
 x(t) &= e^{A^c(t-t_0)}x_0+\int_{t_0}^te^{A^c(t-\tau)}Bu(\tau)d\tau \\
 e^{A^ct}&=\sum_{n=0}^\infty\frac{(A^ct)^n}{n!} \\
-x(k+N)&=A^Nx(k)+\sum_{i=0}^{N-1}A^iBu(k+N-1-i)
+x_{k+N}&=A^Nx_k+\sum_{i=0}^{N-1}A^iBu_{k+N-1-i}
 \end{align*}
 
 \subsection{Lyapunov Stability}
 we define a system to be stable in the sense of Lyapunov, if it stays in any arbitrarily small neighborhood of the origin when it is disturbed slightly
 \paragraph{Lyapunov stable} if for every $\epsilon > 0$ there exists a $\delta(\epsilon)$ such that
-\[ \\{x(0)}<\delta(\epsilon)\to \norm{x(k)} < \epsilon, \forall k \geq 0 \]
-\paragraph{asymptotically stable} in $\Omega\subseteq \R^n$ if it is Lyapunov stable and attractive $\lim_{k\to\infty}x(k)=0, \forall x(0)\in \Omega$
-\subsection{Lyapunov Function}
-Consider the equilibrium point $x=0$. Let $\Omega\subset\R^n$ be a closed and bounded set containing the origin. A function $V:\R^n\to \R$, continous at the origin, finite for every $x\in \Omega$, and such that
+\[ \norm{x(0)}<\delta(\epsilon)\to \norm{x(k)} < \epsilon, \forall k \geq 0 \]
+\paragraph{asymptotically stable} in $\Omega\subseteq \R^n$ if it is Lyapunov stable and attractive $\lim_{k\to\infty}x(k)=0, \forall x(0)\in \Omega$.
+
+\paragraph{Lyapunov Function $V: \R^n \to \R$}
+must be continous at the origin, finite $\forall x \in \Omega$ and:
 \begin{align*}
-V(0)=0 \text{ and } V(x)>0, \forall x\in \Omega \backslash \{0\}\\
-V(g(x))-V(x)\leq -\alpha(x), \forall x\in\Omega\backslash \{0\}
+V(0) = 0 \text{ and } V(x)>0, \forall x\in \Omega \backslash \{0\}\\
+V(g(x))-V(x) \leq -\alpha(x), \forall x\in\Omega\backslash \{0\}
 \end{align*}
-where $\alpha:\R^n\to\R$ is continuous positive definite
+where $\alpha: \R^n\to\R$ is continuous positive definite, equilibrium at $x=0$
+and $\Omega\subset\R^n$ closed and bounded set containing the origin.
 
-If a system admins a Lyapunov function $V(x)$, then $x=0$ is \textbf{asymptotically stable} in $\Omega$ (sufficient but not necessary)
+\paragraph{Lyapunov Theorem}
+If a system admits Lyapunov function $V(x)$, then $x=0$ is \remph{asymptotically stable} in $\Omega$ (sufficient but not necessary)
 
-If a system admits a Lyapunov function, which additionally satisfies $\norm{x}\to \infty \rightarrow V(x)\to \infty$, then $x=0$ is \textbf{globally asymptotically stable}
+If additionally $\lVert x \rVert \to \infty \implies V(x) \to \infty$, then $x=0$ is \remph{globally asymptotically stable}.
 
-\tim{Check Eig. values of $(APA-P)$ neg., $V(x) = x^TPx$ ?}
+To check if $V(x) = x^T\vP x$ is valid Lyapunov function of system $x_{k+1} = \vA x_k$ check if $(\vA\vP\vA-\vP)$ has neg.\ eigen values.
 
-\textbf{Linear systems}: iff eigenvalues of $A$ inside unit circle (i.e. stable) then $\exists unique \ P>0$ that solves $A_{cl}^TPA_{cl}-P = -Q,\ Q > 0$ and $V = x^TPx$ is a lyapunov function.
+In other words: Iff eigenvalues of $A$ inside unit circle (i.e. stable) then $\exists unique \ \vP>0$ that solves $\vA_{cl}^T\vP\vA_{cl}-\vP = -\vQ,\ \vQ > 0$ and $V(x) = x^T\vP x$ is a lyapunov function.
 
 \subsection{Discretization}
 Euler: $A = I + T_s A^c ,\ B = T_s B^c ,\ C = C^c ,\ D = D^c $
 \begin{align*}
-x(k + 1) &= x(k) + T_sg^c(x(k),u(k)) = g(x(k),u(k)) \\
-y(k) &= h^c(x(k),u(k)) = h(x(k),u(k))
+x_{k + 1} &= x_k + T_s g^c(x_k,u_k) = g(x_k,u_k) \\
+y_{k}     &= h^c(x_k, u_k) = h(x_k, u_k)
 \end{align*}
-Exact: (assumption of a constant $u(t)$ during $T_s$)
+Exact: (assume constant $u(t)$ during $T_s$)
 \begin{align*}
 A = e^{A^cT_s},\ B = \int_0^{T_s} e^{A^c(Ts-\tau')}B^cd\tau \\
 B=(A^c)^{-1}(A-I)B^c,\ \text{if $A^c$ invertible}
@@ -175,6 +179,18 @@ Uniquely solvable, iff $(A,B)$ stabilizable and $(A, G)$ detectable, where $\vG\
 Follows from closed-loop system $x_{k+1} = (\vA + \vB\vF_k)x_k$
 
 \section{(Convex) Optimization}
+
+\paragraph{General Problem}
+$\min_{x \in \dom(f)} f(x)$ s.\ t.\ $g_i(x) \leq 0$ and $h_j(x) = 0.$
+%for $i = 1,\dots,m, j = 1,\dots,p$.
+
+\paragraph{Norm $f(x): \R^n \rightarrow \R$}
+\begin{align*}
+f(x) & = 0 \implies x = 0, && f(x) \geq 0 \\
+f(\alpha \cdot x) & = |\alpha|\cdot f(x) && \text{for scalar } \alpha \\
+f(x+y) & \leq f(x) + f(y) && \forall x, y \in R^n
+\end{align*}
+
 \subsection{Convexity}
 \paragraph{Convex set $\mc X$} iff $\forall \lambda \in [0, 1] \forall x, y \in \mc X\ \lambda x + (1-\lambda) y \in \mc X$.
 Intersection preserves convexity, union does not.
@@ -188,17 +204,11 @@ Intersection preserves convexity, union does not.
 
 \paragraph{Convex function}
 
-\paragraph{Norm $f(x): \R^n \rightarrow \R$}
-\begin{align*}
-f(x) & = 0 \implies x = 0, && f(x) \geq 0 \\
-f(\alpha \cdot x) & = |\alpha|\cdot f(x) && \text{for scalar } \alpha \\
-f(x+y) & \leq f(x) + f(y) && \forall x, y \in R^n
-\end{align*}
-\tim {Maybe move the above somewhere else?}
+\paragraph{Norm ball} is convex (for all norms).
 
-\paragraph{General Problem}
-$\min_{x \in \dom(f)} f(x)$ s.\ t.\ $g_i(x) \leq 0$ and $h_j(x) = 0.$
-%for $i = 1,\dots,m, j = 1,\dots,p$.
+\paragraph{Level set}
+\paragraph{Sublevel set}
+
 
 \subsection{Linear Programming (LP)}
 \paragraph{Problem statement} $\min c^Tx$ such that $\vG x \leq h$ and $\vA x = b$.
@@ -206,26 +216,91 @@ $\min_{x \in \dom(f)} f(x)$ s.\ t.\ $g_i(x) \leq 0$ and $h_j(x) = 0.$
 $\min_x \lVert x \rVert_\infty = \min_{x \in \R^n} \left[ \max\{x,\dots,x_n,-x_1,\dots,-x_n\}\right]$:
 \begin{align*}
      & \min_{x,t} t & \text{subject to}\quad & x_i \leq t, -x_i \leq t,   \; & \vF x \leq g \\
-\iff & \min_{x,t} t & \text{subject to}\quad & -{\bm 1} t \leq x \leq 1 t,\; & \vF_x \leq g.
+\iff & \min_{x,t} t & \text{subject to}\quad & -{\bm 1} t \leq x \leq {\bm 1} t,\; & \vF_x \leq g.
 \end{align*}
 
 \paragraph{Norm $l_1$}
 $\min_x \lVert x \rVert_1 = \min_x\left[\sum_{i=1}^{m} \max\{x_i,-x_i\}\right]$:
 \begin{align*}
      & \min_{t} t_1 + \dots + t_m & \text{subject to}\quad & x_i \leq t_i, -x_i \leq t_i,\; & \vF x \leq g \\
-\iff & \min_{t} \remph{\vI}^Tt    & \text{subject to}\quad & -t \leq x \leq t,\;            & \vF_x \leq g.
+\iff & \min_{t} {\bm 1}^Tt    & \text{subject to}\quad & -t \leq x \leq t,\;            & \vF_x \leq g.
 \end{align*}
 Note that for $\dim x = 1$, $l_1$ and $l_\infty$ are the same.
+Note also that $t$ is scalar for norm $l_\infty$ and a vector in norm $l_1$.
 
-\paragraph{MPC with linear cost}
+\paragraph{Piecewise Affine}
+\begin{align*}
+\min_x \left[ \max_{i=1,\dots,m} \{ c_i^Tx + d_i \} \right] & \quad \text{s.t.\ } \vG x \leq h \\
+\iff \min_{x,t} t & \quad \text{s.t.\ } c_i^T x + d_i \leq t, \vG x \leq h
+\end{align*}
+
+\subsection{Duality}
+\paragraph{Lagrangian Dual Function}
+\begin{align*}
+	L(x,\lambda,\nu) & = f(x) + \sum_{i=1}^{m}\lambda_i g_i(x) + \sum_{i=1}^{p}\nu_i h_i(x) \\
+	d(\lambda,\nu) & = \inf_{x \in \mc{X}} L(x,\lambda,\nu) \quad \text{ i.e. } \nabla_x L(x, \lambda, \nu) = 0
+%	&= \inf_{x \in \mc{X}} \left[ f_0(x)+\sum_{i=1}^{m}\lambda_i f_i(x)+\sum_{i=1}^{p}\nu_i h_i(x)\right]
+\end{align*}
+\paragraph{Dual Problem (always convex)} 
+$\max_{\lambda,\nu} d(\lambda,\nu)$ s.\ t.\ $\lambda \geq 0$. \\
+Optimal value is lower bound for primal: $d^* \leq p^*$.
+
+If primal convex, \remph{Slater condition} (strict feasibility) implies \emph{strong duality}:
+$\left\{x \left| \right. Ax=b, f_i(x)<0, \right\} \neq \emptyset \Rightarrow d^*  = p^* $
+%
+\paragraph{Karush-Kuhn-Tucker (KKT) Conditions}
+are necessary for optimality (and sufficient if primal convex).
+\begin{align*}
+& \text{Primal Feasability} & f_i(x^*)  &\leq 0 \quad && i=1,\dots,m \\
+&                           & h_i(x^*)  &=0 \quad && i=1,\dots,p \\
+& \text{Dual Feasability}        & \lambda^* & \geq 0 && \\
+& \text{Complementary slackness} & \lambda_i^* \cdot f_i(x^*) & = 0 && i = 1,\dots,m \\
+& \text{Stationarity} & \nabla_x L(x^*,\lambda^*,\nu^*) & = 0 && \\
+%&\nabla f_0(x^*) + \sum_{i=1}^m\lambda_i^*\nabla f_i(x^*)+  \sum_{i=1}^p\nu_i^*\nabla h_i(x^*)
+\end{align*}
+%
+\paragraph{Dual of LP}
+\begin{align*}
+     \min_x c^T x & \quad \text{s.t.\ } \vA x = b, \vC x \leq e \\
+\iff \max_{\lambda,\nu} -b^T\nu - e^T\lambda & \quad \text{s.t.\ } A^T\nu + C^T\lambda + c = 0, \lambda \geq 0
+\end{align*}
+
+\paragraph{Dual of QP}
+\begin{align*}
+     & \min_x \frac{1}{2}x^T\vQ x + c^T x \quad \text{s.t.\ } \vC x \leq e \\
+\iff & \remph{\min_{\lambda,\nu}} \frac{1}{2}\lambda^T\vC\vQ^{-1}\vC^T\lambda + (\vC\vQ^{-1}c + e)^T\lambda + \frac{1}{2} c^T \vQ^{-1}c \\
+     & \text{s.t.\ } \vQ x + \nu + c^T \lambda = 0, \lambda \geq 0
+\end{align*}
+\tim{Check the above}
+
+\section{Constrained Finite Time Optimal Control (CFTOC)}
+\subsection{MPC with linear cost}
 $J(x_0, u) = \lVert \vP x_N \rVert_p + \sum_{i=\remph{0}}^{N-1} \lVert \vQ x_i \rVert_p + \lVert \vR u_i \rVert_p.$
 
-\tim{Insert here slide 45, lect 4}
+\tim{Insert here slide 45, lect 4 \remph{$l_g l\infty$}??}
+\tim{what is n, k, m?}
+
+\begin{align*}
+\min_z\ & \epsilon_0^x + \dots + \epsilon_N^x + \epsilon_0^u + \dots + \epsilon_{N-1}^u \\
+\text{s.t. } & -\vI_n\epsilon_i^x \leq \pm \vQ \left[\vA^i x_0 + \sum_{j=0}^{i-1}\vA^j\vB u_{i-1-j}\right] \\
+             & -\vI_k\epsilon_N^x \leq \pm \vP \left[\vA^N x_0 + \sum_{j=0}^{N-1}\vA^j\vB u_{N-1-j}\right] \\
+             & -\vI_m\epsilon_N^u \leq \pm \vR u_i \\
+						 & x_i = \vA^i x_0 + \sum_{j=0}^{i-1}\vA^j\vB u_{i-1-j} \in \mc X \\
+						 & x_N = \vA^Nx_0 + \sum_{j=1}^{N-1}\vA^j\vB u_{N-1-j} \in \mc X \\
+						 & u_i \in \mc U
+\end{align*}
+Bring into LP form:
+
+\begin{align*}
+\min_z\ & c^Tz \quad \text{s.t. } \bar \vG z \leq \bar w + \bar s x(k) \\
+    c = & \Me{1 & \dots & 1 & 1 & \dots & 1 & 0 & \dots & 0} \\
+    z = & \Me{\epsilon_0^x & \dots & \epsilon_N^x & \epsilon_0^u & \dots & \epsilon_{N-1}^u} \\
+\bar\vG = & \Me{\vG_\epsilon & ?? \\ 0 & ??}, \quad \bar w = \Me{w_\epsilon \\ w} \\
+ \bar s = & \Me{s_\epsilon \\ s} 
+\end{align*}
 
 
-\paragraph{Receding Horizon Control -- RHC}
-
-\paragraph{QP with substitution (see also Batch approach)}
+\subsection{QP with substitution (see also Batch approach)}
 \begin{align*}
 J^*(x_k) & = \min_u \Me{u^T & x_k^T}\Me{\vH & \vF^T \\ \vF & \vY}\Me{u \\ x_k} \\
 \text{s. t. } & \vG\ u \leq w + \vE\ x_k
@@ -234,7 +309,7 @@ Latter gives three sets (same for without substitution)
 \begin{align*}
 \mc{X}   & = \{ x | A_x\ x \leq b_x\} \\
 \mc{U}   & = \{ u | A_u\ u \leq b_u\} \\
-\mc{X_f} & = \{ x | A_f\ x \leq b_f\} \\
+\mc X_f & = \{ x | A_f\ x \leq b_f\}
 \end{align*}
 State equations are in cost matrix, usually $\vA_x = \Me{1 \\ -1}, b_x = \Me{b_\text{max} \\ -b_\text{min}}$
 \begin{scriptsize}
@@ -255,12 +330,12 @@ State equations are in cost matrix, usually $\vA_x = \Me{1 \\ -1}, b_x = \Me{b_\
 \end{align*}
 \end{scriptsize}
 
-\paragraph{QP with out substitution}
-State equations represented in equality constrainst.
+\subsection{QP without substitution}
+State equations represented in equality constraints ($k$ fixed, usually $k=0$).
 \begin{align*}
-J^*(x_k) & = \min_z \Me{z^T & x_k^T}\Me{\bar\vH & \bm 0 \\ \bm 0 & \vQ}\Me{z \\ x_k} \\
-\text{s. t. } & \vG\ z \leq w + \vE\ x_k \\
-              & \vG_\text{eq}\ z = \vE_\text{eq}\ x_k, \quad \text{system dynamics} \\
+J^*(x_k) = \min_z\ & \Me{z^T & x_k^T}\Me{\bar\vH & \bm 0 \\ \bm 0 & \vQ}\Me{z \\ x_k} \\
+\text{s.t.}      \ & \vG\ z \leq w + \vE\ x_k \\
+                   & \vG_\text{eq}\ z = \vE_\text{eq}\ x_k, \quad \text{system dynamics}
 \end{align*}
 $\bar\vH = \diag(\vQ,\dots,\vQ,\vP,\vR,\dots,\vR)$
 \begin{scriptsize}
@@ -290,43 +365,7 @@ w & = \Me{b_x \\ . \\ b_f \\ b_u \\ . \\ b_u} &
 \end{align*}
 \end{scriptsize}
 
-\subsection{Duality}
-\paragraph{Lagrangian Dual Function}
-\begin{align*}
-	L(x,\lambda,\nu) & = f(x) + \sum_{i=1}^{m}\lambda_i g_i(x) + \sum_{i=1}^{p}\nu_i h_i(x) \\
-	d(\lambda,\nu) & = \inf_{x \in \mc{X}} L(x,\lambda,\nu) \quad \text{ i.e. } \nabla_x L(x, \lambda, \nu) = 0
-%	&= \inf_{x \in \mc{X}} \left[ f_0(x)+\sum_{i=1}^{m}\lambda_i f_i(x)+\sum_{i=1}^{p}\nu_i h_i(x)\right]
-\end{align*}
-\paragraph{Dual Problem (always convex)} 
-$\max_{\lambda,\nu} d(\lambda,\nu)$ s.\ t.\ $\lambda \geq 0$. \\
-Optimal value is lower bound for primal: $d^* \leq p^*$.
 
-If primal convex, \emph{Slater condition} (strict feasibility) implies \emph{strong duality}:
-\begin{align*}
-	\left\{x \left| \right. Ax=b, f_i(x)<0, \right\} \neq \emptyset \Rightarrow d^*  = p^*
-\end{align*}
-
-\paragraph{Karush-Kuhn-Tucker (KKT) Conditions}
-are necessary for optimality (and sufficient if primal convex).
-\begin{itemize}
-	\item Primal Feasibility:
-		\begin{align*}
-			f_i(x^*) &\leq 0 \quad i=1,\dots,m\\
-			h_i(x^*) &=0 \quad i=1,\dots,p
-		\end{align*}
-	\item Dual Feasibility:  $\lambda^* \geq 0$
-	\item Complementary Slackness:
-		\begin{align*}
-			\lambda_i^* \cdot f_i(x^*) = 0 \quad \quad i=1,\dots,m
-		\end{align*}
-	\item Stationarity:
-		\begin{align*}
-			&\nabla_x L(x^*,\lambda^*,\nu^*) =0 \\
-			%&\nabla f_0(x^*) + \sum_{i=1}^m\lambda_i^*\nabla f_i(x^*)+  \sum_{i=1}^p\nu_i^*\nabla h_i(x^*)
-		\end{align*}
-\end{itemize}
-
-\subsection{Constrained Finite Time Optimal Control (CFTOC)}
 
 \subsection{Invariance}
 Def.: $x(k) \in O \implies x(k+1) \in O \forall k$. \\
@@ -334,7 +373,7 @@ Def.: $x(k) \in O \implies x(k+1) \in O \forall k$. \\
 \pre(S) & := \{ x | g(x) \in S\} & = \{ x | Ax \in S \}
 \end{align*}
 
-\tim{We need more here, poos. inv. set, max. pos.inv $O_\infty$}
+\tim{We need more here, pos. inv. set, max. pos.inv $O_\infty$}
 
 \subsection{Stability and Feasability}
 %Recursive Stability, optimal cost is Lyapunov function.
@@ -353,15 +392,15 @@ We get: 1. Positive stage cost function, 2. invariant terminal set by constructi
 %And stage cost is PD-function $\implies$
 Extension to non-linear (time-invariant) MPC possible since terminal set and cost do not rely on linearity.
 
-\subsection{Practical Issues}
+\section{Practical Issues}
 
-\paragraph{MPC for tracking}
+\subsection{MPC for tracking}
 Target steady-state conditions $x_s = \vA x_s + \vB u_s$ and $y_s = \vC x_s = r$ and constrainsts give:
 \begin{align*}
 \min_{x_s, u_s} u_s^T \vR u_s & \text{ subj. to } \Me{\vI-\vA & -\vB \\ \vC & \bm 0}\Me{x_s \\ u_s} = \Me{\bm 0 \\ r}, x_s \in \mc X, u_s \in \mc U
 \end{align*}
 Usually assume $x_s, u_s$ unique and feasible.
-If no solution exists, compute closest steady-state ($\min (\vC x_s - r)^T \vQ (\vC x_s - r)$ s.\ t.\ $x_s = \vA x_s + \vB u_s$).
+If no solution exists, compute closest steady-state $\min (\vC x_s - r)^T \vQ (\vC x_s - r)$ s.\ t.\ $x_s = \vA x_s + \vB u_s$.
 
 
 %$\min u_s^T\vR_s u_s$ else $\min (\vC x_s - r)^T \vQ_s (\vC x_s - r)$ subject to $x_s = \vA x_s + \vB u_s$.
@@ -371,22 +410,22 @@ MPC problem to drive $y \rightarrow r$ is:
 \min_u \lVert y_N - \vC x_s \rVert_{P_y}^2 + \sum_{i=0}^{N-1}\lVert y_i - \vC x_s \rVert_{Q_y}^2 + \lVert u_i - u_s \rVert_R^2
 \end{align*}
 
-\paragraph{Delta formulation for reference $r$}
-$\Delta x_k = x_k - x_s, \Delta u_k = u_k - u_s$:
+\subsection{Delta formulation}
+Reference $r$, $\Delta x_k = x_k - x_s, \Delta u_k = u_k - u_s$:
 \begin{align*}
-\min & V_f(\Delta x_N) + \sum_{i=0}^{N-1} \Delta x_i^T\vQ\Delta x_i + \Delta u_i^T \vR \Delta u_i \\
+\min\ & V_f(\Delta x_N) + \sum_{i=0}^{N-1} \Delta x_i^T\vQ\Delta x_i + \Delta u_i^T \vR \Delta u_i \\
 \text{s.t. } & \Delta x_0 = \Delta x_k \\
              & \Delta x_{k+1} = \vA\Delta x_k + \vB \Delta u_k \\ %+ \vB_d\Delta d_k \\
-\vH_x x \leq k_x \rightarrow & \vH_x\Delta x \leq k_x - \vH_x x_s \\
-\vH_u u \leq k_u \rightarrow & \vH_u\Delta u \leq k_u - \vH_u u_s \\
-                 & \Delta x_N \in \mc X_f \quad \text{adjusted accordingly} \\
+\vH_x x \leq k_x \Rightarrow & \vH_x\Delta x \leq k_x - \vH_x x_s \\
+\vH_u u \leq k_u \Rightarrow & \vH_u\Delta u \leq k_u - \vH_u u_s \\
+                 & \Delta x_N \in \mc X_f \quad \text{adjusted accordingly, shift (and scaled)} \\
 								 & x_s \oplus \mc X_f \subseteq \mc X \\
 								 & \vK\Delta x + u_s \in \mc U
 %\Delta d_{k+1} & = \Delta d_k
 \end{align*}
 Control given by $u_0^* = \Delta u_0^* + u_s$.
 
-\paragraph{Offset free tracking}
+\subsection{Offset free tracking}
 \begin{align*}
 x_{k+1} &= \vA x_k + \vB u_k + \vB_d d_k \\
 d_{k+1} &= d_k \\
@@ -410,9 +449,17 @@ If 1) number of dist.\ $=$ number of outputs, 2) target steady-state problem fea
 
 %Will always converge if RHC is recursively feasible unconstrained for $k \geq j$.
 
-\paragraph{Soft-constraints via slack variables}
+\subsection{Soft-constraints via slack variables}
+\begin{align*}
+\min_x f(z) + l_\epsilon(\epsilon) & \quad \text{s.t.\ } g(z) \leq \epsilon, \epsilon \geq 0
+\end{align*}
+Requirement: Softened problem has same minimiser as original problem if feasible.
 
-\subsection{Robust MPC}
+Quadratic error function $l_\epsilon(\epsilon) = v\epsilon + w\epsilon^2$, $w > 0$ gives smoothness, choose $v > \lambda^* \geq 0$ for exact penalty (above requirement fulfilled).
+
+\paragraph{Move Blocking}
+
+\section{Robust MPC}
 \paragraph{Enforcing terminal constraints} by robust invariance: \\
 \begin{align*}
 x \in O^{\mc W} \implies g(x, w) \in \Omega^W \; \forall w \in \mc W \\
@@ -422,10 +469,11 @@ x \in O^{\mc W} \implies g(x, w) \in \Omega^W \; \forall w \in \mc W \\
 
 \paragraph{Enforcing sequential constraints} for uncertain system $\phi$:\\
 \begin{align*}
-\phi_i(x_0, u, w) & = \left\{ x_i + \sum_{j=0}^{i-1}\vA^J w_j \middle| w \in \mc W^i \right\} \subseteq \mc X \\
+\phi_i(x_0, u, w) & = \left\{ x_i + \sum_{j=0}^{i-1}\vA^j w_j \middle| w \in \mc W^i \right\} \subseteq \mc X \\
 \phi_N(x_0, u, w) & \in \mc X_f \quad\text{as well}
 \end{align*}
 \tim{One or two words on what is what}
+In open-loop (determine control before disturbance is measured):
 \begin{align*}
 \vA_x x & \leq b_x \text{ becomes } \vA_x x_i + \vA_x \sum_{j=0}^{i-1}\vA^j w_k \leq b_x: \\
 x_i & \in \mc X \ominus \left(\mc W \oplus \vA\mc W \oplus \dots \oplus \vA^{i-1}\mc W\right) \\
@@ -433,14 +481,14 @@ x_i & \in \mc X \ominus \left(\mc W \oplus \vA\mc W \oplus \dots \oplus \vA^{i-1
 \end{align*}
 
 \paragraph{Tube-MPC}
-We want nominal system $z_k = \vA z_k + \vB v_k$ with ``tracking'' controller $u_k = \vK(x_k - z_k) + v_k$, $\vK$ found offline. \\
+We want nominal system $z_k = \vA z_k + \vB v_k$ with ``tracking'' controller $u_k = \vK(x_k - z_k) + v_k$ i.e. closed-loop, $\vK$ found offline. \\
 Step 1: Compute $\mc E = \bigoplus_{j=1}^\infty \vA^j\mc W.$ \\
 Step 2: Shrink Constraints:
 \begin{align*}
 \{z_i\} \oplus \mc E & \subseteq \mc X & \implies z_i & \in \mc X \ominus \mc E \\
 u_i \in \vK\mc E \oplus \{v_i\} & \subset \vU & \implies v_i & \in \mc U \ominus \vK\mc E \\
+z_n \in \mc X_f \ominus \mc E & & &
 \end{align*}
-Also $z_n \in \mc X_f \ominus \mc E$ accordingly.
 
 \section{Explicit MPC}
 $z^*(x_k)$ is continuous and polyhedral piecewise affine over feasible set.
@@ -456,8 +504,8 @@ J(x_k) &= \text{min } z^T H z - x_k^T (Y - FH^{-1}F^T )x_k\\
 \end{align*}
 The first solution gives $u^*(x_k) = \kappa(x_k)$, which is continuous and piecewise affine on polyhedra $\kappa(x) = F_jx + g_j$.
 \subsection{1/$\infty$-norm}
-$J^*(x_k)$ is continuous, convex and polyhedral piecewise affine over.
-Optimal solution given by, $u^*_0 = 0 \left[0\space \dots 0\space I_m\space 0\space \dots 0\space \right]z^*(x_k)$, and is in the same form as the QP case above.
+$J^*(x_k)$ is continuous, convex and polyhedral piecewise affine.
+Optimal solution: $u^*_0 = \Me{0 & \dots & 0 & I_m & 0 & \dots & 0} z^*(x_k)$, and is in the same form as the QP case above.
 \section{Hybrid MPC}
 \subsection{Piecewise Affine (PWA) Systems}
 Affine dynamics and output for each region:
@@ -473,21 +521,23 @@ Polyhedral partition of the ($x,u$)-space:
 Idea: associate boolean to binary: $ p_j \iff \delta_i = 1$, $\neg p_j \iff \delta_i =0$.
 \subsubsection{Translate logic rules to Linear Integer Inequalities}\vspace*{-\baselineskip}
 \begin{align*}
-&\text{AND} &p_1 \wedge p_2 \hspace*{5mm} &\delta_1 \geq 1, \delta_1 \geq 1\text{ also } \delta_1 + \delta_2 \geq 2 \\
-&\text{OR} &p_1 \vee p_2 \hspace*{5mm} &\delta_1 + \delta_2 \geq 1 \\
-&\text{NOT} &\neg p_1 \hspace*{5mm} &1-\delta_1 \geq 1 \text{ also } \delta_1 = 0 \\
-&\text{XOR} &p_1 + p_2 \hspace*{5mm} &\delta_1 + \delta_2 = 1 \\
-&\text{IMPLY} &p_1 \Rightarrow p_2 \hspace*{5mm} &\delta_1 - \delta_2 \leq 0 \\
-&\text{IIF} &p_1 \Leftrightarrow p_2 \hspace*{5mm} &\delta_1 - \delta_2 = 0 \\
-&\text{ASSIGNMENT} &p_3 \Leftrightarrow p_1 \wedge p_2  \hspace*{5mm} &
-\delta_1 + (1 - \delta_3) \geq 1, \\
+&\text{AND} &p_1 \wedge p_2 \quad &\delta_1 \geq 1, \delta_1 \geq 1\text{ also } \delta_1 + \delta_2 \geq 2 \\
+&\text{OR} &p_1 \vee p_2 \quad &\delta_1 + \delta_2 \geq 1 \\
+&\text{NOT} &\neg p_1 \quad &1-\delta_1 \geq 1 \text{ also } \delta_1 = 0 \\
+&\text{XOR} &p_1 + p_2 \quad &\delta_1 + \delta_2 = 1 \\
+&\text{IMPLY} &p_1 \rightarrow p_2 \quad &\delta_1 - \delta_2 \leq 0 \\
+&\text{IFF} &p_1 \leftrightarrow p_2 \quad &\delta_1 - \delta_2 = 0 \\
+&\text{ASSIGNMENT} &p_3 \leftrightarrow p_1 \wedge p_2 \quad & \delta_1 + (1 - \delta_3) \geq 1, \\
 & & &\delta_2 + (1 - \delta_3) \geq 1, \\
-& & &(1 - \delta_1) + (1 - \delta_2) + \delta_3 \geq 1
+& & &(1 - \delta_1) + (1 - \delta_2) + \delta_3 \geq 1 \\
+&\remph{\text{CNF-Clause}} & \neg p_1 \vee \neg p_2 \vee p_3 \quad & \delta_1 + \delta_2 + \delta_3 \leq 1
 \end{align*}
-Logic Equality Rules: \\
-$ \neg (A \wedge B) = \neq A \vee \neg B$\\
-$A \wedge (B \vee C) = (A \wedge B) \vee (A\wedge C)$\\
-$ A \vee (B \wedge C) = (A\vee B)\wedge (A \vee C)$
+\paragraph{Logic Equality Rules}
+\begin{align*}
+ \neg (A \wedge B) & = \neg A \vee \neg B \\
+A \wedge (B \vee C) & = (A \wedge B) \vee (A\wedge C) \\
+A \vee (B \wedge C) & = (A\vee B)\wedge (A \vee C)
+\end{align*}
 \subsubsection{Translate continuous and logical components into Linear Mixed-Integer Relations}
 Event generator: $\delta_e(k) = f_{EG}(x_c(k), u_c(k), t)$. \\
 Consider: $p \Leftrightarrow a^Tx \leq b, \mathcal X = \{x | a^T x-b \in [m, M]\}$. \\
@@ -513,7 +563,7 @@ J^*(x)=&\min_U ~l_N (x_N) + \sum_{k=0}^{N-1} l(x_k,u_k,\delta_k,z_k)\\
 \end{align*}
 \subsection{MILP/QP}\vspace*{-\baselineskip}
 \begin{align*}
-	\text{min}  \hspace*{2mm} &c_c z_c +  c_b z_b + d \text{ OR } z H z +  q z + d\\
+	\text{min}  \hspace*{2mm} &c_c z_c +  c_b z_b + d \quad \text{ OR } \quad z H z +  q z + d\\
 	\mathrm{s.t} \hspace*{2mm} &G_c z_c + G_b z_b \leq W \\
 	&z_c \in R^{s_c}, z_b \in\{0, 1\}^{s_b}
 \end{align*}
@@ -551,7 +601,7 @@ Assumptions $f(x^*) < \infty$, $\tilde x \in \dom(f)$.
 $\min f(x) + \kappa \phi(x)$.
 Approximate $\phi$ using diff'able log barrier(instead of indicator function):
 \begin{align*}
-\phi(x) &= \sum_{i=1}^{m} ?? = -\sum_{i=1}^{m} \log(-g_i(x)) \\
+\phi(x) &= \sum_{i=1}^{m} I\_(g_i(x)) = -\sum_{i=1}^{m} \log(-g_i(x)) \\
         & \lim_{\kappa \rightarrow 0} x^*(\kappa) = x^*
 \end{align*}
 Analytic center: $\arg\min_x \phi(x)$, central path $\left\{x^*(\kappa) \middle| \kappa > 0 \right\}$.
