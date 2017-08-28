@@ -86,6 +86,9 @@
 %--CONTENT--
 \begin{multicols*}{3}
 \section{System Theory}
+\subsection{Nonlinear Systems}
+\tim{Put here linearization formulae}
+\subsection{Linear Systems}
 \begin{align*}
 \dot{x}(t) &= A^cx(t)+B^cu(t)\\
 y(t) &= C^cx(t) + D^cu(t)\\
@@ -94,12 +97,11 @@ e^{A^ct}&=\sum_{n=0}^\infty\frac{(A^ct)^n}{n!} \\
 x(k+N)&=A^Nx(k)+\sum_{i=0}^{N-1}A^iBu(k+N-1-i)
 \end{align*}
 
-\subsection{Nonlinear Systems}
-we define a system to be stable in the sense of Lyapunov, if it stays in any arbitrarily small neighborhood of the origin when it is disturbed slightly
 \subsection{Lyapunov Stability}
-\textbf{Lyapunov stable} if for every $\epsilon > 0$ there exists a $\delta(\epsilon)$ such that
-\[ \norm{x(0)}<\delta(\epsilon)\to \norm{x(k)} < \epsilon, \forall k \geq 0 \]
-\textbf{asymptotically stable} in $\Omega\subseteq \R^n$ if it is Lyapunov stable and attractive $\lim_{k\to\infty}x(k)=0, \forall x(0)\in \Omega$
+we define a system to be stable in the sense of Lyapunov, if it stays in any arbitrarily small neighborhood of the origin when it is disturbed slightly
+\paragraph{Lyapunov stable} if for every $\epsilon > 0$ there exists a $\delta(\epsilon)$ such that
+\[ \\{x(0)}<\delta(\epsilon)\to \norm{x(k)} < \epsilon, \forall k \geq 0 \]
+\paragraph{asymptotically stable} in $\Omega\subseteq \R^n$ if it is Lyapunov stable and attractive $\lim_{k\to\infty}x(k)=0, \forall x(0)\in \Omega$
 \subsection{Lyapunov Function}
 Consider the equilibrium point $x=0$. Let $\Omega\subset\R^n$ be a closed and bounded set containing the origin. A function $V:\R^n\to \R$, continous at the origin, finite for every $x\in \Omega$, and such that
 \begin{align*}
