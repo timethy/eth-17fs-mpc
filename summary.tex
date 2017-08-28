@@ -66,6 +66,8 @@
 \newcommand{\Me}[1]{\begin{bmatrix}#1\end{bmatrix}} %eckige Klammern
 \newcommand{\Mg}[1]{\begin{Bmatrix}#1\end{Bmatrix}} %geschweifte Klammern
 
+\DeclareMathOperator\argmin{argmin}
+\DeclareMathOperator\argmax{argmax}
 \DeclareMathOperator\diag{diag}
 \DeclareMathOperator\pre{pre}
 \DeclareMathOperator\norm{norm}
@@ -535,8 +537,55 @@ For given equality constraint $\vA x = b$ solve:
 \Me{\nabla^2 f(x_i) & \vA^T \\ \vA & \bm 0}\Me{\delta x \\ \lambda} = \Me{-\nabla f(x_i) \\ \bm 0}
 \end{align*}
 
+\subsection{Constrained optimization}
+$g_i(x) \leq 0$ with 
+\paragraph{Gradient method}
+$x_{i+1} = \pi_Q(x_i - h_i\nabla f(x_i))$ where $\pi_Q$ is a projection $\pi_q = \arg\min_x\frac{1}{2}\lVert x - y \rVert_2^2$. Projection can be solved directly if simple enough, else solve the dual.
 
-Gradient, Newton, Interior Point
+\subsection{Interior-Point methods}
+Assumptions $f(x^*) < \infty$, $\tilde x \in \dom(f)$.
+
+\paragraph{Barrier method}
+$\min f(x) + \kappa \phi(x)$.
+Approximate $\phi$ using diff'able log barrier(instead of indicator function):
+\begin{align*}
+\phi(x) &= \sum_{i=1}^{m} ?? = -\sum_{i=1}^{m} \log(-g_i(x)) \\
+        & \lim_{\kappa \rightarrow 0} x^*(\kappa) = x^*
+\end{align*}
+Analytic center: $\arg\min_x \phi(x)$, central path $\left\{x^*(\kappa) \middle| \kappa > 0 \right\}$.
+
+\paragraph{Path following method} \ \newline
+1. Centering 
+$x^*(\kappa) = \arg\min_x f(x) + \kappa\phi(x)$ with newton's method: \\
+1.1. $\Delta x_\text{nt} = \left[\nabla^2 f(x) + \kappa \nabla^2\phi(x)\right]^{-1}(-\nabla f(x) - \kappa \nabla \phi(x))$. \\
+1.2. Line search:
+\begin{align*}
+\text{retain feasability: } & \argmax_{h > 0} \left\{ h \middle| g_i(x+h\Delta x) < 0 \right\} \\
+\text{Find } h^* = & \argmin_{h\in[0,h_\text{max}]} \left\{ f(x+h\Delta x) + \kappa\phi(x+h\Delta x) \right\}
+\end{align*}
+2. Update step $x_i = x^*(\kappa_i)$ \\
+3. Stop if $m\kappa_i \leq \epsilon$ \\
+4. Decrease $\kappa_{i+1} = \kappa_{i}/\mu$, $\mu > 1$.
+
+\paragraph{Centering step with equality constraints}
+\begin{align*}
+\Me{\nabla^2 f(x) + \kappa \nabla^2\phi(x) & c^T \\ c & \bm 0} \Me{\Delta x_\text{nt} \\ \nu} & = -\Me{\nabla f(x) + \kappa\nabla\phi(x) \\ 0}
+\end{align*}
+
+\paragraph{Relaxed KKT}
+\begin{align*}
+Cx^* & = d & g_i(x^*) + s_i^* & = 0 \\
+\nabla f(x^*) + \sum_{i=1}^{m} \lambda_i^*\nabla g_i(x^*) + c^T \nu & = 0 & \lambda_i^* = \kappa\frac{\partial\phi}{\partial g_i} & = -\frac{\kappa}{g_i} \\
+\lambda_i^*g_i(x^*) & = - \kappa & \lambda_i^*, s_i^* & \geq 0
+\end{align*}
+
+\paragraph{Primal Dual Search Direction Computation}
+\begin{align*}
+\Me{H(x,\lambda) & c^T & G(x)^T & 0 \\ c & 0 & 0 & 0 \\ G(x) & 0 & 0 & \vI \\ 0 & 0 & \vS & \bm \Lambda}\Me{\Delta x \\ \Delta u \\ \Delta \lambda \\ \Delta s} & = - \Me{\nabla f(x) + c^T\nu + G(x)^T\lambda \\ cx - d \\ g(x) + s \\ s\lambda - \nu}
+\end{align*}
+$\vS = \diag(s_1, \dots, s_m), \bm \Lambda = \diag(\lambda_1, \dots, \lambda_m)$ and \\
+$\nu$ is a vector for choosing centering parameters.
+
 
 \end{multicols*}
 
