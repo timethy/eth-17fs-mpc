@@ -350,10 +350,6 @@ We get: 1. Positive stage cost function, 2. invariant terminal set by constructi
 Extension to non-linear (time-invariant) MPC possible since terminal set and cost do not rely on linearity.
 
 \subsection{Practical Issues}
-\[
-\Me{\vI-\vA & -\vB \\ \vC & \bm 0}\Me{x_s \\ u_s} = \Me{\bm 0 \\ r} = \Me{\vB_d \hat d \\ r - \vC_d \hat d}
-\]
-$\min u_s^T\vR_s u_s$ else $\min (\vC x_s - r)^T \vQ_s (\vC x_s - r)$ subject to $x_s = \vA x_s + \vB u_s$.
 
 \paragraph{MPC for tracking}
 Target steady-state conditions $x_s = \vA x_s + \vB u_s$ and $y_s = \vC x_s = r$ and constrainsts give:
@@ -362,6 +358,9 @@ Target steady-state conditions $x_s = \vA x_s + \vB u_s$ and $y_s = \vC x_s = r$
 \end{align*}
 Usually assume $x_s, u_s$ unique and feasible.
 If no solution exists, compute closest steady-state ($\min (\vC x_s - r)^T \vQ (\vC x_s - r)$ s.\ t.\ $x_s = \vA x_s + \vB u_s$).
+
+
+%$\min u_s^T\vR_s u_s$ else $\min (\vC x_s - r)^T \vQ_s (\vC x_s - r)$ subject to $x_s = \vA x_s + \vB u_s$.
 
 MPC problem to drive $y \rightarrow r$ is:
 \begin{align*}
@@ -389,18 +388,23 @@ x_{k+1} &= \vA x_k + \vB u_k + \vB_d d_k \\
 d_{k+1} &= d_k \\
 y_k     &= \vC x_k + \vC_d d_k 
 \end{align*}
-Choice of $\vB_d, \vC_d$ requires that $(\vA,\vC)$ is observable and $\Me{\vA-\vI & \vB_d \\ \vC & \vC_d}$ has full column frank (i.e. $\det{} \neq 0$).
+\[
+\Me{\vI-\vA & -\vB \\ \vC & \bm 0}\Me{x_s \\ u_s} = \Me{\vB_d \hat d \\ r - \vC_d \hat d}
+\]
+Choice of $\vB_d, \vC_d$ requires that $(\vA,\vC)$ is observable and $\Me{\vA-\vI & \vB_d \\ \vC & \vC_d}$ has full ($n_x + n_d$) column frank (i.e. $\det{} \neq 0$).
+Intuition: for fixed $y_s$ at steady-state, $d_s$ is uniquely determined.
 
 If plant has no integrator we can choose $\vB_d = \bm 0$ since $\det(\vA-\vI) \neq 0$.
 
-\tim{What is $y_m$?}
 \begin{align*}
-\Me{\hat x_{k+1} \\ \hat d_{k+1}} = \Me{\vA & \vB_d \\ \bm 0 & \vI}\Me{\hat x_k \\ \hat d_k} + \Me{\vB \\ \bm 0}u_k + \Me{\vL_x \\ \vL_d}\left(-y_m(k) + \vC\hat x_k + \vC_d \hat d_k\right)
+\Me{\hat x_{k+1} \\ \hat d_{k+1}} = \Me{\vA & \vB_d \\ \bm 0 & \vI}\Me{\hat x_k \\ \hat d_k} + \Me{\vB \\ \bm 0}u_k + \Me{\vL_x \\ \vL_d}\left(-y_k^m + \vC\hat x_k + \vC_d \hat d_k\right)
 \end{align*}
-where $\Me{\vL_x \\ \vL_d}$ stable and causes error dynamics to converge.
+where $y_k^m$ measured output; choose $\Me{\vL_x \\ \vL_d}$ s.t. error dynamics stable and converge to zero.
 
-\remph{???}
-Will always converge if RHC is recursively feasible unconstrained for $k \geq j$.
+\tim{Target condition here}
+If 1) number of dist.\ $=$ number of outputs, 2) target steady-state problem feasible and no constraints active at steady-state, 3) closed-loop system converges, then target achieved without offset.
+
+%Will always converge if RHC is recursively feasible unconstrained for $k \geq j$.
 
 \paragraph{Soft-constraints via slack variables}
 
