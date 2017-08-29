@@ -5,7 +5,7 @@
 \usepackage{changepage}   % for the adjustwidth environment
 \usepackage{booktabs}
 %\usepackage{extsizes}
-%\usepackage{savetrees}
+\usepackage[all=normal,paragraphs=normal,mathdisplays=tight]{savetrees}
 \usepackage{xargs} 
 \usepackage{graphicx,xcolor} 
 \usepackage[bordercolor=white,backgroundcolor=gray!30,linecolor=black,colorinlistoftodos]{todonotes}
@@ -87,13 +87,13 @@
 %--CONTENT--
 \begin{multicols*}{3}
 \section{System Theory}
-\subsection{Nonlinear Systems}\vspace*{-\baselineskip}
+\subsection{Nonlinear Systems}
+\subsection{Linear Systems}
 \begin{align*}
 \dot{x}(t) &= A^cx(t)+B^cu(t)\\
 x(t) &= e^{A^c(t-t_0)}x_0+\int_{t_0}^te^{A^c(t-\tau)}Bu(\tau)d\tau \\
 e^{A^ct}&=\sum_{n=0}^\infty\frac{(A^ct)^n}{n!} \\
 \end{align*}
-\subsection{Linear Systems}\vspace*{-\baselineskip}
 \begin{align*}
 x_{k+1} &= Ax_k+Bu_k\\
 y_k &= Cx_k + Du_k\\
@@ -118,7 +118,7 @@ and $\Omega\subset\R^n$ closed and bounded set containing the origin.
 \paragraph{Lyapunov Theorem}
 If a system admits Lyapunov function $V(x)$, then $x=0$ is \remph{asymptotically stable} in $\Omega$ (sufficient but not necessary)
 
-If additionally $\lVert x \rVert \to \infty \implies V(x) \to \infty$, then $x=0$ is \remph{globally asymptotically stable}.
+If additionally $\lVert x \rVert \to \infty \implies V(x) \to \infty$, $x=0$ \remph{globally asymptotically stable}.
 
 To check if $V(x) = x^T\vP x$ is valid Lyapunov function of system $x_{k+1} = \vA x_k$ check if $(\vA\vP\vA-\vP)$ has neg.\ eigen values.
 
@@ -136,10 +136,16 @@ A = e^{A^cT_s},\ B = \int_0^{T_s} e^{A^c(Ts-\tau')}B^cd\tau \\
 B=(A^c)^{-1}(A-I)B^c,\ \text{if $A^c$ invertible}
 \end{align*}
 
-\subsection{Controllability (reachability) and observability}
+\subsection{Observability and detectability}
+\paragraph{$(A,C)$ observable}
+if $\rank(O) = n$ (full col. rank) for
+$O = \Me{C^T \\ (CA)^T \\ \dots \\ (CA^{n-1})^T}$ or $\Me{\vA-\lambda\vI \\ \vH}$ has full col.\ rank for \remph{all} $\lambda \in \mathbb{C}$ of $\vA$.
+\paragraph{$(A,H)$ detectable}
+iff $\Me{\vA-\lambda\vI \\ \vH}$ has full col.\ rank for \remph{unstable} $|\lambda_i| \geq 1$ of $\vA$.
+
+\subsection{Controllability (reachability)}
 \begin{align*}
 C &= [B \ AB \ ... \ A^{n-1}B] \\
-O &= [C^T \ (CA)^T \ ... \ (CA^{n-1})^T]
 \end{align*}
 
 \section{Unconstrained Control}
