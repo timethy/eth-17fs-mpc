@@ -482,7 +482,10 @@ For example: Robust invariant set calculation of $x_{k+1} = 0.5x_k + w_k$ under 
 	&= \{x | -18 \le x \le 18 \}\\
 		\Omega_1 = [-10, 10] &\cap [-18, 18] = [-10, 10] = \mc O_\infty^{\mc W}
 \end{align*}
-
+For example: Terminal set calculation of $x_{k+1} = w_k$, $-1 \le w \le 1$, N$= 2$:
+\begin{align*}
+ \mc X_f^\mc W =  \mc X_f \ominus \left(\bigoplus_{j=0}^{1}\vA^j\mc W\right) = \mc X_f \ominus 2 \mc W = [-10, 10] \ominus [-2, 2] = [-8, 8]
+\end{align*}
 \paragraph{Tube-MPC}
 We want nominal system $z_k = \vA z_k + \vB v_k$ with ``tracking'' controller $u_k = \vK(x_k - z_k) + v_k$ i.e. closed-loop, $\vK$ found offline. \\
 Step 1: Compute $\mc E = \bigoplus_{j=1}^\infty \vA_{cl}^j\mc W.$ \\
