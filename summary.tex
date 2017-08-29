@@ -90,30 +90,37 @@
 \begin{multicols*}{3}
 \section{System Theory}
 \subsection{Nonlinear Systems}
+\begin{align*}
+\dot x    & = g(x, u)         & y   & = h(x, u) \\
+\dot{x_s} & = g(x_s, u_s) = 0 & y_s & = h(x_s, u_s) \\
+\vA^c     & = \frac{\partial g}{\partial x^T}\bigg\rvert_{x=x_s, u=u_s} & \vB^c & = \frac{\partial g}{\partial u^T}\bigg\rvert_{x=x_s, u=u_s} \\
+\vC^c     & = \frac{\partial h}{\partial x^T}\bigg\rvert_{x=x_s, u=u_s} & \vD^c & = \frac{\partial h}{\partial u^T}\bigg\rvert_{x=x_s, u=u_s}
+\end{align*}
+
 \subsection{Linear Systems}
 \paragraph{Continuous}
 \begin{align*}
-\dot{x}(t) &= A^cx(t)+B^cu(t)\\
-x(t) &= e^{A^c(t-t_0)}x_0+\int_{t_0}^te^{A^c(t-\tau)}Bu(\tau)d\tau \\
-e^{A^ct}&=\sum_{n=0}^\infty\frac{(A^ct)^n}{n!}
+\dot{x}(t) &= \vA^cx(t)+\vB^cu(t)\\
+x(t) &= e^{\vA^c(t-t_0)}x_0+\int_{t_0}^te^{\vA^c(t-\tau)}\vB u(\tau)d\tau \\
+e^{\vA^ct}&=\sum_{n=0}^\infty\frac{(\vA^ct)^n}{n!}
 \end{align*}
 \paragraph{Discrete}
 \begin{align*}
-x_{k+1} &= Ax_k+Bu_k\\
-y_k &= Cx_k + Du_k\\
-x_{k+N}&=A^Nx_k+\sum_{i=0}^{N-1}A^iBu_{k+N-1-i}
+x_{k+1} &= \vA x_k+\vB u_k\\
+y_k &= \vC x_k + \vD u_k\\
+x_{k+N}&=\vA^N x_k+\sum_{i=0}^{N-1}\vA^i\vB u_{k+N-1-i}
 \end{align*}
 
-\paragraph{Discretization}
-Euler: $A = I + T_s A^c ,\ B = T_s B^c ,\ C = C^c ,\ D = D^c $
+\subparagraph{Forward Euler} $A = I + T_s A^c ,\ B = T_s B^c ,\ C = C^c ,\ D = D^c $
 \begin{align*}
 x_{k + 1} &= x_k + T_s g^c(x_k,u_k) = g(x_k,u_k) \\
 y_{k}     &= h^c(x_k, u_k) = h(x_k, u_k)
 \end{align*}
-Exact: (assume constant $u(t)$ during $T_s$)
+
+\subparagraph{Exact discretization} (assume constant $u(t)$ during $T_s$)
 \begin{align*}
-A = e^{A^cT_s},\ B = \int_0^{T_s} e^{A^c(Ts-\tau')}B^cd\tau \\
-B=(A^c)^{-1}(A-I)B^c,\ \text{if $A^c$ invertible}
+\vA & = e^{\vA^cT_s},\ \vB = \int_0^{T_s} e^{\vA^c(Ts-\tau')}\vB^cd\tau \\
+\vB & = (\vA^c)^{-1}(\vA-\vI)\vB^c,\ \text{if $\vA^c$ invertible}
 \end{align*}
 
 \subsection{Lyapunov Stability}
