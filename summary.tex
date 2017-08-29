@@ -480,22 +480,25 @@ x_i & \in \mc X \ominus \left(\mc W \oplus \vA\mc W \oplus \dots \oplus \vA^{i-1
 For example: Robust invariant set calculation of $x_{k+1} = 0.5x_k + w_k$ under $-10 \le x \le 10$ and $-1 \le w \le 1$.
 \begin{align*}
 \Omega_0 = [-10, 10] \\
-	\text{pre}^\mc{W} (\Omega_0) &= \{x | -10 \le 0.5x + w \le 10 for -1 \le w \le 1 \} \\
-	&= \{x | -20 -2w \le x \le 20 + 2w for -1 \le w \le 1 \} \\
+	\text{pre}^\mc{W} (\Omega_0) &= \{x | -10 \le 0.5x + w \le 10 \text{ for } -1 \le w \le 1 \} \\
+	&= \{x | -20 -2w \le x \le 20 + 2w \text{ for } -1 \le w \le 1 \} \\
 	&= \{x | -18 \le x \le 18 \}\\
 		\Omega_1 = [-10, 10] &\cap [-18, 18] = [-10, 10] = \mc O_\infty^{\mc W}
 \end{align*}
-
+For example: Terminal set calculation of $x_{k+1} = w_k$, $-1 \le w \le 1$, N$= 2$:
+\begin{align*}
+ \mc X_f^\mc W =  \mc X_f \ominus \left(\bigoplus_{j=0}^{1}\vA^j\mc W\right) = \mc X_f \ominus 2 \mc W = [-10, 10] \ominus [-2, 2] = [-8, 8]
+\end{align*}
 \paragraph{Tube-MPC}
 We want nominal system $z_k = \vA z_k + \vB v_k$ with ``tracking'' controller $u_k = \vK(x_k - z_k) + v_k$ i.e. closed-loop, $\vK$ found offline. \\
-Step 1: Compute $\mc E = \bigoplus_{j=1}^\infty \vA_{cl}^j\mc W.$ \\
+Step 1: Compute the minimal robust invariant set $\mc E = \bigoplus_{j=1}^\infty \vA_{cl}^j\mc W.$ \\
 Step 2: Shrink Constraints:
 \begin{align*}
-\{z_i\} \oplus \mc E & \subseteq \mc X & \implies z_i & \in \mc X \ominus \mc E \\
-u_i \in \vK\mc E \oplus \{v_i\} & \subset \vU & \implies v_i & \in \mc U \ominus \vK\mc E \\
+\{z_i\} \oplus \mc E & \subseteq \mc X & \implies \{z_i\} & \in \mc X \ominus \mc E \\
+u_i \in \vK\mc E \oplus \{v_i\} & \subset \vU & \implies \{v_i\} & \in \mc U \ominus \vK\mc E \\
 z_n \in \mc X_f \ominus \mc E & & &
 \end{align*}
-
+Also check that the set $\mc{X}_f$ is invariant for the nominal system with tightened constraints: $(A+BK)\mc{X}_f \subseteq \mc{X}_f$, and that it satisfies the constraints: $\mc{X}_f \subseteq \mc X \ominus \mc E$ and $K\mc{X}_f \subseteq \mc U \ominus K\mc E$.
 \section{Explicit MPC}
 $z^*(x_k)$ is continuous and polyhedral piecewise affine over feasible set.
 \subsection{Quadratic Cost}
