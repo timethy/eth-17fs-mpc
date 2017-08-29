@@ -582,26 +582,41 @@ Polyhedral partition of the ($x,u$)-space:
 \end{align*}
 
 \subsection{Mixed Logical Dynamical Hybrid Model (MLD)}
-Idea: associate boolean to binary: $ p_j \iff \delta_i = 1$, $\neg p_j \iff \delta_i =0$.
-\subsubsection{Translate logic rules to Linear Integer Inequalities}
+\paragraph{Idea}
+associate boolean to binary: $ p_j \iff \delta_i = 1$, $\neg p_j \iff \delta_i =0$.
+\paragraph{Goal}
+Given a boolean formula $F(p_1, \dots, p_n)$ define polyhedral set $P$ s.t.\ set of binary values $\{\delta_1,\dots,\delta_n\}$ satisfies Boolean formula $F$ in $P$
+\[ F(p_1, \dots, p_n) \iff \vA\delta \leq b, \delta \in \{0,1\}^n. \]
+
+\subsection{Analytical Approach}
+\begin{enumerate}
+\item Transform into \remph{Conjunctive Normal Form (CNF)}, i.e.  $F(p_1, \dots, p_n) = \bigvee_m\left[\bigwedge_j p_j\right]$ .
+\item Translate CNF into algebraic inequalities.
+\end{enumerate}
+
+\paragraph{Translate logic rules to Linear Integer Inequalities}
 \begin{align*}
-&\text{AND} &p_1 \wedge p_2 \quad &\delta_1 \geq 1, \delta_1 \geq 1\text{ also } \delta_1 + \delta_2 \geq 2 \\
-&\text{OR} &p_1 \vee p_2 \quad &\delta_1 + \delta_2 \geq 1 \\
-&\text{NOT} &\neg p_1 \quad &1-\delta_1 \geq 1 \text{ also } \delta_1 = 0 \\
-&\text{XOR} &p_1 + p_2 \quad &\delta_1 + \delta_2 = 1 \\
-&\text{IMPLY} &p_1 \rightarrow p_2 \quad &\delta_1 - \delta_2 \leq 0 \\
-&\text{IFF} &p_1 \leftrightarrow p_2 \quad &\delta_1 - \delta_2 = 0 \\
-&\text{ASSIGNMENT} &p_3 \leftrightarrow p_1 \wedge p_2 \quad & \delta_1 + (1 - \delta_3) \geq 1, \\
-& & &\delta_2 + (1 - \delta_3) \geq 1, \\
-& & &(1 - \delta_1) + (1 - \delta_2) + \delta_3 \geq 1 \\
-&\remph{\text{CNF-Clause}} & \neg p_1 \vee \neg p_2 \vee p_3 \quad & \delta_1 + \delta_2 + \delta_3 \leq 1
+&\text{AND}    & p_1 &\wedge p_2 \quad          &&\delta_1 \geq 1, \delta_1 \geq 1\text{ also } \delta_1 + \delta_2 \geq 2 \\
+&\text{OR}     & p_1 &\vee p_2 \quad            &&\delta_1 + \delta_2 \geq 1 \\
+&\text{NOT}    & \neg p_1 &\quad                &&1-\delta_1 \geq 1 \text{ also } \delta_1 = 0 \\
+&\text{XOR}    & p_1 &+ p_2 \quad               &&\delta_1 + \delta_2 = 1 \\
+&\text{IMPLY}  & p_1 &\rightarrow p_2 \quad     &&\delta_1 - \delta_2 \leq 0 \\
+&\text{IFF}    & p_1 &\leftrightarrow p_2 \quad &&\delta_1 - \delta_2 = 0 \\
+&\text{ASSIGN}         & p_3 &\leftrightarrow p_1 \wedge p_2 \quad && \delta_1 + (1 - \delta_3) \geq 1 \remph{\text{ and}} \\
+& p_3 = p_1 \wedge p_2 &     &                          &&\delta_2 + (1 - \delta_3) \geq 1 \remph{\text{ and}} \\
+&                      &     &                          &&(1 - \delta_1) + (1 - \delta_2) + \delta_3 \geq 1 \\
+&\remph{\text{CNF-Clause 0}} &      p_1 &\vee p_2 \vee p_3 \quad           && \delta_1 + \delta_2 + \delta_3 \geq 1 \\
+&\remph{\text{CNF-Clause 1}} & \neg p_1 &\vee p_2 \vee p_3 \quad           && \delta_1 - \delta_2 - \delta_3 \leq 0 \\
+&\remph{\text{CNF-Clause 2}} & \neg p_1 &\vee \neg p_2 \vee p_3 \quad      && \delta_1 + \delta_2 - \delta_3 \leq 1 \\
+&\remph{\text{CNF-Clause 3}} & \neg p_1 &\vee \neg p_2 \vee \neg p_3 \quad && \delta_1 + \delta_2 + \delta_3 \leq 2
 \end{align*}
-\paragraph{Logic Equality Rules}
+\paragraph{Logic Equality Rules (for Jenwei)}
 \begin{align*}
  \neg (A \wedge B) & = \neg A \vee \neg B \\
 A \wedge (B \vee C) & = (A \wedge B) \vee (A\wedge C) \\
 A \vee (B \wedge C) & = (A\vee B)\wedge (A \vee C)
 \end{align*}
+
 \subsubsection{Translate continuous and logical components into Linear Mixed-Integer Relations}
 Event generator: $\delta_e(k) = f_{EG}(x_c(k), u_c(k), t)$. \\
 Consider: $p \Leftrightarrow a^Tx \leq b, \mathcal X = \{x | a^T x-b \in [m, M]\}$. \\
