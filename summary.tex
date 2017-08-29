@@ -488,14 +488,14 @@ For example: Terminal set calculation of $x_{k+1} = w_k$, $-1 \le w \le 1$, N$= 
 \end{align*}
 \paragraph{Tube-MPC}
 We want nominal system $z_k = \vA z_k + \vB v_k$ with ``tracking'' controller $u_k = \vK(x_k - z_k) + v_k$ i.e. closed-loop, $\vK$ found offline. \\
-Step 1: Compute $\mc E = \bigoplus_{j=1}^\infty \vA_{cl}^j\mc W.$ \\
+Step 1: Compute the minimal robust invariant set $\mc E = \bigoplus_{j=1}^\infty \vA_{cl}^j\mc W.$ \\
 Step 2: Shrink Constraints:
 \begin{align*}
-\{z_i\} \oplus \mc E & \subseteq \mc X & \implies z_i & \in \mc X \ominus \mc E \\
-u_i \in \vK\mc E \oplus \{v_i\} & \subset \vU & \implies v_i & \in \mc U \ominus \vK\mc E \\
+\{z_i\} \oplus \mc E & \subseteq \mc X & \implies \{z_i\} & \in \mc X \ominus \mc E \\
+u_i \in \vK\mc E \oplus \{v_i\} & \subset \vU & \implies \{v_i\} & \in \mc U \ominus \vK\mc E \\
 z_n \in \mc X_f \ominus \mc E & & &
 \end{align*}
-
+Also check that the set $\mc{X}_f$ is invariant for the nominal system with tightened constraints: $(A+BK)\mc{X}_f \subseteq \mc{X}_f$, and that it satisfies the constraints: $\mc{X}_f \subseteq \mc X \ominus \mc E$ and $K\mc{X}_f \subseteq \mc U \ominus K\mc E$.
 \section{Explicit MPC}
 $z^*(x_k)$ is continuous and polyhedral piecewise affine over feasible set.
 \subsection{Quadratic Cost}
