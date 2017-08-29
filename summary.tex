@@ -5,7 +5,7 @@
 \usepackage{changepage}   % for the adjustwidth environment
 \usepackage{booktabs}
 %\usepackage{extsizes}
-\usepackage[all=normal,paragraphs=normal,mathdisplays=tight]{savetrees}
+%\usepackage[all=normal,paragraphs=normal,mathdisplays=tight]{savetrees}
 \usepackage{xargs} 
 \usepackage{graphicx,xcolor} 
 \usepackage[bordercolor=white,backgroundcolor=gray!30,linecolor=black,colorinlistoftodos]{todonotes}
@@ -50,6 +50,7 @@
 \newcommand\vL{\bm{L}}
 \newcommand\vM{\bm{M}}
 \newcommand\vN{\bm{N}}
+\newcommand\vO{\bm{O}}
 \newcommand\vP{\bm{P}}
 \newcommand\vQ{\bm{Q}}
 \newcommand\vR{\bm{R}}
@@ -89,42 +90,20 @@
 \section{System Theory}
 \subsection{Nonlinear Systems}
 \subsection{Linear Systems}
+\paragraph{Continuous}
 \begin{align*}
 \dot{x}(t) &= A^cx(t)+B^cu(t)\\
 x(t) &= e^{A^c(t-t_0)}x_0+\int_{t_0}^te^{A^c(t-\tau)}Bu(\tau)d\tau \\
-e^{A^ct}&=\sum_{n=0}^\infty\frac{(A^ct)^n}{n!} \\
+e^{A^ct}&=\sum_{n=0}^\infty\frac{(A^ct)^n}{n!}
 \end{align*}
+\paragraph{Discrete}
 \begin{align*}
 x_{k+1} &= Ax_k+Bu_k\\
 y_k &= Cx_k + Du_k\\
 x_{k+N}&=A^Nx_k+\sum_{i=0}^{N-1}A^iBu_{k+N-1-i}
 \end{align*}
 
-\subsection{Lyapunov Stability}
-We define a system to be stable in the sense of Lyapunov, if it stays in any arbitrarily small neighborhood of the origin when it is disturbed slightly
-\paragraph{Lyapunov stable} if for every $\epsilon > 0$ there exists a $\delta(\epsilon)$ such that
-\[ \norm{x(0)}<\delta(\epsilon)\to \norm{x(k)} < \epsilon, \forall k \geq 0 \]
-\paragraph{asymptotically stable} in $\Omega\subseteq \R^n$ if it is Lyapunov stable and attractive $\lim_{k\to\infty}x(k)=0, \forall x(0)\in \Omega$.
-
-\paragraph{Lyapunov Function $V: \R^n \to \R$}
-must be continous at the origin, finite $\forall x \in \Omega$ and:
-\begin{align*}
-V(0) = 0 \text{ and } V(x)>0, \forall x\in \Omega \backslash \{0\}\\
-V(g(x))-V(x) \leq -\alpha(x), \forall x\in\Omega\backslash \{0\}
-\end{align*}
-where $\alpha: \R^n\to\R$ is continuous positive definite, equilibrium at $x=0$
-and $\Omega\subset\R^n$ closed and bounded set containing the origin.
-
-\paragraph{Lyapunov Theorem}
-If a system admits Lyapunov function $V(x)$, then $x=0$ is \remph{asymptotically stable} in $\Omega$ (sufficient but not necessary)
-
-If additionally $\lVert x \rVert \to \infty \implies V(x) \to \infty$, $x=0$ \remph{globally asymptotically stable}.
-
-To check if $V(x) = x^T\vP x$ is valid Lyapunov function of system $x_{k+1} = \vA x_k$ check if $(\vA\vP\vA-\vP)$ has neg.\ eigen values.
-
-In other words: Iff eigenvalues of $A$ inside unit circle (i.e. stable) then $\exists unique \ \vP>0$ that solves $\vA_{cl}^T\vP\vA_{cl}-\vP = -\vQ,\ \vQ > 0$ and $V(x) = x^T\vP x$ is a lyapunov function.
-
-\subsection{Discretization}
+\paragraph{Discretization}
 Euler: $A = I + T_s A^c ,\ B = T_s B^c ,\ C = C^c ,\ D = D^c $
 \begin{align*}
 x_{k + 1} &= x_k + T_s g^c(x_k,u_k) = g(x_k,u_k) \\
@@ -136,17 +115,49 @@ A = e^{A^cT_s},\ B = \int_0^{T_s} e^{A^c(Ts-\tau')}B^cd\tau \\
 B=(A^c)^{-1}(A-I)B^c,\ \text{if $A^c$ invertible}
 \end{align*}
 
-\subsection{Observability and detectability}
-\paragraph{$(A,C)$ observable}
-if $\rank(O) = n$ (full col. rank) for
-$O = \Me{C^T \\ (CA)^T \\ \dots \\ (CA^{n-1})^T}$ or $\Me{\vA-\lambda\vI \\ \vH}$ has full col.\ rank for \remph{all} $\lambda \in \mathbb{C}$ of $\vA$.
-\paragraph{$(A,H)$ detectable}
-iff $\Me{\vA-\lambda\vI \\ \vH}$ has full col.\ rank for \remph{unstable} $|\lambda_i| \geq 1$ of $\vA$.
+\subsection{Lyapunov Stability}
+System is stable in the sense of Lyapunov iff it stays in any arbitrarily small neighborhood of the origin when it is disturbed slightly.
+\paragraph{Lyapunov stable} iff $\forall\epsilon > 0 \; \exists\delta(\epsilon)$ s.t.\
+$\lVert x_0 \rVert < \delta(\epsilon)\to \lVert x_k \rVert < \epsilon, \forall k \geq 0$
+\paragraph{asymptotically stable} in $\Omega\subseteq \R^n$ if Lyapunov stable and \emph{attractive} $\lim_{k\to\infty}x_k=0, \forall x_0\in \Omega$.
 
-\subsection{Controllability (reachability)}
+\paragraph{Lyapunov Function $V: \R^n \to \R$}
+continous at the origin, finite $\forall x \in \Omega$,
 \begin{align*}
-C &= [B \ AB \ ... \ A^{n-1}B] \\
+V(0) = 0 \text{ and } V(x)>0, \forall x\in \Omega \backslash \{0\}\\
+V(g(x))-V(x) \leq -\alpha(x), \forall x\in\Omega\backslash \{0\}
 \end{align*}
+where $\alpha: \R^n\to\R$ is continuous positive definite, equilibrium at $x=0$
+and $\Omega\subset\R^n$ closed and bounded set containing the origin.
+
+\paragraph{Lyapunov Theorem}
+If system admits Lyapunov function $V(x)$, then $x=0$ is \remph{asymptotically stable} in $\Omega$ (sufficient but not necessary).
+
+If additionally $\lVert x \rVert \to \infty \implies V(x) \to \infty$ \remph{globally asymptotically stable}.
+
+To check if $V(x) = x^T\vP x$ is valid Lyapunov function of system $x_{k+1} = \vA x_k$ check if $(\vA\vP\vA-\vP)$ has neg.\ eigen values.
+
+In other words: Iff eigenvalues of $A$ inside unit circle (i.e. stable) then $\exists unique \ \vP>0$ that solves $\vA_{cl}^T\vP\vA_{cl}-\vP = -\vQ,\ \vQ > 0$ and $V(x) = x^T\vP x$ is a lyapunov function.
+
+\subsection{Observability $\implies$ Detectability, Controllability $\implies$ Stabilizability}
+\paragraph{$(A,C)$ observable}
+if $\rank(\vO) = n$ (full col. rank) for
+$\vO = \Me{C^T \\ (CA)^T \\ \dots \\ (CA^{n-1})^T}$ or $\rank\Me{\vA-\lambda\vI \\ \vH} = n \; \remph{\forall} \lambda_i$ of $\vA$ (PBH-test).
+\paragraph{$(A,H)$ detectable}
+iff $\rank\Me{\vA-\lambda\vI \\ \vH} = n$ \remph{$\forall$ unstable} $|\lambda_i| \geq 1$ of $\vA$.
+
+\paragraph{$(A,B)$ controllable}
+if $\rank\vC = n$,
+$\vC = \Me{\vB & \vA\vB & \dots & \vA^{n-1}\vB}$
+or
+if $\rank\left(\Me{\lambda_j \vI - \vA & \vB}\right) = n\; \remph{\forall} \lambda_i$ of $\vA$ (PBH-test).
+
+Intuition: Can reach any state in (at most) $n$ steps.
+
+\paragraph{$(A,B)$ stabilizable}
+if $\rank\Me{\lambda_j \vI - \vA & \vB} = n \; \remph{\forall \text{unstable}} |\lambda_i| \geq 1$ of $\vA$.
+
+Intuition: Can reach origin in (at most) $n$ steps.
 
 \section{Unconstrained Control}
 \subsection{Block Approach (used also for $\bar w$ substition)}
@@ -281,7 +292,7 @@ are necessary for optimality (and sufficient if primal convex).
 \end{align*}
 
 \section{Constrained Finite Time Optimal Control (CFTOC)}
-\subsection{MPC with linear cost}\vspace*{-\baselineskip}
+\subsection{MPC with linear cost}
 \begin{align*}
 J(x_0, u) = \lVert \vP x_N \rVert_p + \sum_{i=0}^{N-1} \lVert \vQ x_i \rVert_p + \lVert \vR u_i \rVert_p.
 \end{align*}
@@ -309,7 +320,8 @@ Where $\bm{G}$ is the normal problem constraints and $[\vG_\epsilon \bm{G}_u]$ f
 	-\epsilon_0^x \le Ax_0 + Bu_0 \le \epsilon_0^x \\
 	-\epsilon_1^x \le A^2x_0 + Bu_1 + ABu_0 \le \epsilon_1^x
 \end{gather*}
-\subsection{QP with substitution (see also Batch approach)}\vspace*{-\baselineskip}
+
+\subsection{QP with substitution (see also Batch approach)}
 \begin{align*}
 J^*(x_k) & = \min_u \Me{u^T & x_k^T}\Me{\vH & \vF^T \\ \vF & \vY}\Me{u \\ x_k} \\
 \text{s. t. } & \vG\ u \leq w + \vE\ x_k
@@ -338,7 +350,7 @@ State equations are in cost matrix, usually in the form: $\vA_x = \Me{1 \\ -1}, 
 \vW & = \Me{b_u \\ b_u \\ \vdots \\ b_u \\ b_x \\ b_x \\ b_x \\ \vdots \\ b_x \\ b_f}
 \end{align*}
 \end{scriptsize}
-\vspace*{-\baselineskip}
+
 \subsection{QP without substitution}
 State equations represented in equality constraints ($k$ fixed, usually $k=0$).
 \begin{align*}
@@ -550,7 +562,7 @@ Polyhedral partition of the ($x,u$)-space:
 
 \subsection{Mixed Logical Dynamical Hybrid Model (MLD)}
 Idea: associate boolean to binary: $ p_j \iff \delta_i = 1$, $\neg p_j \iff \delta_i =0$.
-\subsubsection{Translate logic rules to Linear Integer Inequalities}\vspace*{-\baselineskip}
+\subsubsection{Translate logic rules to Linear Integer Inequalities}
 \begin{align*}
 &\text{AND} &p_1 \wedge p_2 \quad &\delta_1 \geq 1, \delta_1 \geq 1\text{ also } \delta_1 + \delta_2 \geq 2 \\
 &\text{OR} &p_1 \vee p_2 \quad &\delta_1 + \delta_2 \geq 1 \\
@@ -587,12 +599,12 @@ E_2 \delta_k + E_3 z_k &\leq E_4 x_k + E_1 u_k + E_5
 \end{align*}
 where the last equation describes the relationship between the continuous and integer variables. Physical constraints on cont. variables:
 $\left\{\mc{C}\right\} = \left\{ \Me{x_c\\u_c} \in \mc{R}^{n_c+m_c}| F x_c + G u_c \leq H\right\}$
-\subsection{CFTOC for Hybrid Systems}\vspace*{-\baselineskip}
+\subsection{CFTOC for Hybrid Systems}
 \begin{align*}
 J^*(x)=&\min_U ~l_N (x_N) + \sum_{k=0}^{N-1} l(x_k,u_k,\delta_k,z_k)\\
 \mathrm{s.t} \hspace*{2mm} & x_{k+1}=A x_k + B_1 u_k + B_2 \delta_k + B_3 z_k\\ &E_2 \delta_k + E_3 z_k \leq E_4 x_k + E_1 u_k + E_5\\&x_N \in \mc{X}_f, x_0 = x(0)
 \end{align*}
-\subsection{MILP/QP}\vspace*{-\baselineskip}
+\subsection{MILP/QP}
 \begin{align*}
 	\text{min}  \hspace*{2mm} &c_c z_c +  c_b z_b + d \quad \text{ OR } \quad z H z +  q z + d\\
 	\mathrm{s.t} \hspace*{2mm} &G_c z_c + G_b z_b \leq W \\
@@ -612,7 +624,7 @@ $L$-smooth $f(x)$:
 f(x) \le f(y) + &\nabla f(y)^T(x - y)+ 0.5L\left\| x-y\right\|^2 \forall x, y \in\R^n
 \end{align*}
 
-\subsection{Newton's Method}\vspace*{-\baselineskip}
+\subsection{Newton's Method}
 \begin{align*}
 x_{i+1} = x_i - h_i\Delta x_{nt} := x_i - h_i (\nabla^2 f(x_i))^{-1} \nabla f(x_i)
 \end{align*}

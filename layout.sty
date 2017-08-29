@@ -15,7 +15,7 @@
 \usepackage{tabularx}
 \usepackage[explicit]{titlesec}
 \usepackage{fancyhdr}	% Footer and header
-\usepackage[left=4mm, right=4mm, top=4mm, bottom=6mm, footskip=2.5mm]{geometry}
+\usepackage[left=4mm, right=4mm, top=4mm, bottom=6mm, footskip=3.0mm]{geometry}
 \usepackage{sectsty}	%For Section Header Formatting
 \usepackage{framed}
 \usepackage{hyperref} 
@@ -23,14 +23,19 @@
 %------------------------------------
 %  DOCUMENT CONFIGURATIONS
 %------------------------------------
-\setlength{\columnsep}{0.8cm}
-\setlength{\columnseprule}{0.4pt}
+\setlength{\columnsep}{4mm}
+\setlength{\columnseprule}{0.2pt}
 \setlength{\parindent}{0pt}
+\setlength{\arraycolsep}{3pt}
 
-\setlength{\abovedisplayskip}{2pt}
-\setlength{\belowdisplayskip}{2pt}
-\setlength{\abovedisplayshortskip}{2pt}
-\setlength{\belowdisplayshortskip}{2pt}
+\makeatletter
+\g@addto@macro \normalsize {%
+ \setlength{\abovedisplayskip}{1pt}%
+ \setlength{\belowdisplayskip}{1pt}%
+ \setlength{\abovedisplayshortskip}{1pt}%
+ \setlength{\belowdisplayshortskip}{1pt}%
+}
+\makeatother
 
 \setitemize{labelindent=2pt,leftmargin=*, labelsep=0.5cm,itemsep=0.3pt}
 %custom items
