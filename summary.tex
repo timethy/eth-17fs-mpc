@@ -201,7 +201,7 @@ Intersection preserves convexity, union does not.
 \paragraph{Polyhedron $\mc P$} $= \{ x | a_i^Tx \leq b_i, i = 1, \dots, n \} = \{ x | \vA x \leq b \}$
 \paragraph{Cone $\mc X$} if for all $ x \in \mc X $, and for all $\theta > 0, \theta x \in \mc X$.
 \paragraph{Ellipsoid $\mc E$} $= \{ x | (x-x_c)^T\vA^{-1}(x-x_c) \leq 1 \}$, $x_c$ center point.
-\paragraph{Convex function $f : \text{dom($f$)} \rightarrow \R$} is convex iff dom($f$) is convex and 
+\paragraph{Convex function $f : \text{dom($f$)} \rightarrow \R$} is convex iff dom($f$) is convex and
 $f (\lambda x + (1 - \lambda)y) \geq \lambda f(x) + (1-\lambda)f(y), \forall \lambda \in (0, 1), \forall x, y \in \text{dom($f$)}$.
 \paragraph{Norm ball} is convex (for all norms).
 \paragraph{Epigraph set $f : \text{dom($f$)} \rightarrow \R$} is the set $\text{epi($f$)} :=
@@ -454,7 +454,8 @@ Requirement: Softened problem has same minimiser as original problem if feasible
 
 Quadratic error function $l_\epsilon(\epsilon) = v\epsilon + w\epsilon^2$, $w > 0$ gives smoothness, choose $v > \lambda^* \geq 0$ for exact penalty (above requirement fulfilled).
 
-\paragraph{Move Blocking} main idea to set a number of inputs as the same, $u_2 = u_3 = \dots = u_N$, to reduce computational burden, at the slight cost of sub-optimality.
+\subsection{Move Blocking}
+Main idea to set a number of inputs as the same, $u_2 = u_3 = \dots = u_N$, to reduce computational burden, at the slight cost of sub-optimality.
 
 \section{Robust MPC}
 \paragraph{Enforcing terminal constraints} by robust invariance:
@@ -462,7 +463,9 @@ Quadratic error function $l_\epsilon(\epsilon) = v\epsilon + w\epsilon^2$, $w > 
 x \in O^{\mc W} \implies g(x, w) \in \Omega^W \; \forall w \in \mc W \\
 \pre^{\mc W}(\Omega) = \left\{ x \middle| g(x, w) \in \Omega \; \forall w \in \mc W\right\}
 \end{align*}
-\paragraph{Enforcing sequential constraints} for uncertain system $\phi$:
+\tim{Maybe an example from exercises to compute $O^W_\infty$}
+
+\paragraph{Enforcing sequential constraints} for uncertain system $\phi$:\\
 \begin{align*}
 \phi_i(x_0, u, w) & = \left\{ x_i + \sum_{j=0}^{i-1}\vA^j w_j \middle| w \in \mc W^i \right\} \subseteq \mc X \\
 \phi_N(x_0, u, w) & \in \mc X_f \quad\text{as well}
@@ -509,6 +512,19 @@ The first solution gives $u^*(x_k) = \kappa(x_k)$, which is continuous and piece
 \subsection{1/$\infty$-norm}
 $J^*(x_k)$ is continuous, convex and polyhedral piecewise affine.
 Optimal solution: $u^*_0 = \Me{0 & \dots & 0 & I_m & 0 & \dots & 0} z^*(x_k)$, and is in the same form as the QP case above.
+\subsection{Explicit Example}
+\begin{enumerate}
+ \itemsep0em
+ \item Write out KKT conditions and Lagrangian.
+ \item Determine infeasible regions from primal feasibility constraints. For example, $x1 < 10$.
+ \item From primal and dual feasibility, and complementary slackness conditions, list out all cases that can occur.
+ \begin{align*}
+  &\lambda_1 = 0 &\lambda_1 \geq 0\\
+  & g_1(x) < 0 &g_1(x) = 0
+ \end{align*}
+ \item Solve for each case: $z^*(x_1, x_2)$ and $J^*(x_1, x_2)$, listing the active constraints, and range of validity.
+\end{enumerate}
+
 \section{Hybrid MPC}
 \subsection{Piecewise Affine (PWA) Systems}
 Affine dynamics and output for each region:
