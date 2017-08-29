@@ -297,7 +297,12 @@ Converting to LP form:
 \bar\vG = & \Me{\vG_\epsilon & \bm{G}_u \\ 0 & \bm{G}}, \quad \bar w = \Me{w_\epsilon \\ w} \\
  \bar s = & \Me{s_\epsilon \\ s} 
 \end{align*}
-Where $\bm{G}$ is the normal problem constraints and $[\vG_\epsilon \bm{G}_u]$ form the constraints of the newly introduced variable $\epsilon$ as given in the first 3 constraints in the section above.
+Where $\bm{G}$ is the normal problem constraints and $[\vG_\epsilon \bm{G}_u]$ form the constraints of the newly introduced variable $\epsilon$ as given in the first 3 constraints in the section above. For example, we require:
+\begin{gather*}
+	-\epsilon_i^u \le u_i \le \epsilon_i^u \\
+	-\epsilon_0^x \le Ax_0 + Bu_0 \le \epsilon_0^x \\
+	-\epsilon_1^x \le A^2x_0 + Bu_1 + ABu_0 \le \epsilon_1^x
+\end{gather*}
 \subsection{QP with substitution (see also Batch approach)}\vspace*{-\baselineskip}
 \begin{align*}
 J^*(x_k) & = \min_u \Me{u^T & x_k^T}\Me{\vH & \vF^T \\ \vF & \vY}\Me{u \\ x_k} \\
@@ -309,7 +314,7 @@ Latter gives three sets (same for without substitution)
 \mc{U}   & = \{ u | A_u\ u \leq b_u\} \\
 \mc X_f & = \{ x | A_f\ x \leq b_f\}
 \end{align*}
-State equations are in cost matrix, usually $\vA_x = \Me{1 \\ -1}, b_x = \Me{b_\text{max} \\ -b_\text{min}}$
+State equations are in cost matrix, usually in the form: $\vA_x = \Me{1 \\ -1}, b_x = \Me{b_\text{max} \\ -b_\text{min}}$
 \begin{scriptsize}
 \setlength{\arraycolsep}{2pt}
 \begin{align*}
@@ -327,7 +332,7 @@ State equations are in cost matrix, usually $\vA_x = \Me{1 \\ -1}, b_x = \Me{b_\
 \vW & = \Me{b_u \\ b_u \\ \vdots \\ b_u \\ b_x \\ b_x \\ b_x \\ \vdots \\ b_x \\ b_f}
 \end{align*}
 \end{scriptsize}
-
+\vspace*{-\baselineskip}
 \subsection{QP without substitution}
 State equations represented in equality constraints ($k$ fixed, usually $k=0$).
 \begin{align*}
