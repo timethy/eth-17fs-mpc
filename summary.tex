@@ -143,9 +143,9 @@ In other words: Iff eigenvalues of $A$ inside unit circle (i.e. stable) then $\e
 \subsection{Observability $\implies$ Detectability, Controllability $\implies$ Stabilizability}
 \paragraph{$(A,C)$ observable}
 if $\rank(\vO) = n$ (full col. rank) for
-$\vO = \Me{C^T \\ (CA)^T \\ \dots \\ (CA^{n-1})^T}$ or $\rank\Me{\vA-\lambda\vI \\ \vH} = n \; \remph{\forall} \lambda_i$ of $\vA$ (PBH-test).
-\paragraph{$(A,H)$ detectable}
-iff $\rank\Me{\vA-\lambda\vI \\ \vH} = n$ \remph{$\forall$ unstable} $|\lambda_i| \geq 1$ of $\vA$.
+$\vO = \Me{C^T \\ (CA)^T \\ \dots \\ (CA^{n-1})^T}$ or $\rank\Me{\vA-\lambda\vI \\ \vC} = n \; \remph{\forall} \lambda_i$ of $\vA$ (PBH-test).
+\paragraph{$(A,C)$ detectable}
+iff $\rank\Me{\vA-\lambda\vI \\ \vC} = n \remph{\forall \text{unstable}} |\lambda_i| \geq 1$ of $\vA$.
 
 \paragraph{$(A,B)$ controllable}
 if $\rank\vC = n$,
