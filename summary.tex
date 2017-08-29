@@ -22,6 +22,7 @@
 \fancyfoot[C]{\footnotesize\color{dkgreen} Model Predictive Control -- \today}
 \fancyfoot[RO, LE] {\footnotesize\color{dkgreen} \thepage}
 
+\renewcommand{\iff}{\Leftrightarrow}
 \renewcommand{\implies}{\Rightarrow}
 \newcommand{\remph}[1]{{\textcolor{red}{#1}}}
 \newcommand{\mc}[1]{\mathcal{#1}}
@@ -311,8 +312,7 @@ Converting to LP form:
 &\min_z\ c^Tz \quad \\ \text{s.t. } &\bar \vG z \leq \bar w + \bar s x_k \\
     z = & \Me{\epsilon_0^x & \dots & \epsilon_N^x & \epsilon_0^u & \dots & \epsilon_{N-1}^u &u_0^T &\dots &u_{N-1}^T} \\
     c = & \Me{1 & \dots & 1 & 1 & \dots & 1 & 0 & \dots & 0} \\
-\bar\vG = & \Me{\vG_\epsilon & \bm{G}_u \\ 0 & \bm{G}}, \quad \bar w = \Me{w_\epsilon \\ w} \\
- \bar s = & \Me{s_\epsilon \\ s} 
+\bar\vG = & \Me{\vG_\epsilon & \bm{G}_u \\ 0 & \bm{G}}, \quad \bar w = \Me{w_\epsilon \\ w}, \quad \bar s = \Me{s_\epsilon \\ s} 
 \end{align*}
 Where $\bm{G}$ is the normal problem constraints and $[\vG_\epsilon \bm{G}_u]$ form the constraints of the newly introduced variable $\epsilon$ as given in the first 3 constraints in the section above. For example, we require:
 \begin{gather*}
@@ -387,26 +387,34 @@ w & = \Me{b_x \\ . \\ b_f \\ b_u \\ . \\ b_u} &
 \end{scriptsize}
 
 \subsection{Invariance}
-Def.: $x(k) \in O \implies x(k+1) \in O \forall k$. \\
-\begin{align*}
-\pre(S) & := \{ x | g(x) \in S\} & = \{ x | Ax \in S \}
-\end{align*}
-Max invariant set calculation: $\Omega_{i+1} \leftarrow \text{pre($\Omega_i$)} \cap \Omega_i$, terminating when $\Omega_{i+1} = \Omega_i$.
-\tim{We need more here, pos. inv. set, max. pos.inv $O_\infty$}
+\paragraph{Pos.\ Invariant set $O$} iff $x_k \in O \implies x_{k+1} = g(x_k) \in O \; \forall k$.
+\paragraph{Max.\ Pos.\ Invariant set $O_\infty \subset \mc X$} iff $0 \in O_\infty$, $O_\infty$ invariant and contains all invariant sets $O$ with $0 \in O$.
+\paragraph{Pre-Set $\pre(S)$}
+$:= \{ x | g(x) \in S\} = \{ x | \vA x \in S \}$ \\
+Linear systems: $S = \{ x | \vF x \leq f\} \implies \pre(S) = \{ x | \vF\vA x \leq f\}$. \\
+Note: $O$ invariant $\iff O \subseteq \pre(O) \iff \pre(O) \cap O = O$.
+\paragraph{Calculate max. invariant set} by
+$\Omega_{i+1} \leftarrow \text{pre($\Omega_i$)} \cap \Omega_i$, terminating when $\Omega_{i+1} = \Omega_i$,
+starting with $\Omega_0 = \mc X$.
 
 \subsection{Stability and Feasability}
 %Recursive Stability, optimal cost is Lyapunov function.
 %\tim{What is meant with that}
 
-Main Idea: Choose $\mc X_f$ and $\vP$ to mimic infinite horizon.
+\paragraph{Main Idea} Choose $\mc X_f$ and $\vP$ to mimic infinite horizon.
 LQR control law $\kappa(x) = \vF_\infty x$ from solving DARE.
 Set terminal weight $\vP = \vP_\infty$, terminal set $\mc X_f$ as maximal invariant set:
 \begin{align*}
 x_{k+1} & = \vA x_k + \vB\vF_\infty\ x_k \in \mc X_f & \forall x_k \in \mc X_f & \text{ terminal set invariant} \\
 \mc X_f & \subseteq \mc X, \qquad \vF_\infty\ x_k \in \mc U & \forall x_k \in \mc X_f & \text{ constrainst satisfied}
 \end{align*}
-We get: 1. Positive stage cost function, 2. invariant terminal set by construction, 3. Terminal cost is Lyapunov function with
+\paragraph{Result}
+\begin{enumerate}
+\item Positive stage cost function,
+\item invariant terminal set by construction and
+\item Terminal cost is Lyapunov function with
 \[ x_{k+1}^T\vP x_{k+1} - x_k^T\vP x_k = -x_k^T(\vQ + \vF_\infty^T\vR\vF_\infty)x_k \]
+\end{enumerate}
 
 %And stage cost is PD-function $\implies$
 Extension to non-linear (time-invariant) MPC possible since terminal set and cost do not rely on linearity.
