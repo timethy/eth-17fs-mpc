@@ -653,9 +653,10 @@ J^*(x)=&\min_U ~l_N (x_N) + \sum_{k=0}^{N-1} l(x_k,u_k,\delta_k,z_k)\\
 	\mathrm{s.t} \hspace*{2mm} &G_c z_c + G_b z_b \leq W \\
 	&z_c \in R^{s_c}, z_b \in\{0, 1\}^{s_b}
 \end{align*}
-Branch and bound method can be used to efficiently solve the problem.
 Explict solution is a time varying fb law for both problems: $u_k^*(x_k) = F^j_k x_k + G_k^j$ if $x_k \in \mc{R}^j_k$.
-
+\paragraph{Brute force:} enumerating all the $2^{sb}$ integer values of the variable zb and solve the corresponding problem.
+\paragraph{Branch and Bound:} relaxation of binaries: ${0,1} \rightarrow [0,1]$. A lower bound on the optimal solution of the modified problem is found. Any feasible solution to the original problem is an upper bound on optimal cost.
+\includegraphics[scale=0.2]{bnb.png}
 \section{Numerical Optimization -- Iterative Methods}
 \subsection{Gradient descent}
 $x_{i+1} = x_i \remph{-} h_i\nabla f(x_i)$ with step-size $h_i = \dfrac{1}{L}$ for
