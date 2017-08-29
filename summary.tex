@@ -647,14 +647,14 @@ $\left\{\mc{C}\right\} = \left\{ \Me{x_c\\u_c} \in \mc{R}^{n_c+m_c}| F x_c + G u
 J^*(x)=&\min_U ~l_N (x_N) + \sum_{k=0}^{N-1} l(x_k,u_k,\delta_k,z_k)\\
 \mathrm{s.t} \hspace*{2mm} & x_{k+1}=A x_k + B_1 u_k + B_2 \delta_k + B_3 z_k\\ &E_2 \delta_k + E_3 z_k \leq E_4 x_k + E_1 u_k + E_5\\&x_N \in \mc{X}_f, x_0 = x(0)
 \end{align*}
-\subsection{MILP/QP}
+\subsection{MILP/MLQP}
 \begin{align*}
-	\text{min}  \hspace*{2mm} &c_c z_c +  c_b z_b + d \quad \text{ OR } \quad z H z +  q z + d\\
+	\text{min}  \hspace*{2mm} &c_c z_c +  c_b z_b + d \quad \text{ OR } \quad [z_c z_b] H [z_c z_b] +  q [z_c z_b] + d\\
 	\mathrm{s.t} \hspace*{2mm} &G_c z_c + G_b z_b \leq W \\
 	&z_c \in R^{s_c}, z_b \in\{0, 1\}^{s_b}
 \end{align*}
-Explict solution is a time varying fb law for both problems: $u_k^*(x_k) = F^j_k x_k + G_k^j$ if $x_k \in \mc{R}^j_k$.
-\paragraph{Brute force:} enumerating all the $2^{sb}$ integer values of the variable zb and solve the corresponding problem.
+Explicit solution is a time varying fb law for both problems: $u_k^*(x_k) = F^j_k x_k + G_k^j$ if $x_k \in \mc{R}^j_k$.
+\paragraph{Brute force:} enumerating all the $2^{sb}$ integer values of the variable $z_b$ and solve the corresponding problem.
 \paragraph{Branch and Bound:} relaxation of binaries: ${0,1} \rightarrow [0,1]$. A lower bound on the optimal solution of the modified problem is found. Any feasible solution to the original problem is an upper bound on optimal cost.
 \includegraphics[scale=0.2]{bnb.png}
 \section{Numerical Optimization -- Iterative Methods}
@@ -681,14 +681,13 @@ h_i^* = \text{argmin } x_i + h_i\Delta x_{nt}
 Or use the backtracking search method:
 \begin{align*}
 &\text{For } \alpha \in (0, 0.5) \text{ and } \beta \in (0,1): \\
-&	\text{initialise } h_i = 1; \\
-&	\text{while } f(x_i+ h_i\Delta x_{nt}) > f(x_i) + \alpha h_i \nabla f(x_i)^T\Delta x_{nt} \text{ 
-	do } h_i \leftarrow \beta h_i
+&	\quad \text{Initialise } h_i = 1; \\
+&	\quad \text{while } f(x_i+ h_i\Delta x_{nt}) > f(x_i) + \alpha h_i \nabla f(x_i)^T\Delta x_{nt} \text{ do } h_i \leftarrow \beta h_i
 \end{align*}
 
 For given equality constraint $\vA x = b$ solve:
 \begin{align*}
-\Me{\nabla^2 f(x_i) & \vA^T \\ \vA & \bm 0}\Me{\delta x \\ \lambda} = \Me{-\nabla f(x_i) \\ \bm 0}
+\Me{\nabla^2 f(x_i) & \vA^T \\ \vA & \bm 0}\Me{\Delta x \\ \lambda} = \Me{-\nabla f(x_i) \\ \bm 0}
 \end{align*}
 
 \subsection{Constrained optimization with $g_i(x) \leq 0$}
