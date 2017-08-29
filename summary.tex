@@ -1,15 +1,19 @@
 \documentclass[landscape,a4paper,8pt]{scrartcl}
 
-\usepackage{bm}
+%\usepackage[bordercolor=white,backgroundcolor=gray!30,linecolor=black,colorinlistoftodos]{todonotes}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage{layout}
-\usepackage{changepage}   % for the adjustwidth environment
-\usepackage{booktabs}
-%\usepackage{extsizes}
-%\usepackage[all=normal,paragraphs=normal,mathdisplays=tight]{savetrees}
-\usepackage{xargs} 
-\usepackage{graphicx,xcolor} 
-\usepackage[bordercolor=white,backgroundcolor=gray!30,linecolor=black,colorinlistoftodos]{todonotes}
-\newcommandx{\tim}[1]{\todo[color=blue!30, inline]{tim: {#1}}}
+\usepackage[compact]{titlesec}
+
+\titleformat{\section}
+  {\color{myblue}\normalsize\sffamily\bfseries}{\thesection}{1em}{}[{\titlerule[0.4pt]}]
+
+%\titleformat{\section}{\normalsize\bfseries\sffamily\color{myblue}}
+%\sectionfont{\color{myblue}\normalsize\sffamily\bfseries\sectionrule{3ex}{0pt}{-1ex}{0.5pt}}
+\titleformat*{\subsection}{\color{myblue2}\normalsize\sffamily\bfseries}
+\titleformat*{\subsubsection}{\color{myblue3}\normalsize\sffamily\bfseries}
+\titleformat*{\paragraph}{\color{dkpurple}\normalsize\sffamily\bfseries}
 
 %------------------------------------
 %  FOOTER SETTINGS
@@ -17,7 +21,7 @@
 \pagestyle{fancy}
 \renewcommand{\headrulewidth}{0pt}
 \fancyhead{}
-\renewcommand{\footrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.2pt}
 \fancyfoot[L]{\footnotesize\color{dkgreen} Tim Taubner, Jen Wei Niam; \href{https://github.com/timethy/mpc}{www.github.com/timethy/mpc}}
 \fancyfoot[C]{\footnotesize\color{dkgreen} Model Predictive Control -- \today}
 \fancyfoot[RO, LE] {\footnotesize\color{dkgreen} \thepage}
@@ -654,9 +658,9 @@ J^*(x)=&\min_U ~l_N (x_N) + \sum_{k=0}^{N-1} l(x_k,u_k,\delta_k,z_k)\\
 	&z_c \in R^{s_c}, z_b \in\{0, 1\}^{s_b}
 \end{align*}
 Explicit solution is a time varying fb law for both problems: $u_k^*(x_k) = F^j_k x_k + G_k^j$ if $x_k \in \mc{R}^j_k$.
-\paragraph{Brute force:} enumerating all the $2^{sb}$ integer values of the variable $z_b$ and solve the corresponding problem.
-\paragraph{Branch and Bound:} relaxation of binaries: ${0,1} \rightarrow [0,1]$. A lower bound on the optimal solution of the modified problem is found. Any feasible solution to the original problem is an upper bound on optimal cost.
-\includegraphics[scale=0.2]{bnb.png}
+\paragraph{Brute force:} enumerating all the $2^{sb}$ integer values of the variable zb and solve the corresponding problem.
+\paragraph{Branch and Bound:} relaxation of binaries: $\{0,1\} \rightarrow [0,1]$. Lower bound on the optimal solution of the modified problem is found. Any feasible solution to original problem is upper bound on optimal cost.
+\includegraphics[width=0.8\linewidth]{bnb.png}
 \section{Numerical Optimization -- Iterative Methods}
 \subsection{Gradient descent}
 $x_{i+1} = x_i \remph{-} h_i\nabla f(x_i)$ with step-size $h_i = \dfrac{1}{L}$ for

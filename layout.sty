@@ -3,22 +3,24 @@
 %------------------------------------
 %  PACKAGES
 %------------------------------------
-\usepackage[utf8]{inputenc}
 \usepackage{amsmath,amsfonts,amssymb}
 \usepackage{graphicx}
 \usepackage[english]{babel}
 \usepackage{xcolor}
 \usepackage{multicol}
 \usepackage{multirow}
-\usepackage{lipsum}
-\usepackage{enumitem}
 \usepackage{tabularx}
-\usepackage[explicit]{titlesec}
 \usepackage{fancyhdr}	% Footer and header
 \usepackage[left=4mm, right=4mm, top=4mm, bottom=6mm, footskip=3.0mm]{geometry}
-\usepackage{sectsty}	%For Section Header Formatting
+%\usepackage{sectsty}	%For Section Header Formatting
 \usepackage{framed}
 \usepackage{hyperref} 
+\usepackage{bm}
+\usepackage{changepage}   % for the adjustwidth environment
+\usepackage{booktabs}
+%\usepackage{extsizes}
+%\usepackage[all=normal,paragraphs=normal,lists=tight]{savetrees}
+\usepackage{xargs} 
 
 %------------------------------------
 %  DOCUMENT CONFIGURATIONS
@@ -30,19 +32,12 @@
 
 \makeatletter
 \g@addto@macro \normalsize {%
- \setlength{\abovedisplayskip}{1pt}%
- \setlength{\belowdisplayskip}{1pt}%
- \setlength{\abovedisplayshortskip}{1pt}%
- \setlength{\belowdisplayshortskip}{1pt}%
+ \setlength{\abovedisplayskip}{0pt plus 1pt}%
+ \setlength{\belowdisplayskip}{0pt plus 1pt}%
+ \setlength{\abovedisplayshortskip}{1pt plus 1pt minus 1pt}%
+ \setlength{\belowdisplayshortskip}{1pt plus 1pt minus 1pt}%
 }
 \makeatother
-
-\setitemize{labelindent=2pt,leftmargin=*, labelsep=0.5cm,itemsep=0.3pt}
-%custom items
-\newcommand{\localtextbulletone}{\textcolor{myblue}{\raisebox{.45ex}{\rule{.6ex}{.6ex}}}}
-\renewcommand{\labelitemi}{\localtextbulletone}
-\newcommand{\localtextbulletonei}{\textcolor{myblue2}{\raisebox{.4ex}{\rule{.5ex}{.5ex}}}}
-\renewcommand{\labelitemii}{\localtextbulletonei}
 
 %--Hyphenation--
 \hyphenpenalty=10000
@@ -64,42 +59,6 @@
 \definecolor{dkpurple}{rgb}{0.314,0.086,0.769}
 \definecolor{dkgreen}{RGB}{34,139,34}
 
-%\allsectionsfont{\sffamily\raggedright}
-\sectionfont{\color{myblue}\normalsize\sffamily\bfseries\sectionrule{3ex}{0pt}{-1ex}{0.5pt}}
-\subsectionfont{\color{myblue2}\normalsize\sffamily\bfseries}
-\subsubsectionfont{\color{myblue3}\normalsize\sffamily\bfseries}
-\paragraphfont{\color{dkpurple}\normalsize\sffamily\bfseries}
-%%%\sectionrule {hraise top byi}{htop rule heighti} {hraise bottom byi}{hbottom rule heighti}
-
-
-%------------------------------------
-%  EQUATIONS
-%------------------------------------
-\newcommand{\myeq}[1]{
-
-  \rule{1\columnwidth \relax}{0pt}\\
-   \fcolorbox{myblue3}{ltblue}{\parbox{\dimexpr\columnwidth-2\fboxsep-2\fboxrule\relax}{\vspace*{2pt}
-   \begin{align}
-   #1
-   \end{align}}}
-   
-\vspace*{5pt}
-}
-
-\newcommand{\myeqstar}[1]{
-
-  \rule{1\columnwidth \relax}{0pt}\\
-   \fcolorbox{myblue3}{ltblue}{\parbox{\dimexpr\columnwidth-2\fboxsep-2\fboxrule\relax}{\vspace*{2pt}
-   \begin{align*}
-   #1
-   \end{align*}}}
-   
-\vspace*{5pt}
-}
-
-
-\newcommand{\BigO}[1]{\ensuremath{\operatorname{O}\bigl(#1\bigr)}}
-
 \makeatletter
 \renewcommand*\env@matrix[1][*\c@MaxMatrixCols c]{%
   \hskip -\arraycolsep
@@ -107,33 +66,3 @@
   \array{#1}}
 \makeatother
 
-%------------------------------------
-%  PROGRAMMING LANGUAGE
-%------------------------------------
-\usepackage{listings}
-\lstloadlanguages{[Visual]C++}
-\lstset{language=C++,
-showstringspaces=false,
-stringstyle=\color{dkgreen},
-commentstyle=\color{blue},
-  frame=tblr,
-  framerule=1pt,
-  rulecolor=\color{black},
-}
-
-\lstset{backgroundcolor=\color{ltyellow}}
-\lstset{emph={template, virtual}, emphstyle=\color{orange} \textbf,
-emph={[2]main, transform, accumulate, equal},emphstyle={[2] \textbf}
-}
-\lstset{tabsize=3}
-\lstset{xleftmargin=4pt}
-\lstset{xrightmargin=4pt}
-
-%------------------------------------
-%  Content Control
-%------------------------------------
-\newcommand{\unbreakable}[1]{
-\begin{minipage}{\columnwidth}
-#1
-\end{minipage}
-}
