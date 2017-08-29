@@ -199,15 +199,15 @@ Intersection preserves convexity, union does not.
 \paragraph{Hyperplane $\mc X$} $= \{ x \in \R^n | a^T x = b \}$ for some $a, b$.
 \paragraph{Halfspace $\mc X$} $= \{ x \in \R^n | a^T x \leq b \}$ for some $a, b$.
 \paragraph{Polyhedron $\mc P$} $= \{ x | a_i^Tx \leq b_i, i = 1, \dots, n \} = \{ x | \vA x \leq b \}$
-\paragraph{Cone}
+\paragraph{Cone $\mc X$} if for all $ x \in \mc X $, and for all $\theta > 0, \theta x \in \mc X$.
 \paragraph{Ellipsoid $\mc E$} $= \{ x | (x-x_c)^T\vA^{-1}(x-x_c) \leq 1 \}$, $x_c$ center point.
-
-\paragraph{Convex function}
-
+\paragraph{Convex function $f : \text{dom($f$)} \rightarrow \R$} is convex iff dom($f$) is convex and 
+$f (\lambda x + (1 - \lambda)y) \geq \lambda f(x) + (1-\lambda)f(y), \forall \lambda \in (0, 1), \forall x, y \in \text{dom($f$)}$.
 \paragraph{Norm ball} is convex (for all norms).
-
-\paragraph{Level set}
-\paragraph{Sublevel set}
+\paragraph{Epigraph set $f : \text{dom($f$)} \rightarrow \R$} is the set $\text{epi($f$)} :=
+\left\{ \Me{x\\t} | x \in \text{dom($f$)}, f(x) \le t \right\} \subseteq \text{dom($f$)} \times \R$
+\paragraph{Level set $L_a$} of a function $f$ for value $a$ is the set of all $x \in \text{dom($f$)}$ for which $f(x) = a$: $L_a = \left\{x | x \in \text{dom($f$)}, f(x) = a\right\}$.
+\paragraph{Sublevel set $C_a$} is defined by $C_a = \left\{x | x \in \text{dom($f$)}, f(x) \le a\right\}$.
 
 
 \subsection{Linear Programming (LP)}
@@ -268,10 +268,9 @@ are necessary for optimality (and sufficient if primal convex).
 \paragraph{Dual of QP}
 \begin{align*}
      & \min_x \frac{1}{2}x^T\vQ x + c^T x \quad \text{s.t.\ } \vC x \leq e \\
-\iff & \remph{\min_{\lambda,\nu}} \frac{1}{2}\lambda^T\vC\vQ^{-1}\vC^T\lambda + (\vC\vQ^{-1}c + e)^T\lambda + \frac{1}{2} c^T \vQ^{-1}c \\
+\iff & \min_{\lambda,\nu} \frac{1}{2}\lambda^T\vC\vQ^{-1}\vC^T\lambda + (\vC\vQ^{-1}c + e)^T\lambda + \frac{1}{2} c^T \vQ^{-1}c \\
      & \text{s.t.\ } \vQ x + \nu + c^T \lambda = 0, \lambda \geq 0
 \end{align*}
-\tim{Check the above}
 
 \section{Constrained Finite Time Optimal Control (CFTOC)}
 \subsection{MPC with linear cost}
@@ -365,14 +364,12 @@ w & = \Me{b_x \\ . \\ b_f \\ b_u \\ . \\ b_u} &
 \end{align*}
 \end{scriptsize}
 
-
-
 \subsection{Invariance}
 Def.: $x(k) \in O \implies x(k+1) \in O \forall k$. \\
 \begin{align*}
 \pre(S) & := \{ x | g(x) \in S\} & = \{ x | Ax \in S \}
 \end{align*}
-
+Max invariant set calculation: $\Omega_{i+1} \leftarrow \text{pre($\Omega_i$)} \cap \Omega_i$, terminating when $\Omega_{i+1} = \Omega_i$.
 \tim{We need more here, pos. inv. set, max. pos.inv $O_\infty$}
 
 \subsection{Stability and Feasability}
@@ -457,32 +454,38 @@ Requirement: Softened problem has same minimiser as original problem if feasible
 
 Quadratic error function $l_\epsilon(\epsilon) = v\epsilon + w\epsilon^2$, $w > 0$ gives smoothness, choose $v > \lambda^* \geq 0$ for exact penalty (above requirement fulfilled).
 
-\paragraph{Move Blocking}
+\paragraph{Move Blocking} main idea to set a number of inputs as the same, $u_2 = u_3 = \dots = u_N$, to reduce computational burden, at the slight cost of sub-optimality.
 
 \section{Robust MPC}
-\paragraph{Enforcing terminal constraints} by robust invariance: \\
+\paragraph{Enforcing terminal constraints} by robust invariance:
 \begin{align*}
 x \in O^{\mc W} \implies g(x, w) \in \Omega^W \; \forall w \in \mc W \\
 \pre^{\mc W}(\Omega) = \left\{ x \middle| g(x, w) \in \Omega \; \forall w \in \mc W\right\}
 \end{align*}
-\tim{Maybe an example from exercises to compute $O^W_\infty$}
-
-\paragraph{Enforcing sequential constraints} for uncertain system $\phi$:\\
+\paragraph{Enforcing sequential constraints} for uncertain system $\phi$:
 \begin{align*}
 \phi_i(x_0, u, w) & = \left\{ x_i + \sum_{j=0}^{i-1}\vA^j w_j \middle| w \in \mc W^i \right\} \subseteq \mc X \\
 \phi_N(x_0, u, w) & \in \mc X_f \quad\text{as well}
 \end{align*}
-\tim{One or two words on what is what}
-In open-loop (determine control before disturbance is measured):
+The uncertain system evolves with the summation of all the disturbances up to time $i$, hence we have to restrict the open-loop (determine control before disturbance is measured):
 \begin{align*}
 \vA_x x & \leq b_x \text{ becomes } \vA_x x_i + \vA_x \sum_{j=0}^{i-1}\vA^j w_k \leq b_x: \\
 x_i & \in \mc X \ominus \left(\mc W \oplus \vA\mc W \oplus \dots \oplus \vA^{i-1}\mc W\right) \\
     & = \left(\bigoplus_{j=0}^{i-1}\vA^j\mc W\right) = \Me{\vA^0 & \dots & \vA^{i-1}}\mc W^i \\
 \end{align*}
 
+For example: Robust invariant set calculation of $x_{k+1} = 0.5x_k + w_k u$ under $-10 \le x \le 10$ and $-1 \le w \le 1$.
+\begin{align*}
+\Omega_0 = [-10, 10] \\
+	\text{pre}^\mc{W} (\Omega_0) &= \{x | -10 \le 0.5x + w \le 10 for -1 \le w \le 1 \} \\
+	&= \{x | -20 -2w \le x \le 20 + 2w for -1 \le w \le 1 \} \\
+	&= \{x | -18 \le x \le 18 \}\\
+		\Omega_1 = [-10, 10] &\cap [-18, 18] = [-10, 10] = \mc O_\infty^{\mc W}
+\end{align*}
+
 \paragraph{Tube-MPC}
 We want nominal system $z_k = \vA z_k + \vB v_k$ with ``tracking'' controller $u_k = \vK(x_k - z_k) + v_k$ i.e. closed-loop, $\vK$ found offline. \\
-Step 1: Compute $\mc E = \bigoplus_{j=1}^\infty \vA^j\mc W.$ \\
+Step 1: Compute $\mc E = \bigoplus_{j=1}^\infty \vA_{cl}^j\mc W.$ \\
 Step 2: Shrink Constraints:
 \begin{align*}
 \{z_i\} \oplus \mc E & \subseteq \mc X & \implies z_i & \in \mc X \ominus \mc E \\
