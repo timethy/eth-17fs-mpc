@@ -651,7 +651,7 @@ Explict solution is a time varying fb law for both problems: $u_k^*(x_k) = F^j_k
 
 \section{Numerical Optimization -- Iterative Methods}
 \subsection{Gradient descent}
-$x_{i+1} = x_i - h_i\nabla f(x_i)$ with step-size $h_i = \dfrac{1}{L}$ for
+$x_{i+1} = x_i \remph{-} h_i\nabla f(x_i)$ with step-size $h_i = \dfrac{1}{L}$ for
 $L$-smooth $f(x)$:
 \begin{align*}
 \exists L: \lVert \nabla f(x) &- \nabla f(y) \rVert \leq L \lVert x - y \rVert \; \forall x, y, \in \R^n \\
@@ -662,12 +662,12 @@ f(x) \le f(y) + &\nabla f(y)^T(x - y)+ 0.5L\left\| x-y\right\|^2 \forall x, y \i
 
 \subsection{Newton's Method}
 \begin{align*}
-x_{i+1} = x_i - h_i\Delta x_{nt} := x_i - h_i (\nabla^2 f(x_i))^{-1} \nabla f(x_i)
+x_{i+1} = x_i \remph{+} h_i\Delta x_{nt} := x_i \remph{-} h_i (\nabla^2 f(x_i))^{-1} \nabla f(x_i)
 \end{align*}
 Line search problem: choose $h_i > 0$ s.t. $f(x_i + h_i\Delta x_{nt}) \leq f(x_i)$. \\
 Either compute exact and best $h_i$ using:
 \begin{align*}
-h_i^* = \text{argmin } x_i - h_i\Delta x_{nt}
+h_i^* = \text{argmin } x_i + h_i\Delta x_{nt}
 \end{align*}
 
 Or use the backtracking search method:
