@@ -87,19 +87,21 @@
 %--CONTENT--
 \begin{multicols*}{3}
 \section{System Theory}
-\subsection{Nonlinear Systems}
-\tim{Put here linearization formulae}
-\subsection{Linear Systems}
+\subsection{Nonlinear Systems}\vspace*{-\baselineskip}
 \begin{align*}
 \dot{x}(t) &= A^cx(t)+B^cu(t)\\
-y(t) &= C^cx(t) + D^cu(t)\\
 x(t) &= e^{A^c(t-t_0)}x_0+\int_{t_0}^te^{A^c(t-\tau)}Bu(\tau)d\tau \\
 e^{A^ct}&=\sum_{n=0}^\infty\frac{(A^ct)^n}{n!} \\
+\end{align*}
+\subsection{Linear Systems}\vspace*{-\baselineskip}
+\begin{align*}
+x_{k+1} &= Ax_k+Bu_k\\
+y_k &= Cx_k + Du_k\\
 x_{k+N}&=A^Nx_k+\sum_{i=0}^{N-1}A^iBu_{k+N-1-i}
 \end{align*}
 
 \subsection{Lyapunov Stability}
-we define a system to be stable in the sense of Lyapunov, if it stays in any arbitrarily small neighborhood of the origin when it is disturbed slightly
+We define a system to be stable in the sense of Lyapunov, if it stays in any arbitrarily small neighborhood of the origin when it is disturbed slightly
 \paragraph{Lyapunov stable} if for every $\epsilon > 0$ there exists a $\delta(\epsilon)$ such that
 \[ \norm{x(0)}<\delta(\epsilon)\to \norm{x(k)} < \epsilon, \forall k \geq 0 \]
 \paragraph{asymptotically stable} in $\Omega\subseteq \R^n$ if it is Lyapunov stable and attractive $\lim_{k\to\infty}x(k)=0, \forall x(0)\in \Omega$.
@@ -273,33 +275,30 @@ are necessary for optimality (and sufficient if primal convex).
 \end{align*}
 
 \section{Constrained Finite Time Optimal Control (CFTOC)}
-\subsection{MPC with linear cost}
-$J(x_0, u) = \lVert \vP x_N \rVert_p + \sum_{i=\remph{0}}^{N-1} \lVert \vQ x_i \rVert_p + \lVert \vR u_i \rVert_p.$
-
-\tim{Insert here slide 45, lect 4 \remph{$l_g l\infty$}??}
-\tim{what is n, k, m?}
-
+\subsection{MPC with linear cost}\vspace*{-\baselineskip}
+\begin{align*}
+J(x_0, u) = \lVert \vP x_N \rVert_p + \sum_{i=0}^{N-1} \lVert \vQ x_i \rVert_p + \lVert \vR u_i \rVert_p.
+\end{align*}
+The CFTOC problem can be formulated as an $\infty$-norm LP problem as shown below.
 \begin{align*}
 \min_z\ & \epsilon_0^x + \dots + \epsilon_N^x + \epsilon_0^u + \dots + \epsilon_{N-1}^u \\
-\text{s.t. } & -\vI_n\epsilon_i^x \leq \pm \vQ \left[\vA^i x_0 + \sum_{j=0}^{i-1}\vA^j\vB u_{i-1-j}\right] \\
-             & -\vI_k\epsilon_N^x \leq \pm \vP \left[\vA^N x_0 + \sum_{j=0}^{N-1}\vA^j\vB u_{N-1-j}\right] \\
-             & -\vI_m\epsilon_N^u \leq \pm \vR u_i \\
+\text{s.t. } & -\bm{1}_n\epsilon_i^x \leq \pm \vQ \left[\vA^i x_0 + \sum_{j=0}^{i-1}\vA^j\vB u_{i-1-j}\right] \\
+             & -\bm{1}_r\epsilon_N^x \leq \pm \vP \left[\vA^N x_0 + \sum_{j=0}^{N-1}\vA^j\vB u_{N-1-j}\right] \\
+             & -\bm{1}_m\epsilon_N^u \leq \pm \vR u_i \\
 						 & x_i = \vA^i x_0 + \sum_{j=0}^{i-1}\vA^j\vB u_{i-1-j} \in \mc X \\
 						 & x_N = \vA^Nx_0 + \sum_{j=1}^{N-1}\vA^j\vB u_{N-1-j} \in \mc X \\
 						 & u_i \in \mc U
 \end{align*}
-Bring into LP form:
-
+Converting to LP form:
 \begin{align*}
-\min_z\ & c^Tz \quad \text{s.t. } \bar \vG z \leq \bar w + \bar s x(k) \\
+&\min_z\ c^Tz \quad \\ \text{s.t. } &\bar \vG z \leq \bar w + \bar s x_k \\
+    z = & \Me{\epsilon_0^x & \dots & \epsilon_N^x & \epsilon_0^u & \dots & \epsilon_{N-1}^u &u_0^T &\dots &u_{N-1}^T} \\
     c = & \Me{1 & \dots & 1 & 1 & \dots & 1 & 0 & \dots & 0} \\
-    z = & \Me{\epsilon_0^x & \dots & \epsilon_N^x & \epsilon_0^u & \dots & \epsilon_{N-1}^u} \\
-\bar\vG = & \Me{\vG_\epsilon & ?? \\ 0 & ??}, \quad \bar w = \Me{w_\epsilon \\ w} \\
+\bar\vG = & \Me{\vG_\epsilon & \bm{G}_u \\ 0 & \bm{G}}, \quad \bar w = \Me{w_\epsilon \\ w} \\
  \bar s = & \Me{s_\epsilon \\ s} 
 \end{align*}
-
-
-\subsection{QP with substitution (see also Batch approach)}
+Where $\bm{G}$ is the normal problem constraints and $[\vG_\epsilon \bm{G}_u]$ form the constraints of the newly introduced variable $\epsilon$ as given in the first 3 constraints in the section above.
+\subsection{QP with substitution (see also Batch approach)}\vspace*{-\baselineskip}
 \begin{align*}
 J^*(x_k) & = \min_u \Me{u^T & x_k^T}\Me{\vH & \vF^T \\ \vF & \vY}\Me{u \\ x_k} \\
 \text{s. t. } & \vG\ u \leq w + \vE\ x_k
@@ -592,11 +591,17 @@ f(x) \le f(y) + &\nabla f(y)^T(x - y)+ 0.5L\left\| x-y\right\|^2 \forall x, y \i
 x_{i+1} = x_i - h_i\Delta x_{nt} := x_i - h_i (\nabla^2 f(x_i))^{-1} \nabla f(x_i)
 \end{align*}
 Line search problem: choose $h_i > 0$ s.t. $f(x_i + h_i\Delta x_{nt}) \leq f(x_i)$. \\
-Either compute exact and best $h_i$ using $h_i^* = \text{argmin } x_i - h_i\Delta x_{nt}$. \\
+Either compute exact and best $h_i$ using:
+\begin{align*}
+h_i^* = \text{argmin } x_i - h_i\Delta x_{nt}
+\end{align*}
+
 Or use the backtracking search method:
 \begin{align*}
-	\text{initialise } h_i = 1; \\
-	\text{while }
+&\text{For } \alpha \in (0, 0.5) \text{ and } \beta \in (0,1): \\
+&	\text{initialise } h_i = 1; \\
+&	\text{while } f(x_i+ h_i\Delta x_{nt}) > f(x_i) + \alpha h_i \nabla f(x_i)^T\Delta x_{nt} \text{ 
+	do } h_i \leftarrow \beta h_i
 \end{align*}
 
 For given equality constraint $\vA x = b$ solve:
@@ -604,8 +609,7 @@ For given equality constraint $\vA x = b$ solve:
 \Me{\nabla^2 f(x_i) & \vA^T \\ \vA & \bm 0}\Me{\delta x \\ \lambda} = \Me{-\nabla f(x_i) \\ \bm 0}
 \end{align*}
 
-\subsection{Constrained optimization}
-$g_i(x) \leq 0$ with 
+\subsection{Constrained optimization with $g_i(x) \leq 0$}
 \paragraph{Gradient method}
 $x_{i+1} = \pi_Q(x_i - h_i\nabla f(x_i))$ where $\pi_Q$ is a projection $\pi_q = \arg\min_x\frac{1}{2}\lVert x - y \rVert_2^2$. Projection can be solved directly if simple enough, else solve the dual.
 
