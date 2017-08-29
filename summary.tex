@@ -471,10 +471,23 @@ If plant has no integrator we can choose $\vB_d = \bm 0$ since $\det(\vA-\vI) \n
 \end{align*}
 where $y_k^m$ measured output; choose $\Me{\vL_x \\ \vL_d}$ s.t. error dynamics stable and converge to zero.
 
-\tim{Target condition here}
 If 1) number of dist.\ $=$ number of outputs, 2) target steady-state problem feasible and no constraints active at steady-state, 3) closed-loop system converges, then target achieved without offset.
 
-%Will always converge if RHC is recursively feasible unconstrained for $k \geq j$.
+Extend \emph{Delta formulation} from above with
+\begin{align*}
+\Delta x_{k+1} = \vA\Delta x_k + \vB\Delta u_k + \remph{\vB_d \Delta d_k} \\
+\Delta d_{k+1} = \Delta d_k
+\end{align*}
+
+Algorithm becomes:
+\begin{enumerate}
+\item Estimate state and disturbance $\hat x$, $\hat d$,
+\item Obtain $(x_s, u_s)$ target condition,
+\item Solve MPC problem (adapted Delta formulation)
+\end{enumerate}
+
+\paragraph{Theorem}
+Case $n_d = n_y$ and RHC is recursively feasible and unconstrained for $k \geq j$ for some $j \in \mathbb{N}$ and closed-loop converges, it converges to reference, i.e. $y_k^m \to r$.
 
 \subsection{Soft-constraints via slack variables}
 \begin{align*}
