@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{layout}
+\usepackage{mathtools}
 \usepackage[compact]{titlesec}
 
 \titleformat{\section}
@@ -290,18 +291,70 @@ are necessary for optimality (and sufficient if primal convex).
 %&\nabla f_0(x^*) + \sum_{i=1}^m\lambda_i^*\nabla f_i(x^*)+  \sum_{i=1}^p\nu_i^*\nabla h_i(x^*)
 \end{align*}
 %
-\paragraph{Dual of LP}
+\subsection{Dual of LP}
 \begin{align*}
      \min_x c^T x & \quad \text{s.t.\ } \vA x = b, \vC x \leq e \\
-\iff \max_{\lambda,\nu} -b^T\nu - e^T\lambda & \quad \text{s.t.\ } A^T\nu + C^T\lambda + c = 0, \lambda \geq 0
+\iff \max_{\lambda,\nu} -b^T\nu - e^T\lambda & \quad \text{s.t.\ } \vA^T\nu + \vC^T\lambda + c = 0, \lambda \geq 0
 \end{align*}
+$\min_x c^Tx$ subj.\ to $\vA x = b, \vC x \leq e$.
+\paragraph{Lagrangian}
+$L(x,\lambda,\nu) = c^T x + \lambda^T(\vA x - b) + \nu^T(\vC x - e)$
+\paragraph{Dual function}
+\begin{align*}
+d(\lambda,\nu) & = \min_x L(x,\lambda,\nu) = \min_x (\vA^T\nu + \vC^T\lambda + c)^T x - b^T\nu - e^T\lambda \\
+               & = \begin{cases*} -b^T\nu - e^T\lambda & if $\vA^T\nu + \vC^T\lambda + c = 0$ \\ -\infty & otherwise. \end{cases*}
+\end{align*}
+\paragraph{Lower bound}
+$-b^T\nu - e^T\lambda \leq p^*$ if $\vA^T\nu + \vC^T\lambda + c = 0$ and $\lambda \geq 0$.
 
-\paragraph{Dual of QP}
+\subsubsection{Ex.\ minimize norm}
+\paragraph{Primal} 
+$\min_x \lVert x \rVert_2 \quad \text{s.t.\ } \vA x = b$
+\paragraph{Lagrangian}
+$\L(x,\lambda,\nu) = \lVert x \rVert_2 - (\vA^T\nu)^T x + b^T\nu$
+\paragraph{Dual function}
+$d(\nu) = \min_x L(x,\lambda) = \begin{cases*} b^T\nu & if $\lVert \vA^T\nu\rVert_2 \leq 1$ \\ -\infty & otherwise\end{cases*}$
+\paragraph{Dual}
+$\max_\nu b^T\nu$ s.t.\ $\lVert\vA^T\nu\rVert_2 \leq 1$.
+
+\subsection{Dual of QP}
+\paragraph{Simple case}
 \begin{align*}
      & \min_x \frac{1}{2}x^T\vQ x + c^T x \quad \text{s.t.\ } \vC x \leq e \\
 \iff & \min_{\lambda,\nu} \frac{1}{2}\lambda^T\vC\vQ^{-1}\vC^T\lambda + (\vC\vQ^{-1}c + e)^T\lambda + \frac{1}{2} c^T \vQ^{-1}c \\
      & \text{s.t.\ } \vQ x + \nu + c^T \lambda = 0, \lambda \geq 0
 \end{align*}
+\remph{Tim:} I'm pretty sure you don't need the constraint, except for $\lambda \geq 0$..
+
+\paragraph{General Case $(\vQ > 0)$}
+\begin{align*}
+     & \min_x \frac{1}{2} x^T\vQ x + c^T x \quad \text{s.t.\ } \vA x = b, \vC x \leq e \\
+\iff & \min_{\lambda,\nu} \frac{1}{2}\Me{\nu & \lambda}\bar\vQ\Me{\nu \\ \lambda} + \bar c^T \Me{\nu \\ \lambda} + \bar k \quad \text{s.t.\ } \lambda \geq 0.
+\end{align*}
+
+\paragraph{Lagrangian}
+$L(x,\lambda,\nu) = \frac{1}{2}x^T\vQ x + c^T x + \nu^T(\vA x - b) + \lambda^T (\vC x - e)$
+
+\paragraph{Dual function}
+$d(\lambda, \nu) = \min_x \frac{1}{2}x^T\vQ x + (\vA^T\nu + \vC^T\lambda + c)^T x b^T\nu - e^T\lambda$\\
+Minimize $\Delta_x L(x,\lambda,\nu) = 0$ gives:
+\begin{align*}
+     0 & = \vQ x + \vA^T\nu + \vC^T\lambda + c \\
+\iff x & = -\vQ^{-1}(\vA^T\nu + \vC^T\lambda + c)
+\end{align*}
+\begin{align*}
+d(\lambda,\nu) = & \frac{1}{2}(-\vQ^{-1}(\vA^T\nu + \vC^T\lambda + c))^T\vQ(\vQ^{-1}(\vA^T\nu + \vC^T\lambda + c)) \\
+                 & + (\vA^T\nu + \vC^T\lambda + c)^T(-\vQ^{-1})(\vA^T\nu + \vC^T\lambda + c) - b^T\nu - e^T\lambda \\
+							 = & -\frac{1}{2}(\vA^T\nu + \vC^T\lambda + c)^T\vQ^{-1}(\vA^T\nu + \vC^T\lambda + c) - b^T\nu - e^T\lambda \\
+							 = & -\frac{1}{2}(\nu^T\vA\vQ^{-1}\vA^T\nu + \lambda^T\vC\vQ^{-1}\vC^T\lambda + c^T\vQ^{-1}c) \\
+							   & - (\vA\vQ^{-1}c)^T\nu - v^T\vA\vQ^{-1}\vC^T\lambda - (\vC\vQ^{-1}c)^T\lambda - b^T\nu - e^T\lambda \\
+							 = & -\frac{1}{2}(\nu^T\vA\vQ^{-1}\vA^T\nu + \lambda^T\vC\vQ^{-1}\vC^T\lambda) - v^T\vA\vQ^{-1}\vC^T\lambda \\
+							   & - (\vA\vQ^{-1}c + b)^T\nu - (\vC\vQ^{-1}c + e)^T\lambda - \frac{1}{2}c^T\vQ^{-1}c \\
+							 = & -\frac{1}{2}\Me{\nu & \lambda}\bar\vQ\Me{\nu \\ \lambda} - \bar c^T \Me{\nu \\ \lambda} - \bar k \\
+\bar \vQ = & \Me{\vA\vQ^{-1}\vA^T & \vA\vQ^{-1}\vC^T \\ \vC^T\vQ^{-1}\vA & \vC\vQ^{-1}\vC^T} \\
+\bar c   = & \Me{(\vA\vQ^{-1}c + b)^T \\ (\vC\vQ^{-1} c + e)^T} \qquad \bar k = \frac{1}{2} c^T\vQ^{-1} c.
+\end{align*}
+Trick: $\max d(\lambda,\nu)$ becomes $\min -d(\lambda,\nu)$.
 
 \section{Constrained Finite Time Optimal Control (CFTOC)}
 \subsection{MPC with linear cost}
@@ -658,7 +711,7 @@ J^*(x)=&\min_U ~l_N (x_N) + \sum_{k=0}^{N-1} l(x_k,u_k,\delta_k,z_k)\\
 	&z_c \in R^{s_c}, z_b \in\{0, 1\}^{s_b}
 \end{align*}
 Explicit solution is a time varying fb law for both problems: $u_k^*(x_k) = F^j_k x_k + G_k^j$ if $x_k \in \mc{R}^j_k$.
-\paragraph{Brute force:} enumerating all the $2^{sb}$ integer values of the variable zb and solve the corresponding problem.
+\paragraph{Brute force:} enumerating all the $2^{sb}$ integer values of the variable $z_b$ and solve the corresponding problem.
 \paragraph{Branch and Bound:} relaxation of binaries: $\{0,1\} \rightarrow [0,1]$. Lower bound on the optimal solution of the modified problem is found. Any feasible solution to original problem is upper bound on optimal cost.
 \includegraphics[width=0.8\linewidth]{bnb.png}
 \section{Numerical Optimization -- Iterative Methods}
